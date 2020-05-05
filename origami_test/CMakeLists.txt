@@ -24,3 +24,7 @@ endif()
 add_executable(character_sets_test character_sets_test.cpp)
 target_link_libraries(character_sets_test gtest origami::origami_lexical)
 add_test(NAME character_sets_test COMMAND character_sets_test)
+
+add_executable(tokens_test tokens_test.cpp)
+target_link_libraries(tokens_test gtest origami::origami_lexical)
+add_test(NAME tokens_test COMMAND tokens_test)

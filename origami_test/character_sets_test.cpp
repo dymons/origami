@@ -77,9 +77,8 @@ TEST(LexicalConventions, basic_source_character_set)
   }
 
   ASSERT_FALSE(origami::lex::charset::isBasicSourceCharacterSet('@'));
-  ASSERT_FALSE(origami::lex::charset::isBasicSourceCharacterSet('\r'));
-  ASSERT_FALSE(origami::lex::charset::isBasicSourceCharacterSet(static_cast<unsigned char>(127)));
-  ASSERT_FALSE(origami::lex::charset::isBasicSourceCharacterSet(static_cast<unsigned char>(255)));
+  ASSERT_FALSE(origami::lex::charset::isBasicSourceCharacterSet(static_cast<unsigned char>(127))); // Delete
+  ASSERT_FALSE(origami::lex::charset::isBasicSourceCharacterSet(static_cast<unsigned char>(255))); // nbsp
 }
 
 int main(int t_argc, char** t_argv)

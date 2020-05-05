@@ -3,18 +3,26 @@
 #include <cctype>
 
 namespace origami::lex::charset {
-bool isBasicSourceCharacterSet(char t_character) noexcept
+bool isBasicSourceCharacterSet(unsigned char t_character) noexcept
 {
   // Заданы 96 символов, описанных в стандарте С++, как принадлежащих к группе basic source character set
   switch (t_character) {
-    case 'a' ... 'z': [[fallthrough]];
-    case 'A' ... 'Z': [[fallthrough]];
-    case ' ' ... '/': [[fallthrough]];
-    case ':' ... '?': [[fallthrough]];
-    case '[' ... '`': [[fallthrough]];
-    case '{' ... '~': [[fallthrough]];
-    case '0' ... '9': [[fallthrough]];
-    case '\t' ... '\f': break;
+    case 'a' ... 'z':
+      [[fallthrough]];
+    case 'A' ... 'Z':
+      [[fallthrough]];
+    case ' ' ... '/':
+      [[fallthrough]];
+    case ':' ... '?':
+      [[fallthrough]];
+    case '[' ... '`':
+      [[fallthrough]];
+    case '{' ... '~':
+      [[fallthrough]];
+    case '0' ... '9':
+      [[fallthrough]];
+    case '\t' ... '\f':
+      break;
     default:
       return false;
   }
