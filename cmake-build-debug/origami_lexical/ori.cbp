@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="ori"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\origami_lexical\;CMake Files\origami_test\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/dymons/Downloads/study/origami/cmake-build-debug/origami_lexical"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/dymons/Downloads/study/origami/cmake-build-debug/origami_lexical/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/dymons/Downloads/study/origami/cmake-build-debug/origami_lexical/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/dymons/Downloads/study/origami/cmake-build-debug/origami_lexical/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/dymons/Downloads/study/origami/cmake-build-debug/origami_lexical/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/dymons/Downloads/study/origami/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/dymons/Downloads/study/origami/origami_lexical/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\origami_lexical\"/>
+		</Unit>
+		<Unit filename="/home/dymons/Downloads/study/origami/origami_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\origami_test\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

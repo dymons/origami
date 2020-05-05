@@ -1,0 +1,1 @@
+/usr/bin/c++  -g  -rdynamic CMakeFiles/character_sets_test.dir/character_sets_test.cpp.o  -o character_sets_test  ../gtest/libgtest.a ../origami_lexical/liborigami_lexical.a -lpthread 

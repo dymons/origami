@@ -1,0 +1,5 @@
+/home/dymons/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/201.6668.126/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/dymons/Downloads/study/origami
+-- Found google test sources in /usr/src/gtest/
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/dymons/Downloads/study/origami/cmake-build-debug

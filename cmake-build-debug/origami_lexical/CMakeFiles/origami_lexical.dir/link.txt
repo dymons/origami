@@ -1,0 +1,2 @@
+/usr/bin/ar qc liborigami_lexical.a  CMakeFiles/origami_lexical.dir/src/character_sets.cpp.o
+/usr/bin/ranlib liborigami_lexical.a
