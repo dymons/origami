@@ -11,22 +11,22 @@ class LexicalConventions {
   public:
     explicit LexicalConventions(std::string t_code) : m_code { std::move(t_code) }
     {
-      m_keywords.emplace("int", origami::lex::key::Keywords::Int);
-      m_keywords.emplace("return", origami::lex::key::Keywords::Return);
+      m_keywords.emplace("int", origami::lex::Keywords::Int);
+      m_keywords.emplace("return", origami::lex::Keywords::Return);
     }
 
-    std::vector<origami::lex::token::Token> getTokens();
+    std::vector<std::pair<origami::lex::Token, std::string>> getTokens();
 
   private:
     const std::string m_code;
 
-    std::map<std::string, origami::lex::key::Keywords> m_keywords;
+    std::map<std::string, origami::lex::Keywords> m_keywords;
 };
 
-std::vector<origami::lex::token::Token> LexicalConventions::getTokens()
+std::vector<std::pair<origami::lex::Token, std::string>> LexicalConventions::getTokens()
 {
   // Буфер, куда будем сохранять значения лексического анализатора
-  std::vector<origami::lex::token::Token> tokens;
+  std::vector<std::pair<origami::lex::Token, std::string>> tokens;
 
   // Инициализируем стартовую позицию чтения исходного кода
   std::size_t current_symbol = 0;
@@ -44,42 +44,52 @@ std::vector<origami::lex::token::Token> LexicalConventions::getTokens()
       });
 
       if (not_isalnum != m_code.end()) {
+        auto word = m_code.substr(current_symbol, std::distance(m_code.begin(), not_isalnum) - current_symbol);
         // Находим ключевое слово, которое описано в стандарте С++ 5.11 таблица 5
-        auto keyword = m_keywords.find(m_code.substr(current_symbol, std::distance(m_code.begin(), not_isalnum) - current_symbol));
+        auto keyword = m_keywords.find(word);
 
         // Если нашли ключевое слово, идентифицируем его как ключевое слово
         if (keyword != m_keywords.end()) {
-          tokens.push_back(origami::lex::token::Token::Keyword);
+          tokens.emplace_back(origami::lex::Token::Keyword, keyword->first);
         } else { // Иначе, это именование
-          tokens.push_back(origami::lex::token::Token::Identifier);
+          tokens.emplace_back(origami::lex::Token::Identifier, std::move(word));
         }
 
         // Инициализируем последней позицией символа, на котором заканчивается найденное слово
         current_symbol = std::distance(m_code.begin(), not_isalnum);
       }
       // Если символ относится к категории 'цифровой символ', определяем полный его идентификатор
-    } else if (std::isdigit(m_code[current_symbol])) {
-      auto finished_isalnum = std::find_if_not(m_code.begin() + current_symbol, m_code.end(), [](auto t_ch) {
-        return (std::isalnum(t_ch, std::locale { "C" }) || (t_ch == '.') || (t_ch == '+') || (t_ch == '-'));
+    } else if (std::isdigit(m_code[current_symbol], std::locale { "C" })) {
+      auto not_isdigit = std::find_if_not(m_code.begin() + current_symbol, m_code.end(), [](auto t_ch) {
+        return (std::isdigit(t_ch, std::locale { "C" }) || (t_ch == '.') || (t_ch == '+') || (t_ch == '-'));
       });
 
-      if (finished_isalnum != m_code.end()) {
-        tokens.push_back(origami::lex::token::Token::Literal);
-        current_symbol = std::distance(m_code.begin(), finished_isalnum);
+      if (not_isdigit != m_code.end()) {
+        auto digital = m_code.substr(current_symbol, std::distance(m_code.begin(), not_isdigit) - current_symbol);
+        tokens.emplace_back(origami::lex::Token::Literal, std::move(digital));
+        current_symbol = std::distance(m_code.begin(), not_isdigit);
       }
       // Все символы, которые относятся к группе 'операторы и пунктуация', интерпретируем пока через 'switch'
     } else {
       switch (m_code[current_symbol]) {
         case '{' :
-          [[fallthrough]];
+          tokens.emplace_back(origami::lex::Token::Punctuator, "{");
+          ++current_symbol;
+          break;
         case '}' :
-          [[fallthrough]];
+          tokens.emplace_back(origami::lex::Token::Punctuator, "}");
+          ++current_symbol;
+          break;
         case '(' :
-          [[fallthrough]];
+          tokens.emplace_back(origami::lex::Token::Punctuator, "(");
+          ++current_symbol;
+          break;
         case ')' :
-          [[fallthrough]];
+          tokens.emplace_back(origami::lex::Token::Punctuator, ")");
+          ++current_symbol;
+          break;
         case ';' :
-          tokens.push_back(origami::lex::token::Token::Punctuator);
+          tokens.emplace_back(origami::lex::Token::Punctuator, ";");
           ++current_symbol;
           break;
       }
@@ -91,20 +101,24 @@ std::vector<origami::lex::token::Token> LexicalConventions::getTokens()
 
 TEST(LexicalConventions, preprocessing_tokens)
 {
-  const auto tokens = LexicalConventions("int main()\n{\n    return 0.0;\n}").getTokens();
-  constexpr std::array<origami::lex::token::Token, 9> expect_tokens {
-    origami::lex::token::Token::Keyword,
-    origami::lex::token::Token::Identifier,
-    origami::lex::token::Token::Punctuator,
-    origami::lex::token::Token::Punctuator,
-    origami::lex::token::Token::Punctuator,
-    origami::lex::token::Token::Keyword,
-    origami::lex::token::Token::Literal,
-    origami::lex::token::Token::Punctuator,
-    origami::lex::token::Token::Punctuator
+  const auto tokens = LexicalConventions("int main()\n{\n    return 0;\n}").getTokens();
+  std::array<std::pair<origami::lex::Token, std::string>, 9> expect_tokens {
+    {
+      { origami::lex::Token::Keyword, "int" },
+      { origami::lex::Token::Identifier, "main" },
+      { origami::lex::Token::Punctuator, "(" },
+      { origami::lex::Token::Punctuator, ")" },
+      { origami::lex::Token::Punctuator, "{" },
+      { origami::lex::Token::Keyword, "return" },
+      { origami::lex::Token::Literal, "0" },
+      { origami::lex::Token::Punctuator, ";" },
+      { origami::lex::Token::Punctuator, "}" }
+    }
   };
 
-  ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin()));
+  ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](auto& t_lhs, auto& t_rhs) {
+    return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+  }));
 }
 
 int main(int t_argc, char** t_argv)

@@ -7,11 +7,9 @@
 #ifndef ORIGAMI_TOKENS_HPP
 #define ORIGAMI_TOKENS_HPP
 
-#include <map>
-
 #include <cstdint>
 
-namespace origami::lex::pptoken {
+namespace origami::lex {
 enum class PreprocessingToken : std::uint8_t {
     HeaderName,
     Identifier,
@@ -23,9 +21,7 @@ enum class PreprocessingToken : std::uint8_t {
     PreprocessingOpOrPunc,
     Unknown
 };
-} // namespace origami::lex::pptoken
 
-namespace origami::lex::token {
 enum class Token : std::uint8_t {
     Identifier,
     Keyword,
@@ -33,11 +29,9 @@ enum class Token : std::uint8_t {
     Operator,
     Punctuator
 };
-} // namespace origami::lex::token
 
-namespace origami::lex::digraph {
 struct AlternativeTokens {
-  enum class Tokens : std::uint8_t {
+  enum class Digraph : std::uint8_t {
       CurlyBracketLeft, CurlyBracketRight,
       SquareBracketLeft, SquareBracketRight,
       NumberSign, NumberSignDouble,
@@ -45,9 +39,7 @@ struct AlternativeTokens {
       AndEq, OrEq, XorEq, Not, NotEq
   };
 };
-} // namespace origami::lex::digraph
 
-namespace origami::lex::key {
 enum class Keywords : std::uint8_t {
     Alignas, ConstCast, For, Public, ThreadLocal, Alignof, Continue, Friend, Register, Throw, Asm, Decltype, Goto, ReinterpretCast, True,
     Auto, Default, If, Requires, Try, Bool, Delete, Inline, Return, Typedef, Break, Do, Int, Short, Typeid, Case, Double, Long, Signed,
@@ -55,6 +47,6 @@ enum class Keywords : std::uint8_t {
     Using, Char32_t, Explicit, Noexcept, StaticCast, Virtual, Class, Export, Nullptr, Struct, Void, Concept, Extern, Operator, Switch,
     Volatile, Const, False, Private, Template, Wchar_t, Constexpr, Float, Protected, This, While
 };
-} // namespace origami::lex::key
+} // namespace origami::lex
 
 #endif // ORIGAMI_TOKENS_HPP
