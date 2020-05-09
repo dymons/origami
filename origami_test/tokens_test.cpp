@@ -44,9 +44,11 @@ std::vector<std::pair<origami::lex::Token, std::string>> LexicalConventions::get
       });
 
       if (not_isalnum != m_code.end()) {
+        // Формируем слово
         auto word = m_code.substr(current_symbol, std::distance(m_code.begin(), not_isalnum) - current_symbol);
+
         // Находим ключевое слово, которое описано в стандарте С++ 5.11 таблица 5
-        auto keyword = m_keywords.find(word);
+        const auto keyword = m_keywords.find(word);
 
         // Если нашли ключевое слово, идентифицируем его как ключевое слово
         if (keyword != m_keywords.end()) {
@@ -69,37 +71,17 @@ std::vector<std::pair<origami::lex::Token, std::string>> LexicalConventions::get
         tokens.emplace_back(origami::lex::Token::Literal, std::move(digital));
         current_symbol = std::distance(m_code.begin(), not_isdigit);
       }
-      // Все символы, которые относятся к группе 'операторы и пунктуация', интерпретируем пока через 'switch'
-    } else {
-      switch (m_code[current_symbol]) {
-        case '{' :
-          tokens.emplace_back(origami::lex::Token::Punctuator, "{");
-          ++current_symbol;
-          break;
-        case '}' :
-          tokens.emplace_back(origami::lex::Token::Punctuator, "}");
-          ++current_symbol;
-          break;
-        case '(' :
-          tokens.emplace_back(origami::lex::Token::Punctuator, "(");
-          ++current_symbol;
-          break;
-        case ')' :
-          tokens.emplace_back(origami::lex::Token::Punctuator, ")");
-          ++current_symbol;
-          break;
-        case ';' :
-          tokens.emplace_back(origami::lex::Token::Punctuator, ";");
-          ++current_symbol;
-          break;
-      }
+      // Все символы, которые относятся к группе 'пунктуация'
+    } else if (std::ispunct(static_cast<unsigned char>(m_code[current_symbol]))) {
+      tokens.emplace_back(origami::lex::Token::Punctuator, std::string{m_code[current_symbol]});
+      ++current_symbol;
     }
   }
 
   return tokens;
 }
 
-TEST(LexicalConventions, preprocessing_tokens)
+TEST(LexicalConventions, default_code)
 {
   const auto tokens = LexicalConventions("int main()\n{\n    return 0;\n}").getTokens();
   std::array<std::pair<origami::lex::Token, std::string>, 9> expect_tokens {
@@ -116,7 +98,7 @@ TEST(LexicalConventions, preprocessing_tokens)
     }
   };
 
-  ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](auto& t_lhs, auto& t_rhs) {
+  ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
     return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
   }));
 }
