@@ -123,6 +123,36 @@ std::vector<std::pair<origami::lex::Token, std::string>> LexicalConventions::get
               } else if (auto find_ifdef = m_code.find("ifdef", start_preprocessor); find_ifdef == start_preprocessor) {
                 // Добавляем в tokens ключевое слово '#ifdef'
                 tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#ifdef" });
+
+                // Далее идет этап определения идентификатора
+                current_symbol = start_preprocessor + 5;
+              } else if (auto find_ifndef = m_code.find("ifndef", start_preprocessor); find_ifndef == start_preprocessor) {
+                // Добавляем в tokens ключевое слово '#ifndef'
+                tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#ifndef" });
+
+                // Далее идет этап определения идентификатора
+                current_symbol = start_preprocessor + 6;
+              }
+
+              break;
+            }
+            case 'd' : {
+              if (auto find_define = m_code.find("define", start_preprocessor); find_define == start_preprocessor) {
+                // Добавляем в tokens ключевое слово '#define'
+                tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#define" });
+
+                // Далее идет этап определения идентификатора
+                current_symbol = start_preprocessor + 6;
+              }
+
+              break;
+            }
+            case 'e' : {
+              if (auto find_endif = m_code.find("endif", start_preprocessor); find_endif == start_preprocessor) {
+                // Добавляем в tokens ключевое слово '#endif'
+                tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#endif" });
+
+                // Далее идет этап определения идентификатора
                 current_symbol = start_preprocessor + 5;
               }
 
@@ -335,6 +365,47 @@ TEST(LexicalConventionsPreprocessor, PreprocessorIfdef)
       {
         { origami::lex::Token::Keyword, "#ifdef" },
         { origami::lex::Token::Identifier, "_0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" },
+        { origami::lex::Token::Keyword, "int" },
+        { origami::lex::Token::Identifier, "main" },
+        { origami::lex::Token::Punctuator, "(" },
+        { origami::lex::Token::Punctuator, ")" },
+        { origami::lex::Token::Punctuator, "{" },
+        { origami::lex::Token::Keyword, "return" },
+        { origami::lex::Token::Literal, "0" },
+        { origami::lex::Token::Punctuator, ";" },
+        { origami::lex::Token::Punctuator, "}" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+}
+
+TEST(LexicalConventionsPreprocessor, PreprocessorAll)
+{
+  { // Проверка, на определение подключение заголовочного файла в формате <header-name>
+    const auto tokens = LexicalConventions("#     ifdef      _0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz   \n"
+                                           "#       define  NUM_SIZE  0.0\n"
+                                           "#       endif \n"
+                                           "#   ifndef ___0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                                           "#define MCVC_USE\n"
+                                           "#       endif \n"
+                                           "int main()\n{\n\treturn 0;\n}").getTokens();
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#ifdef" },
+        { origami::lex::Token::Identifier, "_0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" },
+        { origami::lex::Token::Keyword, "#define" },
+        { origami::lex::Token::Identifier, "NUM_SIZE" },
+        { origami::lex::Token::Literal, "0.0" },
+        { origami::lex::Token::Keyword, "#endif" },
+        { origami::lex::Token::Keyword, "#ifndef" },
+        { origami::lex::Token::Identifier, "___0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" },
+        { origami::lex::Token::Keyword, "#define" },
+        { origami::lex::Token::Identifier, "MCVC_USE" },
+        { origami::lex::Token::Keyword, "#endif" },
         { origami::lex::Token::Keyword, "int" },
         { origami::lex::Token::Identifier, "main" },
         { origami::lex::Token::Punctuator, "(" },
