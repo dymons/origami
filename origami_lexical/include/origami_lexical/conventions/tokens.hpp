@@ -9,6 +9,7 @@
 
 #include <cstdint>
 
+// TODO: Удалить все лишнее
 namespace origami::lex {
 enum class PreprocessingToken : std::uint8_t {
     HeaderName,
