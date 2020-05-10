@@ -95,7 +95,7 @@ std::vector<std::pair<origami::lex::Token, std::string>> LexicalConventions::get
            *  d - #define
            * 3. В зависимости от паттерна, расшифровать соответствующим образом
            * */
-          const auto not_whitespace = std::find_if_not(m_code.begin() + current_symbol + 1, m_code.end(), [](auto t_ch) {
+          const auto not_whitespace = std::find_if_not(std::next(m_code.begin(), current_symbol + 1), m_code.end(), [](auto t_ch) {
             return (t_ch == ' ');
           });
 
@@ -104,16 +104,16 @@ std::vector<std::pair<origami::lex::Token, std::string>> LexicalConventions::get
             if (auto find_include = m_code.find("include", start_preprocessor); find_include == start_preprocessor) {
               tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#include" });
 
-              const auto left_mark = std::find_if(m_code.begin() + start_preprocessor, m_code.end(), [](auto t_ch) {
+              const auto left_mark = std::find_if(std::next(m_code.begin(), start_preprocessor), m_code.end(), [](auto t_ch) {
                 return (t_ch == '<') || (t_ch == '"');
               });
 
-              const auto right_mark = std::find_if(m_code.begin() + start_preprocessor, m_code.end(), [](auto t_ch) {
+              const auto right_mark = std::find_if(std::next(left_mark), m_code.end(), [](auto t_ch) {
                 return (t_ch == '>') || (t_ch == '"');
               });
 
               auto header_file = m_code.substr(std::distance(m_code.begin(), left_mark), std::distance(left_mark, right_mark) + 1);
-              tokens.emplace_back(origami::lex::Token::Identifier, header_file);
+              tokens.emplace_back(origami::lex::Token::Identifier, std::move(header_file));
               current_symbol = std::distance(m_code.begin(), right_mark) + 1;
             } else {
               tokens.emplace_back(origami::lex::Token::Punctuator, std::string { m_code[current_symbol] });
@@ -160,28 +160,64 @@ TEST(LexicalConventions, main)
   }));
 }
 
-TEST(LexicalConventions, preprocessor)
+TEST(LexicalConventionsPreprocessor, preprocessor)
 {
-  const auto tokens = LexicalConventions("#include <memory>\n\nint main()\n{\n    return 0;\n}").getTokens();
-  const std::array<std::pair<origami::lex::Token, std::string>, 11> expect_tokens {
-    {
-      { origami::lex::Token::Keyword, "#include" }, // TODO: Препроцессор не относится к группе tokens, пока оставим.
-      { origami::lex::Token::Identifier, "<memory>" },
-      { origami::lex::Token::Keyword, "int" },
-      { origami::lex::Token::Identifier, "main" },
-      { origami::lex::Token::Punctuator, "(" },
-      { origami::lex::Token::Punctuator, ")" },
-      { origami::lex::Token::Punctuator, "{" },
-      { origami::lex::Token::Keyword, "return" },
-      { origami::lex::Token::Literal, "0" },
-      { origami::lex::Token::Punctuator, ";" },
-      { origami::lex::Token::Punctuator, "}" }
-    }
-  };
+  { // Проверка, на определение простого символа '#'
+    const auto tokens = LexicalConventions("#").getTokens();
+    const std::array<std::pair<origami::lex::Token, std::string>, 1> expect_tokens {
+      {
+        { origami::lex::Token::Punctuator, "#" }
+      }
+    };
 
-  ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
-    return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
-  }));
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на определение подключение заголовочного файла в формате <header-name>
+    const auto tokens = LexicalConventions("#     include      <memory>      ").getTokens();
+    const std::array<std::pair<origami::lex::Token, std::string>, 2> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Identifier, "<memory>" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на определение подключение заголовочного файла в формате <header-name>
+    const auto tokens = LexicalConventions("#     include      \"memory\"      ").getTokens();
+    const std::array<std::pair<origami::lex::Token, std::string>, 2> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Identifier, "\"memory\"" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на определение подключение заголовочного файла в формате <header-name>
+    const auto tokens = LexicalConventions("#     include      <memory>\n  #     include      \"algorithm\"    ").getTokens();
+    const std::array<std::pair<origami::lex::Token, std::string>, 4> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Identifier, "<memory>" },
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Identifier, "\"algorithm\"" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
 }
 
 int main(int t_argc, char** t_argv)
