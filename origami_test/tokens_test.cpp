@@ -89,8 +89,10 @@ std::vector<std::pair<origami::lex::Token, std::string>> LexicalConventions::get
         case '#' : {
           /* Пока добавляем поддержку только указанных препроцессоров
            *  i - #if #ifdef #ifndef #include
-           *  e - #elif #else #endif
+           *  e - #elif #else #endif #error
            *  d - #define
+           *  l - #line
+           *  u - #undef #using
            * */
 
           // Находим первый символ, который не относится к пробелу. Так как пробелы можно ставить, все остальное - ошибка
@@ -246,6 +248,23 @@ TEST(LexicalConventionsPreprocessor, PreprocessorInclude)
     }));
   }
 
+  { // Проверка, на определение подключение некорректного заголовочного файла
+    const auto tokens = LexicalConventions("#     include   int    \"memory\"      ").getTokens();
+    const std::array<std::pair<origami::lex::Token, std::string>, 6> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Keyword, "int" },
+        { origami::lex::Token::Punctuator, "\"" },
+        { origami::lex::Token::Identifier, "memory" },
+        { origami::lex::Token::Punctuator, "\"" },
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
   { // Проверка, на определение подключение нескольких заголовочных файлов
     const auto tokens = LexicalConventions("#     include      <memory>\n  #     include      \"algorithm\"    ").getTokens();
     const std::array<std::pair<origami::lex::Token, std::string>, 4> expect_tokens {
@@ -254,6 +273,32 @@ TEST(LexicalConventionsPreprocessor, PreprocessorInclude)
         { origami::lex::Token::Identifier, "<memory>" },
         { origami::lex::Token::Keyword, "#include" },
         { origami::lex::Token::Identifier, "\"algorithm\"" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Простая программа с подключением двух заголовочных файлов
+    const auto tokens = LexicalConventions("#include <memory>\n#     include      \"origami_lexical/conventions/tokens.hpp\"\n    "
+                                           "int main()\n{\n\treturn 0;\n}").getTokens();
+    const std::array<std::pair<origami::lex::Token, std::string>, 13> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Identifier, "<memory>" },
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Identifier, "\"origami_lexical/conventions/tokens.hpp\"" },
+        { origami::lex::Token::Keyword, "int" },
+        { origami::lex::Token::Identifier, "main" },
+        { origami::lex::Token::Punctuator, "(" },
+        { origami::lex::Token::Punctuator, ")" },
+        { origami::lex::Token::Punctuator, "{" },
+        { origami::lex::Token::Keyword, "return" },
+        { origami::lex::Token::Literal, "0" },
+        { origami::lex::Token::Punctuator, ";" },
+        { origami::lex::Token::Punctuator, "}" }
       }
     };
 
