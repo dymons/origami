@@ -94,32 +94,32 @@ std::vector<std::pair<origami::lex::Token, std::string>> LexicalConventions::get
            * */
 
           // Находим первый символ, который не относится к пробелу. Так как пробелы можно ставить, все остальное - ошибка
+          // Примеры '#      include' - можно, '#   \n   include' - нельзя
           const auto start_preprocessor = m_code.find_first_not_of(' ', current_symbol + 1);
 
           // Смотрим, что найденный символ удовлетворяет началу символа одного из препроцессоров
-          if (start_preprocessor != std::string::npos && ((m_code[start_preprocessor] == 'i'))) {
+          if (start_preprocessor != std::string::npos && (m_code[start_preprocessor] == 'i')) {
 
             // Обработка предпроцессора '#include'
             if (auto find_include = m_code.find("include", start_preprocessor); find_include == start_preprocessor) {
               // Добавляем в tokens ключевое слово '#include'
               tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#include" });
 
-              const auto left_mark = std::find_if_not(std::next(m_code.begin(), start_preprocessor + 7), m_code.end(), [](auto t_ch) {
-                return (t_ch == ' ');
-              });
+              // Аналогично поиску позиции препроцессора, поиск начала header-file
+              const auto left_mark = m_code.find_first_not_of(' ', start_preprocessor + 7); // 7 - length("include")
 
-              if ((left_mark != m_code.end()) && (*left_mark != '<') && (*left_mark != '\"')) {
-                current_symbol = std::distance(m_code.begin(), left_mark);
+              // Смотрим, что найденный символ должен иметь значение '<' или '"', так как подключение заголовочных файлов начинается
+              // с данных символов, и оговорено стандартом С++ в пункте 5.8
+              if ((left_mark != std::string::npos) && (m_code[left_mark] != '<') && (m_code[left_mark] != '\"')) {
+                current_symbol = left_mark;
                 break;
               }
 
-              const auto right_mark = std::find_if(std::next(left_mark), m_code.end(), [](auto t_ch) {
-                return (t_ch == '>') || (t_ch == '"');
-              });
-
-              auto header_file = m_code.substr(std::distance(m_code.begin(), left_mark), std::distance(left_mark, right_mark) + 1);
-              tokens.emplace_back(origami::lex::Token::Identifier, std::move(header_file));
-              current_symbol = std::distance(m_code.begin(), right_mark) + 1;
+              // Находим закрывающий оператор, '>' или '"'. Тут не проверяются случаи, когда #include <header-name" или
+              // #include "header-name>. Так как эта часть проверки осуществляется синтаксическим анализатором
+              const auto right_mark = m_code.find_first_of(">\"", left_mark + 1);
+              tokens.emplace_back(origami::lex::Token::Identifier, m_code.substr(left_mark, right_mark - left_mark + 1));
+              current_symbol = right_mark + 1;
             }
 
             break;
@@ -140,7 +140,7 @@ std::vector<std::pair<origami::lex::Token, std::string>> LexicalConventions::get
           ++current_symbol;
         }
       }
-    } // TODO: Нет операторов и предпроцессора
+    }
   }
 
   return tokens;
