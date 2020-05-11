@@ -21,10 +21,6 @@ if(GTEST_FOUND)
     include_directories(${GTEST_INCLUDE_DIRS})
 endif()
 
-add_executable(character_sets_test character_sets_test.cpp)
-target_link_libraries(character_sets_test gtest origami::origami_lexical)
-add_test(NAME character_sets_test COMMAND character_sets_test)
-
-add_executable(tokens_test tokens_test.cpp)
-target_link_libraries(tokens_test gtest origami::origami_lexical)
-add_test(NAME tokens_test COMMAND tokens_test)
+add_executable(origami_test main_test.cpp character_sets_test.cpp preprocessor_test.cpp)
+target_link_libraries(origami_test gtest origami::origami_lexical)
+add_test(NAME origami_test COMMAND character_sets_test)

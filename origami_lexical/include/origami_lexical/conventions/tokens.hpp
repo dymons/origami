@@ -9,36 +9,13 @@
 
 #include <cstdint>
 
-// TODO: Удалить все лишнее
 namespace origami::lex {
-enum class PreprocessingToken : std::uint8_t {
-    HeaderName,
-    Identifier,
-    PPNumber,
-    CharacterLiteral,
-    UserDefinedCharacterLiteral,
-    StringLiteral,
-    UserDefinedStringLiteral,
-    PreprocessingOpOrPunc,
-    Unknown
-};
-
 enum class Token : std::uint8_t {
     Identifier,
     Keyword,
     Literal,
     Operator,
     Punctuator
-};
-
-struct AlternativeTokens {
-  enum class Digraph : std::uint8_t {
-      CurlyBracketLeft, CurlyBracketRight,
-      SquareBracketLeft, SquareBracketRight,
-      NumberSign, NumberSignDouble,
-      And, Bitor, Or, Xor, Compl, Bitand,
-      AndEq, OrEq, XorEq, Not, NotEq
-  };
 };
 
 enum class Keywords : std::uint8_t {

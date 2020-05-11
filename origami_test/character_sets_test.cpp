@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(LexicalConventions, basic_source_character_set)
+TEST(LexicalConventions, CharacterSet)
 {
   // Проверка 26 букв английского алфавита на принадлежность к Character sets, в нижнем регистре.
   for (char character = 'a'; character != '{'; ++character)
@@ -79,11 +79,4 @@ TEST(LexicalConventions, basic_source_character_set)
   ASSERT_FALSE(origami::lex::charset::isBasicSourceCharacterSet('@'));
   ASSERT_FALSE(origami::lex::charset::isBasicSourceCharacterSet(static_cast<unsigned char>(127))); // Delete
   ASSERT_FALSE(origami::lex::charset::isBasicSourceCharacterSet(static_cast<unsigned char>(255))); // nbsp
-}
-
-int main(int t_argc, char** t_argv)
-{
-  ::testing::InitGoogleTest(&t_argc, t_argv);
-
-  return RUN_ALL_TESTS();
 }
