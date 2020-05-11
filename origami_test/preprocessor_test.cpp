@@ -203,6 +203,19 @@ TEST_F(PreprocessorsTest, Include)
       return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
     }));
   }
+
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#     include             ");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
 }
 
 TEST_F(PreprocessorsTest, Ifdef)

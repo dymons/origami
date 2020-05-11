@@ -95,6 +95,9 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
                 if ((left_mark != std::string::npos) && (t_code[left_mark] != '<') && (t_code[left_mark] != '\"')) {
                   current_symbol = left_mark;
                   break;
+                } else if (left_mark == std::string::npos) {
+                  current_symbol = start_preprocessor + 7;
+                  break;
                 }
 
                 // Находим закрывающий оператор, '>' или '"'. Тут не проверяются случаи, когда #include <header-name" или
