@@ -56,105 +56,30 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
     } else if (std::ispunct(static_cast<unsigned char>(t_code[current_symbol]))) {
       switch (t_code[current_symbol]) {
         case '#' : {
-          /* Пока добавляем поддержку только указанных препроцессоров
-           *  i - #if #ifdef #ifndef #include
-           *  e - #elif #else #endif #error
-           *  d - #define
-           *  l - #line
-           *  u - #undef #using
-           * */
-
-          // Находим первый символ, который не относится к пробелу. Так как пробелы можно ставить, все остальное - ошибка
-          // Примеры '#      include' - можно, '#   \n   include' - нельзя
-          const auto start_preprocessor = t_code.find_first_not_of(' ', current_symbol + 1);
-
-          switch (t_code[start_preprocessor]) {
-            case 'i' : { // #if #ifdef #ifndef #include
-              // Обработка предпроцессора '#include'
-              if (auto find_include = t_code.find("include", start_preprocessor); find_include == start_preprocessor) {
-                const auto second_symbol = std::next(t_code.begin(), start_preprocessor + 7);
-                if ((second_symbol != t_code.end()) && (!std::isspace(*second_symbol))) {
-                  tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
-                  ++current_symbol;
-                  break;
-                }
-
-                // Добавляем в tokens ключевое слово '#include'
-                tokens.emplace_back(origami::lex::Token::KeywordPreprocessor, std::string { "#include" });
-
-                if ((start_preprocessor + 7) == t_code.size()) {
-                  current_symbol = start_preprocessor + 7;
-                  break;
-                }
-
-                // Аналогично поиску позиции препроцессора, поиск начала header-file
-                const auto left_mark = t_code.find_first_not_of(' ', start_preprocessor + 7); // 7 - length("include")
-
-                // Смотрим, что найденный символ должен иметь значение '<' или '"', так как подключение заголовочных файлов начинается
-                // с данных символов, и оговорено стандартом С++ в пункте 5.8
-                if ((left_mark != std::string::npos) && (t_code[left_mark] != '<') && (t_code[left_mark] != '\"')) {
-                  current_symbol = left_mark;
-                  break;
-                } else if (left_mark == std::string::npos) {
-                  current_symbol = start_preprocessor + 7;
-                  break;
-                }
-
-                // Находим закрывающий оператор, '>' или '"'. Тут не проверяются случаи, когда #include <header-name" или
-                // #include "header-name>. Так как эта часть проверки осуществляется синтаксическим анализатором
-                if (const auto right_mark = t_code.find_first_of(">\"", left_mark + 1); right_mark != std::string::npos) {
-                  tokens.emplace_back(origami::lex::Token::Identifier, t_code.substr(left_mark, right_mark - left_mark + 1));
-                  current_symbol = right_mark + 1;
-                } else {
-                  current_symbol = start_preprocessor + 7;
-                }
-              } else if (auto find_ifdef = t_code.find("ifdef", start_preprocessor); find_ifdef == start_preprocessor) {
-                // Добавляем в tokens ключевое слово '#ifdef'
-                tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#ifdef" });
-
-                // Далее идет этап определения идентификатора
-                current_symbol = start_preprocessor + 5;
-              } else if (auto find_ifndef = t_code.find("ifndef", start_preprocessor); find_ifndef == start_preprocessor) {
-                // Добавляем в tokens ключевое слово '#ifndef'
-                tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#ifndef" });
-
-                // Далее идет этап определения идентификатора
-                current_symbol = start_preprocessor + 6;
-              } else {
-                tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
-                ++current_symbol;
+          if (const auto start_preprocessor = t_code.find_first_not_of(' ', current_symbol + 1); start_preprocessor != std::string::npos) {
+            std::string::size_type exist_keyword = std::string::npos;
+            for (const auto& preprocessor_keyword : m_preprocessorKeywords) {
+              if (exist_keyword = t_code.find(preprocessor_keyword, start_preprocessor); exist_keyword == start_preprocessor) {
+                tokens.emplace_back(origami::lex::Token::KeywordPreprocessor, "#" + preprocessor_keyword);
+                current_symbol = start_preprocessor + preprocessor_keyword.size();
+                break;
               }
-
-              break;
             }
-            case 'd' : {
-              if (auto find_define = t_code.find("define", start_preprocessor); find_define == start_preprocessor) {
-                // Добавляем в tokens ключевое слово '#define'
-                tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#define" });
 
-                // Далее идет этап определения идентификатора
-                current_symbol = start_preprocessor + 6;
-              }
-
+            if (exist_keyword == start_preprocessor) {
               break;
-            }
-            case 'e' : {
-              if (auto find_endif = t_code.find("endif", start_preprocessor); find_endif == start_preprocessor) {
-                // Добавляем в tokens ключевое слово '#endif'
-                tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#endif" });
-
-                // Далее идет этап определения идентификатора
-                current_symbol = start_preprocessor + 5;
-              }
-
-              break;
-            }
-            default: {
-              tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
-              ++current_symbol;
             }
           }
 
+          tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
+          ++current_symbol;
+
+          break;
+        }
+        case '"' : {
+          const auto last_mark = t_code.find_first_of('"', current_symbol + 1);
+          tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
+          current_symbol = last_mark + 1;
           break;
         }
         case '+' : {
