@@ -10,7 +10,7 @@
 #include "origami_lexical/conventions/tokens.hpp"
 
 #include <deque>
-#include <map>
+#include <set>
 #include <string>
 
 #include <iostream>
@@ -39,17 +39,33 @@ class LexicalConventions {
       *
       * \return         Все ключевые слова С++17, которые описаны в пункте 5.11 таблица 5
       */
-    static const std::map<std::string, origami::lex::Keywords>& keywords()
+    static const std::set<std::string>& keywords()
     {
-      static const std::map<std::string, origami::lex::Keywords> k {
-        { "int",    origami::lex::Keywords::Int },
-        { "return", origami::lex::Keywords::Return }
-      };
-
+      static const std::set<std::string> k { "int",
+                                             "return" };
       return k;
     }
 
-    const std::map<std::string, origami::lex::Keywords>& m_keywords = keywords(); ///< Ключевые слова С++17
+    static const std::set<std::string>& preprocessorsKeywords()
+    {
+      static const std::set<std::string> p { "include",
+                                             "if",
+                                             "ifdef",
+                                             "ifndef",
+                                             "elif",
+                                             "else",
+                                             "endif",
+                                             "error",
+                                             "define",
+                                             "line",
+                                             "undef",
+                                             "using" };
+
+      return p;
+    }
+
+    const std::set<std::string>& m_keywords = keywords(); ///< Ключевые слова С++17
+    const std::set<std::string>& m_preprocessorKeywords = preprocessorsKeywords(); ///< Ключевые слова для препроцессора
 };
 
 } // namespace origami::lex

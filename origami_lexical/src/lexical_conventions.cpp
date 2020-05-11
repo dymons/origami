@@ -33,7 +33,7 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
 
       // Если нашли ключевое слово, идентифицируем его как ключевое слово
       if (keyword != m_keywords.end()) {
-        tokens.emplace_back(origami::lex::Token::Keyword, keyword->first);
+        tokens.emplace_back(origami::lex::Token::Keyword, *keyword);
       } else { // Иначе, это именование
         tokens.emplace_back(origami::lex::Token::Identifier, std::move(word));
       }
@@ -73,14 +73,14 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
               // Обработка предпроцессора '#include'
               if (auto find_include = t_code.find("include", start_preprocessor); find_include == start_preprocessor) {
                 const auto second_symbol = std::next(t_code.begin(), start_preprocessor + 7);
-                if((second_symbol != t_code.end()) && (!std::isspace(*second_symbol))) {
+                if ((second_symbol != t_code.end()) && (!std::isspace(*second_symbol))) {
                   tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
                   ++current_symbol;
                   break;
                 }
 
                 // Добавляем в tokens ключевое слово '#include'
-                tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#include" });
+                tokens.emplace_back(origami::lex::Token::KeywordPreprocessor, std::string { "#include" });
 
                 if ((start_preprocessor + 7) == t_code.size()) {
                   current_symbol = start_preprocessor + 7;

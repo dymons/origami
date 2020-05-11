@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(LexicalConventions, CharacterSet)
+TEST(LexicalConventions, DISABLED_CharacterSet)
 {
   // Проверка 26 букв английского алфавита на принадлежность к Character sets, в нижнем регистре.
   for (char character = 'a'; character != '{'; ++character)
