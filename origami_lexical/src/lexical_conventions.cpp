@@ -60,6 +60,11 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
             std::string::size_type exist_keyword = std::string::npos;
             for (const auto& preprocessor_keyword : m_preprocessorKeywords) {
               if (exist_keyword = t_code.find(preprocessor_keyword, start_preprocessor); exist_keyword == start_preprocessor) {
+                const auto second_symbol = std::next(t_code.begin(), start_preprocessor + preprocessor_keyword.size());
+                if ((second_symbol != t_code.end()) && (!std::isspace(*second_symbol))) {
+                  continue;
+                }
+
                 tokens.emplace_back(origami::lex::Token::KeywordPreprocessor, "#" + preprocessor_keyword);
                 current_symbol = start_preprocessor + preprocessor_keyword.size();
                 break;
@@ -76,10 +81,26 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
 
           break;
         }
+        case '<' : {
+          if (const auto last_mark = t_code.find_first_of('>', current_symbol + 1); last_mark != std::string::npos) {
+            tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
+            current_symbol = last_mark + 1;
+          } else {
+            tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
+            ++current_symbol;
+          }
+
+          break;
+        }
         case '"' : {
-          const auto last_mark = t_code.find_first_of('"', current_symbol + 1);
-          tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
-          current_symbol = last_mark + 1;
+          if (const auto last_mark = t_code.find_first_of('"', current_symbol + 1); last_mark != std::string::npos) {
+            tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
+            current_symbol = last_mark + 1;
+          } else {
+            tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
+            ++current_symbol;
+          }
+
           break;
         }
         case '+' : {

@@ -9,37 +9,7 @@ class PreprocessorsTest : public ::testing::Test {
     origami::lex::LexicalConventions m_tokenizer;
 };
 
-TEST_F(PreprocessorsTest, IncludeTest)
-{
-  { // Проверка, на определение простого символа '#'
-    const auto tokens = m_tokenizer.getTokens("#");
-    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
-      {
-        { origami::lex::Token::Punctuator, "#" }
-      }
-    };
-
-    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
-      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
-    }));
-  }
-
-  { // Проверка, на определение подключение заголовочного файла в формате <header-name>
-    const auto tokens = m_tokenizer.getTokens("#include \"memory\"");
-    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
-      {
-        { origami::lex::Token::KeywordPreprocessor, "#include" },
-        { origami::lex::Token::Literal, "\"memory\"" }
-      }
-    };
-
-    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
-      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
-    }));
-  }
-}
-
-TEST_F(PreprocessorsTest, DISABLE_Include)
+TEST_F(PreprocessorsTest, Include)
 {
   { // Проверка, на определение простого символа '#'
     const auto tokens = m_tokenizer.getTokens("#");
@@ -59,7 +29,7 @@ TEST_F(PreprocessorsTest, DISABLE_Include)
     const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
       {
         { origami::lex::Token::KeywordPreprocessor, "#include" },
-        { origami::lex::Token::Identifier, "<memory>" }
+        { origami::lex::Token::Literal, "<memory>" }
       }
     };
 
@@ -73,7 +43,7 @@ TEST_F(PreprocessorsTest, DISABLE_Include)
     const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
       {
         { origami::lex::Token::KeywordPreprocessor, "#include" },
-        { origami::lex::Token::Identifier, "\"memory\"" }
+        { origami::lex::Token::Literal, "\"memory\"" }
       }
     };
 
@@ -89,9 +59,7 @@ TEST_F(PreprocessorsTest, DISABLE_Include)
         { origami::lex::Token::Punctuator, "#" },
         { origami::lex::Token::Operator, "+" },
         { origami::lex::Token::Identifier, "include" },
-        { origami::lex::Token::Punctuator, "\"" },
-        { origami::lex::Token::Identifier, "memory" },
-        { origami::lex::Token::Punctuator, "\"" },
+        { origami::lex::Token::Literal, "\"memory\"" }
       }
     };
 
@@ -106,9 +74,7 @@ TEST_F(PreprocessorsTest, DISABLE_Include)
       {
         { origami::lex::Token::KeywordPreprocessor, "#include" },
         { origami::lex::Token::Operator, "+" },
-        { origami::lex::Token::Punctuator, "\"" },
-        { origami::lex::Token::Identifier, "memory" },
-        { origami::lex::Token::Punctuator, "\"" },
+        { origami::lex::Token::Literal, "\"memory\"" }
       }
     };
 
@@ -123,9 +89,7 @@ TEST_F(PreprocessorsTest, DISABLE_Include)
       {
         { origami::lex::Token::KeywordPreprocessor, "#include" },
         { origami::lex::Token::Keyword, "int" },
-        { origami::lex::Token::Punctuator, "\"" },
-        { origami::lex::Token::Identifier, "memory" },
-        { origami::lex::Token::Punctuator, "\"" },
+        { origami::lex::Token::Literal, "\"memory\"" }
       }
     };
 
@@ -140,9 +104,7 @@ TEST_F(PreprocessorsTest, DISABLE_Include)
       {
         { origami::lex::Token::KeywordPreprocessor, "#include" },
         { origami::lex::Token::Literal, "0.0123" },
-        { origami::lex::Token::Punctuator, "\"" },
-        { origami::lex::Token::Identifier, "memory" },
-        { origami::lex::Token::Punctuator, "\"" },
+        { origami::lex::Token::Literal, "\"memory\"" }
       }
     };
 
@@ -156,9 +118,9 @@ TEST_F(PreprocessorsTest, DISABLE_Include)
     const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
       {
         { origami::lex::Token::KeywordPreprocessor, "#include" },
-        { origami::lex::Token::Identifier, "<memory>" },
+        { origami::lex::Token::Literal, "<memory>" },
         { origami::lex::Token::KeywordPreprocessor, "#include" },
-        { origami::lex::Token::Identifier, "\"algorithm\"" }
+        { origami::lex::Token::Literal, "\"algorithm\"" }
       }
     };
 
@@ -173,9 +135,9 @@ TEST_F(PreprocessorsTest, DISABLE_Include)
     const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
       {
         { origami::lex::Token::KeywordPreprocessor, "#include" },
-        { origami::lex::Token::Identifier, "<memory>" },
+        { origami::lex::Token::Literal, "<memory>" },
         { origami::lex::Token::KeywordPreprocessor, "#include" },
-        { origami::lex::Token::Identifier, "\"origami_lexical/conventions/tokens.hpp\"" },
+        { origami::lex::Token::Literal, "\"origami_lexical/conventions/tokens.hpp\"" },
         { origami::lex::Token::Keyword, "int" },
         { origami::lex::Token::Identifier, "main" },
         { origami::lex::Token::Punctuator, "(" },
@@ -355,9 +317,7 @@ TEST_F(PreprocessorsTest, DISABLE_Include)
         { origami::lex::Token::KeywordPreprocessor, "#include" },
         { origami::lex::Token::Keyword, "int" },
         { origami::lex::Token::Keyword, "int" },
-        { origami::lex::Token::Punctuator, "<" },
-        { origami::lex::Token::Identifier, "memory" },
-        { origami::lex::Token::Punctuator, ">" },
+        { origami::lex::Token::Literal, "<memory>" }
       }
     };
 
