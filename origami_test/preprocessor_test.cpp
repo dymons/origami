@@ -178,11 +178,68 @@ TEST_F(PreprocessorsTest, Include)
   }
 
   { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#icustomdefine");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Punctuator, "#" },
+        { origami::lex::Token::Identifier, "icustomdefine" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
     const auto tokens = m_tokenizer.getTokens("#     includecustomdefine");
     const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
       {
         { origami::lex::Token::Punctuator, "#" },
         { origami::lex::Token::Identifier, "includecustomdefine" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#includecustomdefine");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Punctuator, "#" },
+        { origami::lex::Token::Identifier, "includecustomdefine" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#include customdefine");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Identifier, "customdefine" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#include \"customdefine");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Punctuator, "\"" },
+        { origami::lex::Token::Identifier, "customdefine" }
       }
     };
 
@@ -205,10 +262,72 @@ TEST_F(PreprocessorsTest, Include)
   }
 
   { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#++     include");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Punctuator, "#" },
+        { origami::lex::Token::Operator, "+" },
+        { origami::lex::Token::Operator, "+" },
+        { origami::lex::Token::Identifier, "include" },
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
     const auto tokens = m_tokenizer.getTokens("#     include             ");
     const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
       {
         { origami::lex::Token::Keyword, "#include" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#     include      \n       ");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#     include      int int      ");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Keyword, "int" },
+        { origami::lex::Token::Keyword, "int" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#     include      int int   <memory>   ");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Keyword, "int" },
+        { origami::lex::Token::Keyword, "int" },
+        { origami::lex::Token::Punctuator, "<" },
+        { origami::lex::Token::Identifier, "memory" },
+        { origami::lex::Token::Punctuator, ">" },
       }
     };
 

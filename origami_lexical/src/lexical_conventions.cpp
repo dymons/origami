@@ -102,10 +102,12 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
 
                 // Находим закрывающий оператор, '>' или '"'. Тут не проверяются случаи, когда #include <header-name" или
                 // #include "header-name>. Так как эта часть проверки осуществляется синтаксическим анализатором
-                const auto right_mark = t_code.find_first_of(">\"", left_mark + 1);
-                tokens.emplace_back(origami::lex::Token::Identifier, t_code.substr(left_mark, right_mark - left_mark + 1));
-                current_symbol = right_mark + 1;
-
+                if (const auto right_mark = t_code.find_first_of(">\"", left_mark + 1); right_mark != std::string::npos) {
+                  tokens.emplace_back(origami::lex::Token::Identifier, t_code.substr(left_mark, right_mark - left_mark + 1));
+                  current_symbol = right_mark + 1;
+                } else {
+                  current_symbol = start_preprocessor + 7;
+                }
               } else if (auto find_ifdef = t_code.find("ifdef", start_preprocessor); find_ifdef == start_preprocessor) {
                 // Добавляем в tokens ключевое слово '#ifdef'
                 tokens.emplace_back(origami::lex::Token::Keyword, std::string { "#ifdef" });
