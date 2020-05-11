@@ -104,6 +104,23 @@ TEST_F(PreprocessorsTest, Include)
     }));
   }
 
+  { // Проверка, на определение подключение некорректного заголовочного файла
+    const auto tokens = m_tokenizer.getTokens("#     include   0.0123    \"memory\"      ");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" },
+        { origami::lex::Token::Literal, "0.0123" },
+        { origami::lex::Token::Punctuator, "\"" },
+        { origami::lex::Token::Identifier, "memory" },
+        { origami::lex::Token::Punctuator, "\"" },
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
   { // Проверка, на определение подключение нескольких заголовочных файлов
     const auto tokens = m_tokenizer.getTokens("#     include      <memory>\n  #     include      \"algorithm\"    ");
     const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
@@ -138,6 +155,47 @@ TEST_F(PreprocessorsTest, Include)
         { origami::lex::Token::Literal, "0" },
         { origami::lex::Token::Punctuator, ";" },
         { origami::lex::Token::Punctuator, "}" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#     icustomdefine");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Punctuator, "#" },
+        { origami::lex::Token::Identifier, "icustomdefine" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#     includecustomdefine");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Punctuator, "#" },
+        { origami::lex::Token::Identifier, "includecustomdefine" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#     include");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Keyword, "#include" }
       }
     };
 
@@ -190,7 +248,7 @@ TEST_F(PreprocessorsTest, Ifdef)
 
 TEST_F(PreprocessorsTest, Combination)
 {
-  { // Проверка, на определение подключение заголовочного файла в формате <header-name>
+  { // Проверка, на подключение нескольких предпроцессоров последовательно
     const auto tokens = m_tokenizer.getTokens("#     ifdef      _0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz   \n"
                                               "#       define  NUM_SIZE  0.0\n"
                                               "#       endif \n"
@@ -220,6 +278,23 @@ TEST_F(PreprocessorsTest, Combination)
         { origami::lex::Token::Literal, "0" },
         { origami::lex::Token::Punctuator, ";" },
         { origami::lex::Token::Punctuator, "}" }
+      }
+    };
+
+    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+      return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
+    }));
+  }
+}
+
+TEST_F(PreprocessorsTest, Nonexistent)
+{
+  { // Проверка, на подключение не существующих предпроцессоров
+    const auto tokens = m_tokenizer.getTokens("#     customdefine");
+    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
+      {
+        { origami::lex::Token::Punctuator, "#" },
+        { origami::lex::Token::Identifier, "customdefine" }
       }
     };
 
