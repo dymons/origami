@@ -11,16 +11,21 @@ class OpeartorsTest : public ::testing::Test {
 
 TEST_F(OpeartorsTest, LessThanSign)
 {
-  {
-    const auto tokens = m_tokenizer.getTokens("<");
-    const std::vector<std::pair<origami::lex::Token, std::string>> expect_tokens {
-      {
-        { origami::lex::Token::Punctuator, "<" }
-      }
-    };
+  using namespace origami::lex;
 
-    ASSERT_TRUE(std::equal(tokens.begin(), tokens.end(), expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
+  auto check_code = [this](const std::string& t_code, std::vector<std::pair<Token, std::string>> t_expect_tokens) {
+    const auto tokens = m_tokenizer.getTokens(t_code);
+    return std::equal(tokens.begin(), tokens.end(), t_expect_tokens.begin(), [](const auto& t_lhs, const auto& t_rhs) {
       return (t_lhs.first == t_rhs.first) && (t_lhs.second == t_rhs.second);
-    }));
-  }
+    });
+  };
+
+  // Проверка определения всех символов "<", "<:", "<%", "<=", "<=>", "<<", "<<="
+  ASSERT_TRUE(check_code("<", {{ Token::Punctuator, "<" }}));
+  ASSERT_TRUE(check_code("<:", {{ Token::Punctuator, "<:" }}));
+  ASSERT_TRUE(check_code("<%", {{ Token::Punctuator, "<%" }}));
+  ASSERT_TRUE(check_code("<=", {{ Token::Punctuator, "<=" }}));
+  ASSERT_TRUE(check_code("<=>", {{ Token::Punctuator, "<=>" }}));
+  ASSERT_TRUE(check_code("<<", {{ Token::Punctuator, "<<" }}));
+  ASSERT_TRUE(check_code("<<=", {{ Token::Punctuator, "<<=" }}));
 }

@@ -84,6 +84,7 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
           break;
         }
         case '<' : {
+          // TODO: Поменять местами с '>' (default)
           const auto operators = m_operators.at(t_code[current_symbol]);
 
           std::string::size_type operator_boundary = current_symbol;
