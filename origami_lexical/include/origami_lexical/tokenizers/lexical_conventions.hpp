@@ -48,7 +48,11 @@ class LexicalConventions {
         "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new",
         "noexcept", "nullptr", "operator", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return",
         "short", "signed", "sizeof", "static", "static_assert", "static_cast", "switch", "template", "this", "thread_local", "throw",
-        "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while" };
+        "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while",
+
+        // Стандарт кодирования 5.12
+        "and", "or", "xor", "not", "bitand", "bitor", "compl", "and_eq", "or_eq", "xor_eq", "not_eq"
+      };
 
       return k;
     }
@@ -65,9 +69,33 @@ class LexicalConventions {
 
     static const std::map<char, std::set<std::string>>& operatorsAndPunctuators()
     {
+      // Стандарт кодирования 5.12
       static const std::map<char, std::set<std::string>> op_or_punc {
-        {'<', {"<", "<:", "<%", "<=", "<=>", "<<", "<<="}},
-        {'>', {">", ">=", ">>", ">>="}}
+        { '<', { "<", "<:",  "<%",  "<=", "<=>", "<<", "<<=" }},
+        { '>', { ">", ">=",  ">>",  ">>=" }},
+        { '{', { "{" }},
+        { '}', { "}" }},
+        { '[', { "[" }},
+        { ']', { "]" }},
+        { '(', { "(" }},
+        { ')', { ")" }},
+        { ':', { ":", ":>",  "::" }},
+        { '%', { "%", "%>",  "%:",  "%:%" }},
+        { ';', { ";" }},
+        { ';', { ";" }},
+        { '.', { ".", "...", ".*" }},
+        { '!', { "!", "!=" }},
+        { '?', { "?" }},
+        { '-', { "-", "->",  "->*", "-=", "--" }},
+        { '~', { "~" }},
+        { '+', { "+", "+=",  "++" }},
+        { '*', { "*", "*=" }},
+        { '/', { "/", "/=" }},
+        { '^', { "^", "^=" }},
+        { '&', { "&", "&=",  "&&" }},
+        { '|', { "|", "|=",  "||" }},
+        { '=', { "=", "==" }},
+        { ',', { "," }},
       };
 
       return op_or_punc;
