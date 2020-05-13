@@ -11,6 +11,7 @@
 
 #include <deque>
 #include <set>
+#include <map>
 #include <string>
 
 #include <iostream>
@@ -41,104 +42,40 @@ class LexicalConventions {
       */
     static const std::set<std::string>& keywords()
     {
-      static const std::set<std::string> k { "alignas",
-                                             "alignof",
-                                             "asm",
-                                             "auto",
-                                             "bool",
-                                             "break",
-                                             "case",
-                                             "catch",
-                                             "char",
-                                             "char16_t",
-                                             "char32_t",
-                                             "class",
-                                             "concept",
-                                             "const",
-                                             "constexpr",
-                                             "const_cast",
-                                             "continue",
-                                             "decltype",
-                                             "default",
-                                             "delete",
-                                             "do",
-                                             "double",
-                                             "dynamic_cast",
-                                             "else",
-                                             "enum",
-                                             "explicit",
-                                             "export",
-                                             "extern",
-                                             "false",
-                                             "float",
-                                             "for",
-                                             "friend",
-                                             "goto",
-                                             "if",
-                                             "inline",
-                                             "int",
-                                             "long",
-                                             "mutable",
-                                             "namespace",
-                                             "new",
-                                             "noexcept",
-                                             "nullptr",
-                                             "operator",
-                                             "private",
-                                             "protected",
-                                             "public",
-                                             "register",
-                                             "reinterpret_cast",
-                                             "requires",
-                                             "return",
-                                             "short",
-                                             "signed",
-                                             "sizeof",
-                                             "static",
-                                             "static_assert",
-                                             "static_cast",
-                                             "switch",
-                                             "template",
-                                             "this",
-                                             "thread_local",
-                                             "throw",
-                                             "true",
-                                             "try",
-                                             "typedef",
-                                             "typeid",
-                                             "typename",
-                                             "union",
-                                             "unsigned",
-                                             "using",
-                                             "virtual",
-                                             "void",
-                                             "volatile",
-                                             "wchar_t",
-                                             "while" };
+      static const std::set<std::string> k {
+        "alignas", "alignof", "asm", "auto", "bool", "break", "case", "catch", "char", "char16_t", "char32_t", "class", "concept", "const",
+        "constexpr", "const_cast", "continue", "decltype", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit",
+        "export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new",
+        "noexcept", "nullptr", "operator", "private", "protected", "public", "register", "reinterpret_cast", "requires", "return",
+        "short", "signed", "sizeof", "static", "static_assert", "static_cast", "switch", "template", "this", "thread_local", "throw",
+        "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while" };
 
       return k;
     }
 
     static const std::set<std::string>& preprocessorsKeywords()
     {
-      static const std::set<std::string> p { "include",
-                                             "if",
-                                             "ifdef",
-                                             "ifndef",
-                                             "elif",
-                                             "else",
-                                             "endif",
-                                             "error",
-                                             "define",
-                                             "line",
-                                             "undef",
-                                             "using" };
+      static const std::set<std::string> p {
+        "include", "if", "ifdef", "ifndef",
+        "elif", "else", "endif", "error",
+        "define", "line", "undef", "using" };
 
       return p;
     }
 
+    static const std::map<char, std::set<std::string>>& operatorsAndPunctuators()
+    {
+      static const std::map<char, std::set<std::string>> op_or_punc {
+        {'<', {"<", "<:", "<%", "<=", "<=>", "<<", "<<="}},
+        {'>', {">", ">=", ">>", ">>="}}
+      };
+
+      return op_or_punc;
+    }
+
     const std::set<std::string>& m_keywords = keywords(); ///< Ключевые слова С++17
     const std::set<std::string>& m_preprocessorKeywords = preprocessorsKeywords(); ///< Ключевые слова для препроцессора
+    const std::map<char, std::set<std::string>>& m_operators = operatorsAndPunctuators(); ///< Все операторы и пунктуация
 };
 
 } // namespace origami::lex

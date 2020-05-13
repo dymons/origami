@@ -4,6 +4,8 @@
 #include <cctype>
 #include <locale>
 
+#include <cassert>
+
 namespace origami::lex {
 std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getTokens(const std::string& t_code)
 {
@@ -82,13 +84,53 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
           break;
         }
         case '<' : {
-          if (const auto last_mark = t_code.find_first_of('>', current_symbol + 1); last_mark != std::string::npos) {
-            tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
-            current_symbol = last_mark + 1;
-          } else {
-            tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
-            ++current_symbol;
-          }
+          const auto operators = m_operators.at(t_code[current_symbol]);
+
+          std::string::size_type operator_boundary = current_symbol;
+          std::string operator_build = t_code.substr(operator_boundary, 1);
+
+          ++operator_boundary;
+          while (operator_boundary != t_code.size()) {
+            if (operators.find(operator_build + t_code[operator_boundary]) != operators.end()) {
+              operator_build += t_code[operator_boundary];
+              ++operator_boundary;
+            } else {
+              break;
+            }
+          };
+
+          tokens.emplace_back(origami::lex::Token::Punctuator, std::move(operator_build));
+          current_symbol = operator_boundary;
+
+          break;
+        }
+        case '>' : {
+          // Получаем все операторы, которые можно скомбинировать с символом '<' или '>'. А именно ">", ">=", ">>", ">>="
+          const auto operators = m_operators.at(t_code[current_symbol]);
+
+          std::string::size_type operator_boundary = current_symbol; // Граница последнего корректного символа
+          std::string operator_build = t_code.substr(operator_boundary, 1); // Собираем символ как мозаику, последовательно
+
+          ++operator_boundary; // Берем следующий символ
+          while (operator_boundary != t_code.size()) {
+            // Строим символ опуская пробелы, так как можно делать так std::vector<std::set<int> >, '> >'
+            if (const auto not_whitespace = t_code.find_first_not_of(' ', operator_boundary); not_whitespace != std::string::npos) {
+              if (operators.find(operator_build + t_code[not_whitespace]) != operators.end()) {
+                operator_boundary = not_whitespace + 1;
+                operator_build += t_code[not_whitespace];
+              } else {
+                // Если не удалось найти комбинацию 'operator_build' + 'next symbol', среди известных комбинаций,
+                // завершаем работу
+                break;
+              }
+            } else {
+              // Позиция символа не было определенно, как пример '<  '
+              break;
+            }
+          };
+
+          tokens.emplace_back(origami::lex::Token::Punctuator, std::move(operator_build));
+          current_symbol = operator_boundary;
 
           break;
         }
