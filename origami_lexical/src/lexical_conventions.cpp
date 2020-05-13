@@ -104,7 +104,23 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
 
           break;
         }
-        case '>' : {
+        case '+' : {
+          tokens.emplace_back(origami::lex::Token::Operator, std::string { t_code[current_symbol] });
+          ++current_symbol;
+          break;
+        }
+        case '"' : {
+          if (const auto last_mark = t_code.find_first_of('"', current_symbol + 1); last_mark != std::string::npos) {
+            tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
+            current_symbol = last_mark + 1;
+          } else {
+            tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
+            ++current_symbol;
+          }
+
+          break;
+        }
+        default: {
           // Получаем все операторы, которые можно скомбинировать с символом '<' или '>'. А именно ">", ">=", ">>", ">>="
           const auto operators = m_operators.at(t_code[current_symbol]);
 
@@ -131,28 +147,6 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
 
           tokens.emplace_back(origami::lex::Token::Punctuator, std::move(operator_build));
           current_symbol = operator_boundary;
-
-          break;
-        }
-        case '"' : {
-          if (const auto last_mark = t_code.find_first_of('"', current_symbol + 1); last_mark != std::string::npos) {
-            tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
-            current_symbol = last_mark + 1;
-          } else {
-            tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
-            ++current_symbol;
-          }
-
-          break;
-        }
-        case '+' : {
-          tokens.emplace_back(origami::lex::Token::Operator, std::string { t_code[current_symbol] });
-          ++current_symbol;
-          break;
-        }
-        default: {
-          tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
-          ++current_symbol;
         }
       }
     }
