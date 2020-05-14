@@ -88,26 +88,26 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
           break;
         }
         case '>' : {
-          // Получаем все операторы, которые можно скомбинировать с символом '>'. А именно ">", ">=", ">>", ">>="
           const auto operators = m_operators.at(t_code[current_symbol]);
 
-          std::string::size_type operator_boundary = current_symbol; // Граница последнего корректного символа
-          std::string operator_build = t_code.substr(operator_boundary, 1); // Собираем символ как мозаику, последовательно
+          std::string::size_type operator_boundary = current_symbol;
+          std::string operator_build = t_code.substr(operator_boundary, 1);
 
-          ++operator_boundary; // Берем следующий символ
+          ++operator_boundary;
           while (operator_boundary != t_code.size()) {
-            // Строим символ опуская пробелы, так как можно делать так std::vector<std::set<int> >, '> >'
-            if (const auto not_whitespace = t_code.find_first_not_of(' ', operator_boundary); not_whitespace != std::string::npos) {
-              if (operators.find(operator_build + t_code[not_whitespace]) != operators.end()) {
-                operator_boundary = not_whitespace + 1;
-                operator_build += t_code[not_whitespace];
-              } else {
-                // Если не удалось найти комбинацию 'operator_build' + 'next symbol', среди известных комбинаций,
-                // завершаем работу
-                break;
-              }
+            if (operators.find(operator_build + t_code[operator_boundary]) != operators.end()) {
+              operator_build += t_code[operator_boundary];
+              ++operator_boundary;
             } else {
-              // Позиция символа не было определенно, как пример '<  '
+              // Обработка случая для '> >'
+              if (const auto not_whitespace = t_code.find_first_not_of(' ', operator_boundary); not_whitespace != std::string::npos) {
+                if (operators.find(operator_build + t_code[not_whitespace]) != operators.end()) {
+                  operator_boundary = not_whitespace + 1;
+                  operator_build += t_code[not_whitespace];
+                }
+              }
+
+              // И завершаем
               break;
             }
           };
