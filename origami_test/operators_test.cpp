@@ -20,6 +20,13 @@ TEST_F(OpeartorsTest, LessThanSign)
     });
   };
 
+  // TODO: cpp + yaml, описание примеров
+  /*
+   * operators
+   * |-less_than
+   *   |-cpp's + yaml's + test
+   * */
+
   // Проверка определения всех символов "<", "<:", "<%", "<=", "<=>", "<<", "<<="
   ASSERT_TRUE(check_code("<", {{ Token::Punctuator, "<" }}));
   ASSERT_TRUE(check_code("<:", {{ Token::Punctuator, "<:" }}));

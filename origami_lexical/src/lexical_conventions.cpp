@@ -73,6 +73,23 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
 
                 tokens.emplace_back(origami::lex::Token::KeywordPreprocessor, "#" + preprocessor_keyword);
                 current_symbol = start_preprocessor + preprocessor_keyword.size();
+
+                // TODO: Ох, пересмотреть данное решение
+                // Для предпроцессора include необходимо определить именование header файла в формате <h-char-sequence>
+                if (preprocessor_keyword == "include") {
+                  // Находим первый символ, который не относится к пробелу
+                  if (const auto not_whitespace = t_code.find_first_not_of(' ', current_symbol); not_whitespace != std::string::npos) {
+                    // Если это угловая скобка, значит мы на верном пути
+                    if (t_code[not_whitespace] == '<') {
+                      // Находим закрывающий символ '>'
+                      if (const auto right_than_sign = t_code.find_first_of('>', not_whitespace); right_than_sign != std::string::npos) {
+                        tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(not_whitespace, right_than_sign - not_whitespace + 1));
+                        current_symbol = right_than_sign + 1;
+                      }
+                    }
+                  }
+                }
+
                 break;
               }
             }
@@ -108,27 +125,6 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
               }
 
               // И завершаем
-              break;
-            }
-          };
-
-          tokens.emplace_back(origami::lex::Token::Punctuator, std::move(operator_build));
-          current_symbol = operator_boundary;
-
-          break;
-        }
-        case '<' : {
-          const auto operators = m_operators.at(t_code[current_symbol]);
-
-          std::string::size_type operator_boundary = current_symbol;
-          std::string operator_build = t_code.substr(operator_boundary, 1);
-
-          ++operator_boundary;
-          while (operator_boundary != t_code.size()) {
-            if (operators.find(operator_build + t_code[operator_boundary]) != operators.end()) {
-              operator_build += t_code[operator_boundary];
-              ++operator_boundary;
-            } else {
               break;
             }
           };

@@ -9,7 +9,7 @@ class PreprocessorsTest : public ::testing::Test {
     origami::lex::LexicalConventions m_tokenizer;
 };
 
-TEST_F(PreprocessorsTest, DISABLE_Include)
+TEST_F(PreprocessorsTest, Include)
 {
   { // Проверка, на определение простого символа '#'
     const auto tokens = m_tokenizer.getTokens("#");
@@ -317,7 +317,9 @@ TEST_F(PreprocessorsTest, DISABLE_Include)
         { origami::lex::Token::KeywordPreprocessor, "#include" },
         { origami::lex::Token::Keyword, "int" },
         { origami::lex::Token::Keyword, "int" },
-        { origami::lex::Token::Literal, "<memory>" }
+        { origami::lex::Token::Punctuator, "<" },
+        { origami::lex::Token::Identifier, "memory" },
+        { origami::lex::Token::Punctuator, ">" }
       }
     };
 
