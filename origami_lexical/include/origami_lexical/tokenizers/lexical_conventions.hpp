@@ -1,7 +1,7 @@
 /*******************************************************************************************************************************************
  * \author      Emelyanov Dmitry <dmitriy.emelyanov.de@gmail.com>
  *
- * \brief       Содержит лексические анализаторы для С++17
+ * \brief       Содержит лексический анализатор для С++17
  ******************************************************************************************************************************************/
 
 #ifndef ORIGAMI_LEXICAL_CONVENTIONS_HPP
@@ -10,11 +10,9 @@
 #include "origami_lexical/conventions/tokens.hpp"
 
 #include <deque>
-#include <set>
 #include <map>
+#include <set>
 #include <string>
-
-#include <iostream>
 
 namespace origami::lex {
 
@@ -101,6 +99,7 @@ class LexicalConventions {
       return op_or_punc;
     }
 
+    // TODO: Перенести в Symbol Table. http://cpp-reference.ru/patterns/creational-patterns/singleton/
     const std::set<std::string>& m_keywords = keywords(); ///< Ключевые слова С++17
     const std::set<std::string>& m_preprocessorKeywords = preprocessorsKeywords(); ///< Ключевые слова для препроцессора
     const std::map<char, std::set<std::string>>& m_operators = operatorsAndPunctuators(); ///< Все операторы и пунктуация

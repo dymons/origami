@@ -4,7 +4,11 @@
 #include <cctype>
 #include <locale>
 
+#ifdef NDEBUG
 #include <cassert>
+#include <iostream>
+
+#endif
 
 namespace origami::lex {
 std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getTokens(const std::string& t_code)
@@ -83,46 +87,8 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
 
           break;
         }
-        case '<' : {
-          // TODO: Поменять местами с '>' (default)
-          const auto operators = m_operators.at(t_code[current_symbol]);
-
-          std::string::size_type operator_boundary = current_symbol;
-          std::string operator_build = t_code.substr(operator_boundary, 1);
-
-          ++operator_boundary;
-          while (operator_boundary != t_code.size()) {
-            if (operators.find(operator_build + t_code[operator_boundary]) != operators.end()) {
-              operator_build += t_code[operator_boundary];
-              ++operator_boundary;
-            } else {
-              break;
-            }
-          };
-
-          tokens.emplace_back(origami::lex::Token::Punctuator, std::move(operator_build));
-          current_symbol = operator_boundary;
-
-          break;
-        }
-        case '+' : {
-          tokens.emplace_back(origami::lex::Token::Operator, std::string { t_code[current_symbol] });
-          ++current_symbol;
-          break;
-        }
-        case '"' : {
-          if (const auto last_mark = t_code.find_first_of('"', current_symbol + 1); last_mark != std::string::npos) {
-            tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
-            current_symbol = last_mark + 1;
-          } else {
-            tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
-            ++current_symbol;
-          }
-
-          break;
-        }
-        default: {
-          // Получаем все операторы, которые можно скомбинировать с символом '<' или '>'. А именно ">", ">=", ">>", ">>="
+        case '>' : {
+          // Получаем все операторы, которые можно скомбинировать с символом '>'. А именно ">", ">=", ">>", ">>="
           const auto operators = m_operators.at(t_code[current_symbol]);
 
           std::string::size_type operator_boundary = current_symbol; // Граница последнего корректного символа
@@ -148,9 +114,75 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
 
           tokens.emplace_back(origami::lex::Token::Punctuator, std::move(operator_build));
           current_symbol = operator_boundary;
+
+          break;
+        }
+        case '<' : {
+          const auto operators = m_operators.at(t_code[current_symbol]);
+
+          std::string::size_type operator_boundary = current_symbol;
+          std::string operator_build = t_code.substr(operator_boundary, 1);
+
+          ++operator_boundary;
+          while (operator_boundary != t_code.size()) {
+            if (operators.find(operator_build + t_code[operator_boundary]) != operators.end()) {
+              operator_build += t_code[operator_boundary];
+              ++operator_boundary;
+            } else {
+              break;
+            }
+          };
+
+          tokens.emplace_back(origami::lex::Token::Punctuator, std::move(operator_build));
+          current_symbol = operator_boundary;
+
+          break;
+        }
+        case '+' : {
+          // TODO: Определиться, какие операторы операции, а какие пунктуации
+          tokens.emplace_back(origami::lex::Token::Operator, std::string { t_code[current_symbol] });
+          ++current_symbol;
+          break;
+        }
+        case '"' : {
+          if (const auto last_mark = t_code.find_first_of('"', current_symbol + 1); last_mark != std::string::npos) {
+            tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
+            current_symbol = last_mark + 1;
+          } else {
+            tokens.emplace_back(origami::lex::Token::Punctuator, std::string { t_code[current_symbol] });
+            ++current_symbol;
+          }
+
+          break;
+        }
+        default: {
+          const auto operators = m_operators.at(t_code[current_symbol]);
+
+          std::string::size_type operator_boundary = current_symbol;
+          std::string operator_build = t_code.substr(operator_boundary, 1);
+
+          ++operator_boundary;
+          while (operator_boundary != t_code.size()) {
+            if (operators.find(operator_build + t_code[operator_boundary]) != operators.end()) {
+              operator_build += t_code[operator_boundary];
+              ++operator_boundary;
+            } else {
+              break;
+            }
+          };
+
+          tokens.emplace_back(origami::lex::Token::Punctuator, std::move(operator_build));
+          current_symbol = operator_boundary;
         }
       }
     }
+
+#ifdef NDEBUG
+    else {
+      assert(false);
+    }
+#endif
+
   }
 
   return tokens;
