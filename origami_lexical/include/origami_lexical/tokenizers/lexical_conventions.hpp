@@ -65,12 +65,36 @@ class LexicalConventions {
       return p;
     }
 
-    static const std::map<char, std::set<std::string>>& operatorsAndPunctuators()
+    static const std::map<char, std::set<std::string>>& operators()
     {
       // Стандарт кодирования 5.12
-      static const std::map<char, std::set<std::string>> op_or_punc {
-        { '<', { "<", "<:",  "<%",  "<=", "<=>", "<<", "<<=" }},
+      static const std::map<char, std::set<std::string>> op {
+        { '+', { "+", "+=",  "++" }},
+        { '-', { "-", "-=", "--" }},
+        { '*', { "*", "*=" }},
+        { '/', { "/", "/=" }},
+        { '%', { "%", "%=" }},
+        { '=', { "=", "==" }},
+        { '!', { "!", "!=" }},
         { '>', { ">", ">=",  ">>",  ">>=" }},
+        { '<', { "<", "<=", "<=>", "<<", "<<=" }},
+        { '&', { "&", "&=",  "&&" }},
+        { '|', { "|", "|=",  "||" }},
+        { '^', { "^", "^=" }},
+        { '?', { "?" }},
+        { '~', { "~" }}
+      };
+
+      return op;
+    }
+
+    static const std::map<char, std::set<std::string>>& punctuation()
+    {
+      // Стандарт кодирования 5.12
+      static const std::map<char, std::set<std::string>> punc {
+        { '<', { "<:",  "<%" }},
+        { '%', { "%>",  "%:",  "%:%" }},
+        { '-', { "->",  "->*"}},
         { '{', { "{" }},
         { '}', { "}" }},
         { '[', { "[" }},
@@ -78,31 +102,20 @@ class LexicalConventions {
         { '(', { "(" }},
         { ')', { ")" }},
         { ':', { ":", ":>",  "::" }},
-        { '%', { "%", "%>",  "%:",  "%:%" }},
         { ';', { ";" }},
         { ';', { ";" }},
         { '.', { ".", "...", ".*" }},
-        { '!', { "!", "!=" }},
-        { '?', { "?" }},
-        { '-', { "-", "->",  "->*", "-=", "--" }},
-        { '~', { "~" }},
-        { '+', { "+", "+=",  "++" }},
-        { '*', { "*", "*=" }},
-        { '/', { "/", "/=" }},
-        { '^', { "^", "^=" }},
-        { '&', { "&", "&=",  "&&" }},
-        { '|', { "|", "|=",  "||" }},
-        { '=', { "=", "==" }},
         { ',', { "," }}
       };
 
-      return op_or_punc;
+      return punc;
     }
 
     // TODO: Перенести в Symbol Table. http://cpp-reference.ru/patterns/creational-patterns/singleton/
     const std::set<std::string>& m_keywords = keywords(); ///< Ключевые слова С++17
     const std::set<std::string>& m_preprocessorKeywords = preprocessorsKeywords(); ///< Ключевые слова для препроцессора
-    const std::map<char, std::set<std::string>>& m_operators = operatorsAndPunctuators(); ///< Все операторы и пунктуация
+    const std::map<char, std::set<std::string>>& m_operators = operators(); ///< Все операторы
+    const std::map<char, std::set<std::string>>& m_punctuation = punctuation(); ///< Вся пунктуация
 };
 
 } // namespace origami::lex
