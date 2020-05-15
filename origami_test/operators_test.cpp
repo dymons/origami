@@ -33,41 +33,41 @@ TEST_F(OpeartorsTest, LessThanSign)
 {
   using origami::lex::Token;
 
-  ASSERT_TRUE(equalTokens("<", {{ Token::Punctuator, "<" }}));
+  ASSERT_TRUE(equalTokens("<", {{ Token::Operator, "<" }}));
   ASSERT_TRUE(equalTokens("<:", {{ Token::Punctuator, "<:" }}));
   ASSERT_TRUE(equalTokens("<%", {{ Token::Punctuator, "<%" }}));
-  ASSERT_TRUE(equalTokens("<=", {{ Token::Punctuator, "<=" }}));
-  ASSERT_TRUE(equalTokens("<=>", {{ Token::Punctuator, "<=>" }}));
-  ASSERT_TRUE(equalTokens("<<", {{ Token::Punctuator, "<<" }}));
-  ASSERT_TRUE(equalTokens("<<=", {{ Token::Punctuator, "<<=" }}));
+  ASSERT_TRUE(equalTokens("<=", {{ Token::Operator, "<=" }}));
+  ASSERT_TRUE(equalTokens("<=>", {{ Token::Operator, "<=>" }}));
+  ASSERT_TRUE(equalTokens("<<", {{ Token::Operator, "<<" }}));
+  ASSERT_TRUE(equalTokens("<<=", {{ Token::Operator, "<<=" }}));
 
   // Если между операторами находится пробел - это ошибка
   ASSERT_TRUE(equalTokens("< :",
-                          {{ Token::Punctuator, "<" },
+                          {{ Token::Operator, "<" },
                            { Token::Punctuator, ":" }}));
   ASSERT_TRUE(equalTokens("< %",
-                          {{ Token::Punctuator, "<" },
-                           { Token::Punctuator, "%" }}));
+                          {{ Token::Operator, "<" },
+                           { Token::Operator, "%" }}));
   ASSERT_TRUE(equalTokens("< =",
-                          {{ Token::Punctuator, "<" },
-                           { Token::Punctuator, "=" }}));
+                          {{ Token::Operator, "<" },
+                           { Token::Operator, "=" }}));
   ASSERT_TRUE(equalTokens("< =>",
-                          {{ Token::Punctuator, "<" },
-                           { Token::Punctuator, "=" },
-                           { Token::Punctuator, ">" }}));
+                          {{ Token::Operator, "<" },
+                           { Token::Operator, "=" },
+                           { Token::Operator, ">" }}));
   ASSERT_TRUE(equalTokens("< <",
-                          {{ Token::Punctuator, "<" },
-                           { Token::Punctuator, "<" }}));
+                          {{ Token::Operator, "<" },
+                           { Token::Operator, "<" }}));
   ASSERT_TRUE(equalTokens("< <=",
-                          {{ Token::Punctuator, "<" },
-                           { Token::Punctuator, "<=" }}));
+                          {{ Token::Operator, "<" },
+                           { Token::Operator, "<=" }}));
 
   ASSERT_TRUE(equalTokens("bool less = 50 < 60;",
                           {{ Token::Keyword,    "bool" },
                            { Token::Identifier, "less" },
-                           { Token::Punctuator, "=" },
+                           { Token::Operator, "=" },
                            { Token::Literal,    "50" },
-                           { Token::Punctuator, "<" },
+                           { Token::Operator, "<" },
                            { Token::Literal,    "60" },
                            { Token::Punctuator, ";" }}));
 }

@@ -58,8 +58,49 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
         tokens.emplace_back(origami::lex::Token::Literal, std::move(digital));
         current_symbol = std::distance(t_code.begin(), not_isdigit);
       }
-      // Все символы, которые относятся к группе 'пунктуация'
-    } else if (std::ispunct(static_cast<unsigned char>(t_code[current_symbol]))) {
+    } else {
+      if (const auto punctuation = m_punctuation.find(t_code[current_symbol]); punctuation != m_punctuation.end()) {
+        std::string::size_type punctuator_boundary = current_symbol;
+        std::string punctuator_build = t_code.substr(punctuator_boundary, 1);
+
+        ++punctuator_boundary;
+        while (punctuator_boundary != t_code.size()) {
+          if (punctuation->second.find(punctuator_build + t_code[punctuator_boundary]) != punctuation->second.end()) {
+            punctuator_build += t_code[punctuator_boundary];
+            ++punctuator_boundary;
+          } else {
+            break;
+          }
+        };
+
+        if (punctuation->second.find(punctuator_build) != punctuation->second.end()) {
+          tokens.emplace_back(origami::lex::Token::Punctuator, std::move(punctuator_build));
+          current_symbol = punctuator_boundary;
+          continue;
+        }
+      }
+
+      if (const auto operators = m_operators.find(t_code[current_symbol]); operators != m_operators.end()) {
+        std::string::size_type operator_boundary = current_symbol;
+        std::string operator_build = t_code.substr(operator_boundary, 1);
+
+        ++operator_boundary;
+        while (operator_boundary != t_code.size()) {
+          if (operators->second.find(operator_build + t_code[operator_boundary]) != operators->second.end()) {
+            operator_build += t_code[operator_boundary];
+            ++operator_boundary;
+          } else {
+            break;
+          }
+        };
+
+        if (operators->second.find(operator_build) != operators->second.end()) {
+          tokens.emplace_back(origami::lex::Token::Operator, std::move(operator_build));
+          current_symbol = operator_boundary;
+          continue;
+        }
+      }
+
       switch (t_code[current_symbol]) {
         case '#' : {
           if (const auto start_preprocessor = t_code.find_first_not_of(' ', current_symbol + 1); start_preprocessor != std::string::npos) {
@@ -74,7 +115,6 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
                 tokens.emplace_back(origami::lex::Token::KeywordPreprocessor, "#" + preprocessor_keyword);
                 current_symbol = start_preprocessor + preprocessor_keyword.size();
 
-                // TODO: Ох, пересмотреть данное решение
                 // Для предпроцессора include необходимо определить именование header файла в формате <h-char-sequence>
                 if (preprocessor_keyword == "include") {
                   // Находим первый символ, который не относится к пробелу
@@ -83,7 +123,8 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
                     if (t_code[not_whitespace] == '<') {
                       // Находим закрывающий символ '>'
                       if (const auto right_than_sign = t_code.find_first_of('>', not_whitespace); right_than_sign != std::string::npos) {
-                        tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(not_whitespace, right_than_sign - not_whitespace + 1));
+                        using origami::lex::Token;
+                        tokens.emplace_back(Token::Literal, t_code.substr(not_whitespace, right_than_sign - not_whitespace + 1));
                         current_symbol = right_than_sign + 1;
                       }
                     }
@@ -104,42 +145,6 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
 
           break;
         }
-        case '>' : {
-          const auto operators = m_operators.at(t_code[current_symbol]);
-
-          std::string::size_type operator_boundary = current_symbol;
-          std::string operator_build = t_code.substr(operator_boundary, 1);
-
-          ++operator_boundary;
-          while (operator_boundary != t_code.size()) {
-            if (operators.find(operator_build + t_code[operator_boundary]) != operators.end()) {
-              operator_build += t_code[operator_boundary];
-              ++operator_boundary;
-            } else {
-              // Обработка случая для '> >'
-              if (const auto not_whitespace = t_code.find_first_not_of(' ', operator_boundary); not_whitespace != std::string::npos) {
-                if (operators.find(operator_build + t_code[not_whitespace]) != operators.end()) {
-                  operator_boundary = not_whitespace + 1;
-                  operator_build += t_code[not_whitespace];
-                }
-              }
-
-              // И завершаем
-              break;
-            }
-          };
-
-          tokens.emplace_back(origami::lex::Token::Punctuator, std::move(operator_build));
-          current_symbol = operator_boundary;
-
-          break;
-        }
-        case '+' : {
-          // TODO: Определиться, какие операторы операции, а какие пунктуации
-          tokens.emplace_back(origami::lex::Token::Operator, std::string { t_code[current_symbol] });
-          ++current_symbol;
-          break;
-        }
         case '"' : {
           if (const auto last_mark = t_code.find_first_of('"', current_symbol + 1); last_mark != std::string::npos) {
             tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
@@ -152,32 +157,12 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
           break;
         }
         default: {
-          const auto operators = m_operators.at(t_code[current_symbol]);
-
-          std::string::size_type operator_boundary = current_symbol;
-          std::string operator_build = t_code.substr(operator_boundary, 1);
-
-          ++operator_boundary;
-          while (operator_boundary != t_code.size()) {
-            if (operators.find(operator_build + t_code[operator_boundary]) != operators.end()) {
-              operator_build += t_code[operator_boundary];
-              ++operator_boundary;
-            } else {
-              break;
-            }
-          };
-
-          tokens.emplace_back(origami::lex::Token::Punctuator, std::move(operator_build));
-          current_symbol = operator_boundary;
+#ifdef NDEBUG
+          assert(false);
+#endif
         }
       }
     }
-
-#ifdef NDEBUG
-    else {
-      assert(false);
-    }
-#endif
 
   }
 
