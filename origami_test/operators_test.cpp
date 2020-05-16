@@ -27,15 +27,16 @@ class OpeartorsTest : public ::testing::Test {
       * \brief          Подсчитывает количество token'ов, полученных после лексического анализа, указанного типа
       *
       * \param[in]      t_code - исходный код программы
-      * \param[in]      t_count_token - значение token'а, количество которого необходимо посчитать после лексического анализа
+      * \param[in]      t_count_token - значение token'ов, количество которых необходимо посчитать после лексического анализа
       *
       * \return         Количество token'ов указанного типа
       */
-    std::size_t countOfTokens(const std::string& t_code, origami::lex::Token t_count_token)
+    template<typename ... Tokens>
+    std::size_t countOfTokens(const std::string& t_code, Tokens ... t_count_token)
     {
       const auto tokens = m_tokenizer.getTokens(t_code);
-      return std::count_if(tokens.begin(), tokens.end(), [t_count_token](const auto& t_token) {
-        return t_token.first == t_count_token;
+      return std::count_if(tokens.begin(), tokens.end(), [=](const auto& t_token) {
+        return ((t_token.first == t_count_token) || ...);
       });
     }
 
@@ -99,48 +100,46 @@ TEST_F(OpeartorsTest, EqualTo)
   ASSERT_TRUE(equalTokens("==", {{ Token::Operator, "==" }}));
   ASSERT_FALSE(equalTokens("= =", {{ Token::Operator, "==" }}));
 
-  ASSERT_TRUE(equalTokens("auto main() -> int\n"
-                          "{\n"
-                          "    constexpr auto a = 10;\n"
-                          "    constexpr auto b = 10;\n"
-                          "    static_assert(a == b);\n"
-                          "    return 0;\n"
-                          "}", {{ Token::Keyword,    "auto" },
-                                { Token::Identifier, "main" },
-                                { Token::Punctuator, "(" },
-                                { Token::Punctuator, ")" },
-                                { Token::Punctuator, "->" },
-                                { Token::Keyword,    "int" },
-                                { Token::Punctuator, "{" },
-                                { Token::Keyword,    "constexpr" },
-                                { Token::Keyword,    "auto" },
-                                { Token::Identifier, "a" },
-                                { Token::Operator,   "=" },
-                                { Token::Literal,    "10" },
-                                { Token::Punctuator, ";" },
-                                { Token::Keyword,    "constexpr" },
-                                { Token::Keyword,    "auto" },
-                                { Token::Identifier, "b" },
-                                { Token::Operator,   "=" },
-                                { Token::Literal,    "10" },
-                                { Token::Punctuator, ";" },
-                                { Token::Keyword,    "static_assert" },
-                                { Token::Punctuator, "(" },
-                                { Token::Identifier, "a" },
-                                { Token::Operator,   "==" },
-                                { Token::Identifier, "b" },
-                                { Token::Punctuator, ")" },
-                                { Token::Punctuator, ";" },
-                                { Token::Keyword,    "return" },
-                                { Token::Literal,    "0" },
-                                { Token::Punctuator, ";" },
-                                { Token::Punctuator, "}" }}));
+  const std::string code = "auto main() -> int\n"
+                           "{\n"
+                           "    constexpr auto a = 10;\n"
+                           "    constexpr auto b = 10;\n"
+                           "    static_assert(a == b);\n"
+                           "    return 0;\n"
+                           "}";
 
-  EXPECT_EQ(countOfTokens("auto main() -> int\n"
-                          "{\n"
-                          "    constexpr auto a = 10;\n"
-                          "    constexpr auto b = 10;\n"
-                          "    static_assert(a == b);\n"
-                          "    return 0;\n"
-                          "}", Token::Operator),3);
+  ASSERT_TRUE(equalTokens(code,
+                          {{ Token::Keyword,    "auto" },
+                           { Token::Identifier, "main" },
+                           { Token::Punctuator, "(" },
+                           { Token::Punctuator, ")" },
+                           { Token::Punctuator, "->" },
+                           { Token::Keyword,    "int" },
+                           { Token::Punctuator, "{" },
+                           { Token::Keyword,    "constexpr" },
+                           { Token::Keyword,    "auto" },
+                           { Token::Identifier, "a" },
+                           { Token::Operator,   "=" },
+                           { Token::Literal,    "10" },
+                           { Token::Punctuator, ";" },
+                           { Token::Keyword,    "constexpr" },
+                           { Token::Keyword,    "auto" },
+                           { Token::Identifier, "b" },
+                           { Token::Operator,   "=" },
+                           { Token::Literal,    "10" },
+                           { Token::Punctuator, ";" },
+                           { Token::Keyword,    "static_assert" },
+                           { Token::Punctuator, "(" },
+                           { Token::Identifier, "a" },
+                           { Token::Operator,   "==" },
+                           { Token::Identifier, "b" },
+                           { Token::Punctuator, ")" },
+                           { Token::Punctuator, ";" },
+                           { Token::Keyword,    "return" },
+                           { Token::Literal,    "0" },
+                           { Token::Punctuator, ";" },
+                           { Token::Punctuator, "}" }}));
+
+  ASSERT_EQ(countOfTokens(code, Token::Operator), 3);
+  ASSERT_EQ(countOfTokens(code, Token::Operator, Token::Punctuator), 14);
 }

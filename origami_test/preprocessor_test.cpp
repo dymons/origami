@@ -103,9 +103,9 @@ TEST_F(PreprocessorsTest, Include)
   ASSERT_TRUE(equalTokens("# icustomdefine <memory>",
                           {{ Token::Punctuator, "#" },
                            { Token::Identifier, "icustomdefine" },
-                           { Token::Operator, "<" },
+                           { Token::Operator,   "<" },
                            { Token::Identifier, "memory" },
-                           { Token::Operator, ">" }}));
+                           { Token::Operator,   ">" }}));
 
   ASSERT_TRUE(equalTokens("# includecustomdefine",
                           {{ Token::Punctuator, "#" },
