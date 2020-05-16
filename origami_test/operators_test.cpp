@@ -67,7 +67,6 @@ TEST_F(OpeartorsTest, LessThanSign)
 
   const std::string code = "#include <iostream>\n"
                            "#include <deque>\n"
-                           "#include <iterator>\n"
                            "\n"
                            "auto main() -> int\n"
                            "<%\n"
@@ -93,8 +92,6 @@ TEST_F(OpeartorsTest, LessThanSign)
                            { Token::Literal,             "<iostream>" },
                            { Token::KeywordPreprocessor, "#include" },
                            { Token::Literal,             "<deque>" },
-                           { Token::KeywordPreprocessor, "#include" },
-                           { Token::Literal,             "<iterator>" },
                            { Token::Keyword,             "auto" },
                            { Token::Identifier,          "main" },
                            { Token::Punctuator,          "(" },
@@ -164,6 +161,118 @@ TEST_F(OpeartorsTest, LessThanSign)
                            { Token::Punctuator,          "(" },
                            { Token::Identifier,          "value" },
                            { Token::Operator,            "<<=" },
+                           { Token::Literal,             "1" },
+                           { Token::Punctuator,          ")" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "return" },
+                           { Token::Literal,             "0" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Punctuator,          "%>" }}));
+}
+
+/**
+  * \brief          Проверка определения символов ">", ">=", ">>",  ">>="
+  */
+TEST_F(OpeartorsTest, GreaterThanSign)
+{
+  using origami::lex::Token;
+
+  ASSERT_TRUE(equalTokens(">", {{ Token::Operator, ">" }}));
+  ASSERT_TRUE(equalTokens(">=", {{ Token::Operator, ">=" }}));
+  ASSERT_TRUE(equalTokens(">>", {{ Token::Operator, ">>" }}));
+  ASSERT_TRUE(equalTokens(">>=", {{ Token::Operator, ">>=" }}));
+  ASSERT_FALSE(equalTokens("> =", {{ Token::Operator, ">=" }}));
+  ASSERT_FALSE(equalTokens("> >", {{ Token::Operator, ">>" }}));
+  ASSERT_FALSE(equalTokens("> >=", {{ Token::Operator, ">>=" }}));
+
+  const std::string code = "#include <iostream>\n"
+                           "#include <deque>\n"
+                           "\n"
+                           "auto main() -> int\n"
+                           "<%\n"
+                           "    constexpr auto a = 5;\n"
+                           "    constexpr auto b = 10;\n"
+                           "    static_assert(a > b);\n"
+                           "    static_assert(a >= b);\n"
+                           "\n"
+                           "    std::deque<bool> container;\n"
+                           "    int value = 123;\n"
+                           "    do\n"
+                           "    <% \n"
+                           "        container.push_front(value & 1);\n"
+                           "    %> while (value >>= 1);\n"
+                           "    return 0;\n"
+                           "%>";
+
+  EXPECT_EQ(countOfTokens(code, Token::Operator), 9);
+  EXPECT_EQ(countOfTokens(code, Token::Punctuator), 26);
+  ASSERT_TRUE(equalTokens(code,
+                          {{ Token::KeywordPreprocessor, "#include" },
+                           { Token::Literal,             "<iostream>" },
+                           { Token::KeywordPreprocessor, "#include" },
+                           { Token::Literal,             "<deque>" },
+                           { Token::Keyword,             "auto" },
+                           { Token::Identifier,          "main" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Punctuator,          ")" },
+                           { Token::Punctuator,          "->" },
+                           { Token::Keyword,             "int" },
+                           { Token::Punctuator,          "<%" },
+                           { Token::Keyword,             "constexpr" },
+                           { Token::Keyword,             "auto" },
+                           { Token::Identifier,          "a" },
+                           { Token::Operator,            "=" },
+                           { Token::Literal,             "5" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "constexpr" },
+                           { Token::Keyword,             "auto" },
+                           { Token::Identifier,          "b" },
+                           { Token::Operator,            "=" },
+                           { Token::Literal,             "10" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "static_assert" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Identifier,          "a" },
+                           { Token::Operator,            ">" },
+                           { Token::Identifier,          "b" },
+                           { Token::Punctuator,          ")" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "static_assert" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Identifier,          "a" },
+                           { Token::Operator,            ">=" },
+                           { Token::Identifier,          "b" },
+                           { Token::Punctuator,          ")" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Identifier,          "std" },
+                           { Token::Punctuator,          "::" },
+                           { Token::Identifier,          "deque" },
+                           { Token::Operator,            "<" },
+                           { Token::Keyword,             "bool" },
+                           { Token::Operator,            ">" },
+                           { Token::Identifier,          "container" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "int" },
+                           { Token::Identifier,          "value" },
+                           { Token::Operator,            "=" },
+                           { Token::Literal,             "123" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "do" },
+                           { Token::Punctuator,          "<%" },
+                           { Token::Identifier,          "container" },
+                           { Token::Punctuator,          "." },
+                           { Token::Identifier,          "push_front" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Identifier,          "value" },
+                           { Token::Operator,            "&" },
+                           { Token::Literal,             "1" },
+                           { Token::Punctuator,          ")" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Punctuator,          "%>" },
+                           { Token::Keyword,             "while" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Identifier,          "value" },
+                           { Token::Operator,            ">>=" },
                            { Token::Literal,             "1" },
                            { Token::Punctuator,          ")" },
                            { Token::Punctuator,          ";" },
