@@ -58,35 +58,119 @@ TEST_F(OpeartorsTest, LessThanSign)
   ASSERT_TRUE(equalTokens("<<", {{ Token::Operator, "<<" }}));
   ASSERT_TRUE(equalTokens("<<=", {{ Token::Operator, "<<=" }}));
 
-  // Если между операторами находится пробел - это ошибка
-  ASSERT_TRUE(equalTokens("< :",
-                          {{ Token::Operator,   "<" },
-                           { Token::Punctuator, ":" }}));
-  ASSERT_TRUE(equalTokens("< %",
-                          {{ Token::Operator, "<" },
-                           { Token::Operator, "%" }}));
-  ASSERT_TRUE(equalTokens("< =",
-                          {{ Token::Operator, "<" },
-                           { Token::Operator, "=" }}));
-  ASSERT_TRUE(equalTokens("< =>",
-                          {{ Token::Operator, "<" },
-                           { Token::Operator, "=" },
-                           { Token::Operator, ">" }}));
-  ASSERT_TRUE(equalTokens("< <",
-                          {{ Token::Operator, "<" },
-                           { Token::Operator, "<" }}));
-  ASSERT_TRUE(equalTokens("< <=",
-                          {{ Token::Operator, "<" },
-                           { Token::Operator, "<=" }}));
+  ASSERT_FALSE(equalTokens("< :", {{ Token::Punctuator, "<:" }}));
+  ASSERT_FALSE(equalTokens("< %", {{ Token::Punctuator, "<%" }}));
+  ASSERT_FALSE(equalTokens("< =", {{ Token::Operator, "<=" }}));
+  ASSERT_FALSE(equalTokens("< =>", {{ Token::Operator, "<=>" }}));
+  ASSERT_FALSE(equalTokens("< <", {{ Token::Operator, "<<" }}));
+  ASSERT_FALSE(equalTokens("< <=", {{ Token::Operator, "<<=" }}));
 
-  ASSERT_TRUE(equalTokens("bool less = 50 < 60;",
-                          {{ Token::Keyword,    "bool" },
-                           { Token::Identifier, "less" },
-                           { Token::Operator,   "=" },
-                           { Token::Literal,    "50" },
-                           { Token::Operator,   "<" },
-                           { Token::Literal,    "60" },
-                           { Token::Punctuator, ";" }}));
+  const std::string code = "#include <iostream>\n"
+                           "#include <deque>\n"
+                           "#include <iterator>\n"
+                           "\n"
+                           "auto main() -> int\n"
+                           "<%\n"
+                           "    auto lambda = <:&:> { };\n"
+                           "    constexpr auto a = 5;\n"
+                           "    constexpr auto b = 10;\n"
+                           "    static_assert(a < b);\n"
+                           "    static_assert(a <= b);\n"
+                           "\n"
+                           "    std::deque<int> container;\n"
+                           "    int value = 123;\n"
+                           "    do\n"
+                           "    <% \n"
+                           "        container.push_front(value);\n"
+                           "    %> while (value <<= 1);\n"
+                           "    return 0;\n"
+                           "%>";
+
+  EXPECT_EQ(countOfTokens(code, Token::Operator), 10);
+  EXPECT_EQ(countOfTokens(code, Token::Punctuator), 31);
+  ASSERT_TRUE(equalTokens(code,
+                          {{ Token::KeywordPreprocessor, "#include" },
+                           { Token::Literal,             "<iostream>" },
+                           { Token::KeywordPreprocessor, "#include" },
+                           { Token::Literal,             "<deque>" },
+                           { Token::KeywordPreprocessor, "#include" },
+                           { Token::Literal,             "<iterator>" },
+                           { Token::Keyword,             "auto" },
+                           { Token::Identifier,          "main" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Punctuator,          ")" },
+                           { Token::Punctuator,          "->" },
+                           { Token::Keyword,             "int" },
+                           { Token::Punctuator,          "<%" },
+                           { Token::Keyword,             "auto" },
+                           { Token::Identifier,          "lambda" },
+                           { Token::Operator,            "=" },
+                           { Token::Punctuator,          "<:" },
+                           { Token::Operator,            "&" },
+                           { Token::Punctuator,          ":>" },
+                           { Token::Punctuator,          "{" },
+                           { Token::Punctuator,          "}" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "constexpr" },
+                           { Token::Keyword,             "auto" },
+                           { Token::Identifier,          "a" },
+                           { Token::Operator,            "=" },
+                           { Token::Literal,             "5" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "constexpr" },
+                           { Token::Keyword,             "auto" },
+                           { Token::Identifier,          "b" },
+                           { Token::Operator,            "=" },
+                           { Token::Literal,             "10" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "static_assert" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Identifier,          "a" },
+                           { Token::Operator,            "<" },
+                           { Token::Identifier,          "b" },
+                           { Token::Punctuator,          ")" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "static_assert" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Identifier,          "a" },
+                           { Token::Operator,            "<=" },
+                           { Token::Identifier,          "b" },
+                           { Token::Punctuator,          ")" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Identifier,          "std" },
+                           { Token::Punctuator,          "::" },
+                           { Token::Identifier,          "deque" },
+                           { Token::Operator,            "<" },
+                           { Token::Keyword,             "int" },
+                           { Token::Operator,            ">" },
+                           { Token::Identifier,          "container" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "int" },
+                           { Token::Identifier,          "value" },
+                           { Token::Operator,            "=" },
+                           { Token::Literal,             "123" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "do" },
+                           { Token::Punctuator,          "<%" },
+                           { Token::Identifier,          "container" },
+                           { Token::Punctuator,          "." },
+                           { Token::Identifier,          "push_front" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Identifier,          "value" },
+                           { Token::Punctuator,          ")" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Punctuator,          "%>" },
+                           { Token::Keyword,             "while" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Identifier,          "value" },
+                           { Token::Operator,            "<<=" },
+                           { Token::Literal,             "1" },
+                           { Token::Punctuator,          ")" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Keyword,             "return" },
+                           { Token::Literal,             "0" },
+                           { Token::Punctuator,          ";" },
+                           { Token::Punctuator,          "%>" }}));
 }
 
 /**
@@ -108,6 +192,8 @@ TEST_F(OpeartorsTest, EqualTo)
                            "    return 0;\n"
                            "}";
 
+  EXPECT_EQ(countOfTokens(code, Token::Operator), 3);
+  EXPECT_EQ(countOfTokens(code, Token::Punctuator), 11);
   ASSERT_TRUE(equalTokens(code,
                           {{ Token::Keyword,    "auto" },
                            { Token::Identifier, "main" },
@@ -139,7 +225,4 @@ TEST_F(OpeartorsTest, EqualTo)
                            { Token::Literal,    "0" },
                            { Token::Punctuator, ";" },
                            { Token::Punctuator, "}" }}));
-
-  ASSERT_EQ(countOfTokens(code, Token::Operator), 3);
-  ASSERT_EQ(countOfTokens(code, Token::Operator, Token::Punctuator), 14);
 }
