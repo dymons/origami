@@ -335,3 +335,64 @@ TEST_F(OpeartorsTest, EqualTo)
                            { Token::Punctuator, ";" },
                            { Token::Punctuator, "}" }}));
 }
+
+/**
+  * \brief          Проверка определения символов "!", "!="
+  */
+TEST_F(OpeartorsTest, NotEqualTo)
+{
+  using origami::lex::Token;
+
+  ASSERT_TRUE(equalTokens("!", {{ Token::Operator, "!" }}));
+  ASSERT_TRUE(equalTokens("!=", {{ Token::Operator, "!=" }}));
+  ASSERT_FALSE(equalTokens("! =", {{ Token::Operator, "!=" }}));
+
+  const std::string code = "auto main() -> int\n"
+                           "{\n"
+                           "    bool isFirst = 100 < 200;\n"
+                           "    if (!isFirst || (100 != 200))\n"
+                           "    {\n"
+                           "        return 1;\n"
+                           "    }\n"
+                           "\n"
+                           "    return 0;\n"
+                           "}";
+  EXPECT_EQ(countOfTokens(code, Token::Operator), 5);
+  EXPECT_EQ(countOfTokens(code, Token::Punctuator), 14);
+  ASSERT_TRUE(equalTokens(code,
+                          {{ Token::Keyword,    "auto" },
+                           { Token::Identifier, "main" },
+                           { Token::Punctuator, "(" },
+                           { Token::Punctuator, ")" },
+                           { Token::Punctuator, "->" },
+                           { Token::Keyword,    "int" },
+                           { Token::Punctuator, "{" },
+                           { Token::Keyword,    "bool" },
+                           { Token::Identifier, "isFirst" },
+                           { Token::Operator,   "=" },
+                           { Token::Literal,    "100" },
+                           { Token::Operator,   "<" },
+                           { Token::Literal,    "200" },
+                           { Token::Punctuator, ";" },
+                           { Token::Keyword,    "if" },
+                           { Token::Punctuator, "(" },
+                           { Token::Operator,   "!" },
+                           { Token::Identifier, "isFirst" },
+                           { Token::Operator,   "||" },
+                           { Token::Punctuator, "(" },
+                           { Token::Literal,    "100" },
+                           { Token::Operator,   "!=" },
+                           { Token::Literal,    "200" },
+                           { Token::Punctuator, ")" },
+                           { Token::Punctuator, ")" },
+                           { Token::Punctuator, "{" },
+                           { Token::Keyword,    "return" },
+                           { Token::Literal,    "1" },
+                           { Token::Punctuator, ";" },
+                           { Token::Punctuator, "}" },
+                           { Token::Keyword,    "return" },
+                           { Token::Literal,    "0" },
+                           { Token::Punctuator, ";" },
+                           { Token::Punctuator, "}" }}));
+
+}
