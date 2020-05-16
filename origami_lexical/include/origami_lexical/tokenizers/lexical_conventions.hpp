@@ -32,7 +32,7 @@ class LexicalConventions {
       *
       * \return         Последовательность token'ов
       */
-    std::deque<std::pair<origami::lex::Token, std::string>> getTokens(const std::string& t_code);
+    [[nodiscard]] std::deque<std::pair<origami::lex::Token, std::string>> getTokens(const std::string& t_code);
 
   private:
     /**
@@ -40,7 +40,7 @@ class LexicalConventions {
       *
       * \return         Все ключевые слова С++17, которые описаны в пункте 5.11 таблица 5
       */
-    static const std::set<std::string>& keywords()
+    [[nodiscard]] static const std::set<std::string>& keywords()
     {
       static const std::set<std::string> k {
         "alignas", "alignof", "asm", "auto", "bool", "break", "case", "catch", "char", "char16_t", "char32_t", "class", "concept", "const",
@@ -57,7 +57,7 @@ class LexicalConventions {
       return k;
     }
 
-    static const std::set<std::string>& preprocessorsKeywords()
+    [[nodiscard]] static const std::set<std::string>& preprocessorsKeywords()
     {
       static const std::set<std::string> p {
         "include", "if", "ifdef", "ifndef",
@@ -67,7 +67,7 @@ class LexicalConventions {
       return p;
     }
 
-    static const std::map<char, std::set<std::string>>& operators()
+    [[nodiscard]] static const std::map<char, std::set<std::string>>& operators()
     {
       // Стандарт кодирования 5.12
       static const std::map<char, std::set<std::string>> op {
@@ -90,7 +90,7 @@ class LexicalConventions {
       return op;
     }
 
-    static const std::map<char, std::set<std::string>>& punctuation()
+    [[nodiscard]] static const std::map<char, std::set<std::string>>& punctuation()
     {
       // Стандарт кодирования 5.12
       static const std::map<char, std::set<std::string>> punc {

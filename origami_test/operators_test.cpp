@@ -34,6 +34,7 @@ class OpeartorsTest : public ::testing::Test {
     template<typename ... Tokens>
     std::size_t countOfTokens(const std::string& t_code, Tokens ... t_count_token)
     {
+      static_assert(sizeof...(t_count_token) > 0);
       const auto tokens = m_tokenizer.getTokens(t_code);
       return std::count_if(tokens.begin(), tokens.end(), [=](const auto& t_token) {
         return ((t_token.first == t_count_token) || ...);
