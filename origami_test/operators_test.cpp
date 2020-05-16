@@ -27,7 +27,7 @@ class OpeartorsTest : public ::testing::Test {
 };
 
 /**
-  * \brief          Проверка определения всех символов "<", "<:", "<%", "<=", "<=>", "<<", "<<="
+  * \brief          Проверка определения символов "<", "<:", "<%", "<=", "<=>", "<<", "<<="
   */
 TEST_F(OpeartorsTest, LessThanSign)
 {
@@ -43,7 +43,7 @@ TEST_F(OpeartorsTest, LessThanSign)
 
   // Если между операторами находится пробел - это ошибка
   ASSERT_TRUE(equalTokens("< :",
-                          {{ Token::Operator, "<" },
+                          {{ Token::Operator,   "<" },
                            { Token::Punctuator, ":" }}));
   ASSERT_TRUE(equalTokens("< %",
                           {{ Token::Operator, "<" },
@@ -65,9 +65,58 @@ TEST_F(OpeartorsTest, LessThanSign)
   ASSERT_TRUE(equalTokens("bool less = 50 < 60;",
                           {{ Token::Keyword,    "bool" },
                            { Token::Identifier, "less" },
-                           { Token::Operator, "=" },
+                           { Token::Operator,   "=" },
                            { Token::Literal,    "50" },
-                           { Token::Operator, "<" },
+                           { Token::Operator,   "<" },
                            { Token::Literal,    "60" },
                            { Token::Punctuator, ";" }}));
+}
+
+/**
+  * \brief          Проверка определения символов "=", "=="
+  */
+TEST_F(OpeartorsTest, EqualTo)
+{
+  using origami::lex::Token;
+
+  ASSERT_TRUE(equalTokens("=", {{ Token::Operator, "=" }}));
+  ASSERT_TRUE(equalTokens("==", {{ Token::Operator, "==" }}));
+  ASSERT_FALSE(equalTokens("= =", {{ Token::Operator, "==" }}));
+
+  ASSERT_TRUE(equalTokens("auto main() -> int\n"
+                          "{\n"
+                          "    constexpr auto a = 10;\n"
+                          "    constexpr auto b = 10;\n"
+                          "    static_assert(a == b);\n"
+                          "    return 0;\n"
+                          "}", {{ Token::Keyword,    "auto" },
+                                { Token::Identifier, "main" },
+                                { Token::Punctuator, "(" },
+                                { Token::Punctuator, ")" },
+                                { Token::Punctuator, "->" },
+                                { Token::Keyword,    "int" },
+                                { Token::Punctuator, "{" },
+                                { Token::Keyword,    "constexpr" },
+                                { Token::Keyword,    "auto" },
+                                { Token::Identifier, "a" },
+                                { Token::Operator,   "=" },
+                                { Token::Literal,    "10" },
+                                { Token::Punctuator, ";" },
+                                { Token::Keyword,    "constexpr" },
+                                { Token::Keyword,    "auto" },
+                                { Token::Identifier, "b" },
+                                { Token::Operator,   "=" },
+                                { Token::Literal,    "10" },
+                                { Token::Punctuator, ";" },
+                                { Token::Keyword,    "static_assert" },
+                                { Token::Punctuator, "(" },
+                                { Token::Identifier, "a" },
+                                { Token::Operator,   "==" },
+                                { Token::Identifier, "b" },
+                                { Token::Punctuator, ")" },
+                                { Token::Punctuator, ";" },
+                                { Token::Keyword,    "return" },
+                                { Token::Literal,    "0" },
+                                { Token::Punctuator, ";" },
+                                { Token::Punctuator, "}" }}));
 }
