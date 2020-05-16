@@ -141,36 +141,36 @@ TEST_F(PreprocessorsTest, Include)
 TEST_F(PreprocessorsTest, If)
 {
   using origami::lex::Token;
-//
-//  ASSERT_TRUE(equalTokens("#if", {{ Token::KeywordPreprocessor, "#if" }}));
-//  ASSERT_TRUE(equalTokens("#elif ", {{ Token::KeywordPreprocessor, "#elif" }}));
-//  ASSERT_TRUE(equalTokens("#else ", {{ Token::KeywordPreprocessor, "#else" }}));
-//  ASSERT_TRUE(equalTokens("#endif ", {{ Token::KeywordPreprocessor, "#endif" }}));
 
-  const std::string code = "#if DLEVEL > 5\n"
-                           "    #define SIGNAL  1\n"
-                           "    #if STACKUSE == 1\n"
-                           "        #define STACK   200\n"
-                           "    #else\n"
-                           "        #define STACK   100\n"
-                           "    #endif\n"
-                           "#else\n"
-                           "    #define SIGNAL  0\n"
-                           "    #if STACKUSE == 1\n"
-                           "        #define STACK   100\n"
-                           "    #else\n"
-                           "        #define STACK   50\n"
-                           "    #endif\n"
-                           "#endif\n"
-                           "#if DLEVEL == 0\n"
-                           "    #define STACK 0\n"
-                           "#elif DLEVEL == 1\n"
-                           "    #define STACK 100\n"
-                           "#elif DLEVEL > 5\n"
-                           "    display( debugptr );\n"
-                           "#else\n"
-                           "    #define STACK 200\n"
-                           "#endif";
+  ASSERT_TRUE(equalTokens("#if", {{ Token::KeywordPreprocessor, "#if" }}));
+  ASSERT_TRUE(equalTokens("#elif ", {{ Token::KeywordPreprocessor, "#elif" }}));
+  ASSERT_TRUE(equalTokens("#else ", {{ Token::KeywordPreprocessor, "#else" }}));
+  ASSERT_TRUE(equalTokens("#endif ", {{ Token::KeywordPreprocessor, "#endif" }}));
+
+  std::string code = "#if DLEVEL > 5\n"
+                     "    #define SIGNAL  1\n"
+                     "    #if STACKUSE == 1\n"
+                     "        #define STACK   200\n"
+                     "    #else\n"
+                     "        #define STACK   100\n"
+                     "    #endif\n"
+                     "#else\n"
+                     "    #define SIGNAL  0\n"
+                     "    #if STACKUSE == 1\n"
+                     "        #define STACK   100\n"
+                     "    #else\n"
+                     "        #define STACK   50\n"
+                     "    #endif\n"
+                     "#endif\n"
+                     "#if DLEVEL == 0\n"
+                     "    #define STACK 0\n"
+                     "#elif DLEVEL == 1\n"
+                     "    #define STACK 100\n"
+                     "#elif DLEVEL > 5\n"
+                     "    display( debugptr );\n"
+                     "#else\n"
+                     "    #define STACK 200\n"
+                     "#endif";
 
   EXPECT_EQ(countOfTokens(code, Token::KeywordPreprocessor), 23);
   ASSERT_TRUE(equalTokens(code,
@@ -239,4 +239,56 @@ TEST_F(PreprocessorsTest, If)
                            { Token::Literal,             "200" },
                            { Token::KeywordPreprocessor, "#endif" }
                           }));
+
+  code = "#ifdef __has_include\n"
+         "#  if __has_include(<filesystem>)\n"
+         "#    include <filesystem>\n"
+         "#    define have_filesystem 1\n"
+         "#  elif __has_include(<experimental/filesystem>)\n"
+         "#    include <experimental/filesystem>\n"
+         "#    define have_filesystem 1\n"
+         "#    define experimental_filesystem\n"
+         "#  else\n"
+         "#    define have_filesystem 0\n"
+         "#  endif\n"
+         "#endif";
+
+  EXPECT_EQ(countOfTokens(code, Token::KeywordPreprocessor), 12);
+  ASSERT_TRUE(equalTokens(code,
+                          {{ Token::KeywordPreprocessor, "#ifdef" },
+                           { Token::Identifier,          "__has_include" },
+                           { Token::KeywordPreprocessor, "#if" },
+                           { Token::Identifier,          "__has_include" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Operator,            "<" },
+                           { Token::Identifier,          "filesystem" },
+                           { Token::Operator,            ">" },
+                           { Token::Punctuator,          ")" },
+                           { Token::KeywordPreprocessor, "#include" },
+                           { Token::Literal,             "<filesystem>" },
+                           { Token::KeywordPreprocessor, "#define" },
+                           { Token::Identifier,          "have_filesystem" },
+                           { Token::Literal,             "1" },
+                           { Token::KeywordPreprocessor, "#elif" },
+                           { Token::Identifier,          "__has_include" },
+                           { Token::Punctuator,          "(" },
+                           { Token::Operator,            "<" },
+                           { Token::Identifier,          "experimental" },
+                           { Token::Operator,            "/" },
+                           { Token::Identifier,          "filesystem" },
+                           { Token::Operator,            ">" },
+                           { Token::Punctuator,          ")" },
+                           { Token::KeywordPreprocessor, "#include" },
+                           { Token::Literal,             "<experimental/filesystem>" },
+                           { Token::KeywordPreprocessor, "#define" },
+                           { Token::Identifier,          "have_filesystem" },
+                           { Token::Literal,             "1" },
+                           { Token::KeywordPreprocessor, "#define" },
+                           { Token::Identifier,          "experimental_filesystem" },
+                           { Token::KeywordPreprocessor, "#else" },
+                           { Token::KeywordPreprocessor, "#define" },
+                           { Token::Identifier,          "have_filesystem" },
+                           { Token::Literal,             "0" },
+                           { Token::KeywordPreprocessor, "#endif" },
+                           { Token::KeywordPreprocessor, "#endif" }}));
 }
