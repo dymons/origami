@@ -23,6 +23,22 @@ class OpeartorsTest : public ::testing::Test {
       });
     }
 
+    /**
+      * \brief          Подсчитывает количество token'ов, полученных после лексического анализа, указанного типа
+      *
+      * \param[in]      t_code - исходный код программы
+      * \param[in]      t_count_token - значение token'а, количество которого необходимо посчитать после лексического анализа
+      *
+      * \return         Количество token'ов указанного типа
+      */
+    std::size_t countOfTokens(const std::string& t_code, origami::lex::Token t_count_token)
+    {
+      const auto tokens = m_tokenizer.getTokens(t_code);
+      return std::count_if(tokens.begin(), tokens.end(), [t_count_token](const auto& t_token) {
+        return t_token.first == t_count_token;
+      });
+    }
+
     origami::lex::LexicalConventions m_tokenizer; ///< Лексический анализатор
 };
 
@@ -119,4 +135,12 @@ TEST_F(OpeartorsTest, EqualTo)
                                 { Token::Literal,    "0" },
                                 { Token::Punctuator, ";" },
                                 { Token::Punctuator, "}" }}));
+
+  EXPECT_EQ(countOfTokens("auto main() -> int\n"
+                          "{\n"
+                          "    constexpr auto a = 10;\n"
+                          "    constexpr auto b = 10;\n"
+                          "    static_assert(a == b);\n"
+                          "    return 0;\n"
+                          "}", Token::Operator),3);
 }
