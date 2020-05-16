@@ -396,3 +396,138 @@ TEST_F(OpeartorsTest, NotEqualTo)
                            { Token::Punctuator, "}" }}));
 
 }
+
+/**
+  * \brief          Проверка определения символов "+", "-", "*", "/", "%", "++", "--", "+=", "-=", "*=", "/=", "%="
+  */
+TEST_F(OpeartorsTest, ArithmeticOperators)
+{
+  using origami::lex::Token;
+
+  ASSERT_TRUE(equalTokens("+", {{ Token::Operator, "+" }}));
+  ASSERT_TRUE(equalTokens("-", {{ Token::Operator, "-" }}));
+  ASSERT_TRUE(equalTokens("*", {{ Token::Operator, "*" }}));
+  ASSERT_TRUE(equalTokens("/", {{ Token::Operator, "/" }}));
+  ASSERT_TRUE(equalTokens("%", {{ Token::Operator, "%" }}));
+  ASSERT_TRUE(equalTokens("++", {{ Token::Operator, "++" }}));
+  ASSERT_TRUE(equalTokens("--", {{ Token::Operator, "--" }}));
+  ASSERT_TRUE(equalTokens("+=", {{ Token::Operator, "+=" }}));
+  ASSERT_TRUE(equalTokens("-=", {{ Token::Operator, "-=" }}));
+  ASSERT_TRUE(equalTokens("*=", {{ Token::Operator, "*=" }}));
+  ASSERT_TRUE(equalTokens("/=", {{ Token::Operator, "/=" }}));
+  ASSERT_TRUE(equalTokens("%=", {{ Token::Operator, "%=" }}));
+  ASSERT_FALSE(equalTokens("+ +", {{ Token::Operator, "++" }}));
+  ASSERT_FALSE(equalTokens("- -", {{ Token::Operator, "--" }}));
+  ASSERT_FALSE(equalTokens("+ =", {{ Token::Operator, "+=" }}));
+  ASSERT_FALSE(equalTokens("- =", {{ Token::Operator, "-=" }}));
+  ASSERT_FALSE(equalTokens("* =", {{ Token::Operator, "*=" }}));
+  ASSERT_FALSE(equalTokens("/ =", {{ Token::Operator, "/=" }}));
+  ASSERT_FALSE(equalTokens("% =", {{ Token::Operator, "%=" }}));
+
+  const std::string code = "auto main() -> int\n"
+                           "{\n"
+                           "    int foo = 100;\n"
+                           "    int bar = 200;\n"
+                           "    foo = bar + 10;\n"
+                           "    bar = foo - 20;\n"
+                           "    foo = bar * 2;\n"
+                           "    bar = foo / 20;\n"
+                           "    bar = foo % 2;\n"
+                           "    bar++;\n"
+                           "    ++bar;\n"
+                           "    foo--;\n"
+                           "    --foo;\n"
+                           "    foo += 10;\n"
+                           "    bar -= 20;\n"
+                           "    foo *= 2;\n"
+                           "    bar /= 20;\n"
+                           "    bar %= 2;\n"
+                           "    return 0;\n"
+                           "}";
+  EXPECT_EQ(countOfTokens(code, Token::Operator), 21);
+  EXPECT_EQ(countOfTokens(code, Token::Punctuator), 22);
+  ASSERT_TRUE(equalTokens(code,
+                          {{ Token::Keyword,    "auto" },
+                           { Token::Identifier, "main" },
+                           { Token::Punctuator, "(" },
+                           { Token::Punctuator, ")" },
+                           { Token::Punctuator, "->" },
+                           { Token::Keyword,    "int" },
+                           { Token::Punctuator, "{" },
+                           { Token::Keyword,    "int" },
+                           { Token::Identifier, "foo" },
+                           { Token::Operator,   "=" },
+                           { Token::Literal,    "100" },
+                           { Token::Punctuator, ";" },
+                           { Token::Keyword,    "int" },
+                           { Token::Identifier, "bar" },
+                           { Token::Operator,   "=" },
+                           { Token::Literal,    "200" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "foo" },
+                           { Token::Operator,   "=" },
+                           { Token::Identifier, "bar" },
+                           { Token::Operator,   "+" },
+                           { Token::Literal,    "10" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "bar" },
+                           { Token::Operator,   "=" },
+                           { Token::Identifier, "foo" },
+                           { Token::Operator,   "-" },
+                           { Token::Literal,    "20" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "foo" },
+                           { Token::Operator,   "=" },
+                           { Token::Identifier, "bar" },
+                           { Token::Operator,   "*" },
+                           { Token::Literal,    "2" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "bar" },
+                           { Token::Operator,   "=" },
+                           { Token::Identifier, "foo" },
+                           { Token::Operator,   "/" },
+                           { Token::Literal,    "20" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "bar" },
+                           { Token::Operator,   "=" },
+                           { Token::Identifier, "foo" },
+                           { Token::Operator,   "%" },
+                           { Token::Literal,    "2" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "bar" },
+                           { Token::Operator,   "++" },
+                           { Token::Punctuator, ";" },
+                           { Token::Operator,   "++" },
+                           { Token::Identifier, "bar" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "foo" },
+                           { Token::Operator,   "--" },
+                           { Token::Punctuator, ";" },
+                           { Token::Operator,   "--" },
+                           { Token::Identifier, "foo" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "foo" },
+                           { Token::Operator,   "+=" },
+                           { Token::Literal,    "10" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "bar" },
+                           { Token::Operator,   "-=" },
+                           { Token::Literal,    "20" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "foo" },
+                           { Token::Operator,   "*=" },
+                           { Token::Literal,    "2" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "bar" },
+                           { Token::Operator,   "/=" },
+                           { Token::Literal,    "20" },
+                           { Token::Punctuator, ";" },
+                           { Token::Identifier, "bar" },
+                           { Token::Operator,   "%=" },
+                           { Token::Literal,    "2" },
+                           { Token::Punctuator, ";" },
+                           { Token::Keyword,    "return" },
+                           { Token::Literal,    "0" },
+                           { Token::Punctuator, ";" },
+                           { Token::Punctuator, "}" }}));
+}
