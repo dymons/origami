@@ -531,3 +531,43 @@ TEST_F(OpeartorsTest, ArithmeticOperators)
                            { Token::Punctuator, ";" },
                            { Token::Punctuator, "}" }}));
 }
+
+/**
+  * \brief          Проверка определения символов "&", "&=", "&&", "|", "|=", "||", "!", "!="
+  */
+TEST_F(OpeartorsTest, LogicalOperators)
+{
+  using origami::lex::Token;
+
+  ASSERT_TRUE(equalTokens("&", {{ Token::Operator, "&" }}));
+  ASSERT_TRUE(equalTokens("&=", {{ Token::Operator, "&=" }}));
+  ASSERT_TRUE(equalTokens("&&", {{ Token::Operator, "&&" }}));
+  ASSERT_TRUE(equalTokens("|", {{ Token::Operator, "|" }}));
+  ASSERT_TRUE(equalTokens("|=", {{ Token::Operator, "|=" }}));
+  ASSERT_TRUE(equalTokens("||", {{ Token::Operator, "||" }}));
+  ASSERT_TRUE(equalTokens("!", {{ Token::Operator, "!" }}));
+  ASSERT_TRUE(equalTokens("!=", {{ Token::Operator, "!=" }}));
+
+  ASSERT_FALSE(equalTokens("& =", {{ Token::Operator, "&=" }}));
+  ASSERT_FALSE(equalTokens("& &", {{ Token::Operator, "&&" }}));
+  ASSERT_FALSE(equalTokens("| =", {{ Token::Operator, "|=" }}));
+  ASSERT_FALSE(equalTokens("| |", {{ Token::Operator, "||" }}));
+  ASSERT_FALSE(equalTokens("! =", {{ Token::Operator, "!=" }}));
+}
+
+/**
+  * \brief          Проверка определения символов "&", "|", "^", "~", "<<", ">>"
+  */
+TEST_F(OpeartorsTest, BitwiseOperators)
+{
+  using origami::lex::Token;
+
+  ASSERT_TRUE(equalTokens("&", {{ Token::Operator, "&" }}));
+  ASSERT_TRUE(equalTokens("|", {{ Token::Operator, "|" }}));
+  ASSERT_TRUE(equalTokens("^", {{ Token::Operator, "^" }}));
+  ASSERT_TRUE(equalTokens("~", {{ Token::Operator, "~" }}));
+  ASSERT_TRUE(equalTokens("<<", {{ Token::Operator, "<<" }}));
+  ASSERT_TRUE(equalTokens(">>", {{ Token::Operator, ">>" }}));
+  ASSERT_FALSE(equalTokens("< <", {{ Token::Operator, "<<" }}));
+  ASSERT_FALSE(equalTokens("> >", {{ Token::Operator, ">>" }}));
+}
