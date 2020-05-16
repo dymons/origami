@@ -62,7 +62,7 @@ class LexicalConventions {
       static const std::set<std::string> p {
         "include", "if", "ifdef", "ifndef",
         "elif", "else", "endif", "error",
-        "define", "line", "undef", "using" };
+        "define", "line", "undef", "using", "pragma" };
 
       return p;
     }

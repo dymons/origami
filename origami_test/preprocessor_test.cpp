@@ -138,6 +138,9 @@ TEST_F(PreprocessorsTest, Include)
                            { Token::Identifier,          "customdefine" }}));
 }
 
+/**
+  * \brief          Проверка предпроцессора #if, #elif, #else, #endif
+  */
 TEST_F(PreprocessorsTest, If)
 {
   using origami::lex::Token;
@@ -291,4 +294,14 @@ TEST_F(PreprocessorsTest, If)
                            { Token::Literal,             "0" },
                            { Token::KeywordPreprocessor, "#endif" },
                            { Token::KeywordPreprocessor, "#endif" }}));
+}
+
+/**
+  * \brief          Проверка предпроцессора #define
+  */
+TEST_F(PreprocessorsTest, Define)
+{
+  using origami::lex::Token;
+
+  ASSERT_TRUE(equalTokens("#define", {{ Token::KeywordPreprocessor, "#define" }}));
 }
