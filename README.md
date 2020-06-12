@@ -18,3 +18,4 @@ cmake -DCMAKE_BUILD_TYPE="Release" .. && cmake --build .
 3. Заменить Google.Test на Catch2 и переписать тесты
 4. Прочитать статью 7 до конца и далее, понять как будет идти процесс развития далее.
 5. Добавить поддержку для Python. Для отладки, что все работает.
+6. Через паттерн factory-method реализовать lexical conventions
