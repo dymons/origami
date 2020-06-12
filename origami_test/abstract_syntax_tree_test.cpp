@@ -2,7 +2,4 @@
 
 #include "origami_syntax/parsing/syntax_analysis.hpp"
 
-TEST(AbstractSyntaxTreeTest, create)
-{
-
-}
+TEST(AbstractSyntaxTreeTest, create) {}

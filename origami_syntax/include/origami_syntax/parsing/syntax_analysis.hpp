@@ -9,6 +9,6 @@
 
 namespace origami::parser {
 
-} // namespace origami::parser
+}// namespace origami::parser
 
-#endif //ORIGAMI_SYNTAX_ANALYSIS_HPP
+#endif// ORIGAMI_SYNTAX_ANALYSIS_HPP

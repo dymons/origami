@@ -11,14 +11,14 @@
 
 namespace origami::lex {
 enum class Token : std::uint8_t {
-    Identifier,
-    Keyword,
-    Literal,
-    Operator,
-    Punctuator,
+  Identifier,
+  Keyword,
+  Literal,
+  Operator,
+  Punctuator,
 
-    KeywordPreprocessor
+  KeywordPreprocessor
 };
-} // namespace origami::lex
+}// namespace origami::lex
 
-#endif // ORIGAMI_TOKENS_HPP
+#endif// ORIGAMI_TOKENS_HPP

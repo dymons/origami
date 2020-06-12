@@ -2,4 +2,4 @@
 
 namespace origami::parser {
 
-} // namespace origami::parser
+}// namespace origami::parser
