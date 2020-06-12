@@ -16,16 +16,16 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
   std::deque<std::pair<origami::lex::Token, std::string>> tokens;
 
   // Инициализируем стартовую позицию чтения исходного кода
-  std::size_t current_symbol = 0;
+  std::string::size_type current_symbol = 0;
 
   // Пока символы не закончатся, считываем их последовательно
   while (current_symbol != t_code.size()) {
     // Если символ относится к категории 'пробельный символ', игнорируем его
-    if (std::isspace(t_code[current_symbol])) {
+    if (std::isspace(t_code[current_symbol]) != 0) {
       ++current_symbol;
       // Если символ относится к категории 'буквенный символ', определяем полный его идентификатор
       // '_' означает, что именование функций / переменных / классов и т.д. может начинаться с нижнего подчеркивания
-    } else if (std::isalpha(t_code[current_symbol]) || (t_code[current_symbol] == '_')) {
+    } else if ((std::isalpha(t_code[current_symbol]) != 0) || (t_code[current_symbol] == '_')) {
       auto not_isalnum = std::find_if_not(t_code.begin() + current_symbol, t_code.end(), [](auto t_ch) {
         return std::isalnum(t_ch, std::locale{ "C" }) || (t_ch == '_');// Для примера, static_cast имеет '_', поэтому нужно учитывать
       });
@@ -104,10 +104,10 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
       case '#': {
         if (const auto start_preprocessor = t_code.find_first_not_of(' ', current_symbol + 1); start_preprocessor != std::string::npos) {
           std::string::size_type exist_keyword = std::string::npos;
-          for (const auto& preprocessor_keyword : m_preprocessorKeywords) {
+          for (const auto& preprocessor_keyword : m_preprocessor_keywords) {
             if (exist_keyword = t_code.find(preprocessor_keyword, start_preprocessor); exist_keyword == start_preprocessor) {
               const auto second_symbol = std::next(t_code.begin(), start_preprocessor + preprocessor_keyword.size());
-              if ((second_symbol != t_code.end()) && (!std::isspace(*second_symbol))) { continue; }
+              if ((second_symbol != t_code.end()) && (std::isspace(*second_symbol) == 0)) { continue; }
 
               tokens.emplace_back(origami::lex::Token::KeywordPreprocessor, "#" + preprocessor_keyword);
               current_symbol = start_preprocessor + preprocessor_keyword.size();

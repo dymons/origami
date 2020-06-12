@@ -43,7 +43,7 @@ private:
    */
   [[nodiscard]] static const std::set<std::string>& keywords()
   {
-    static const std::set<std::string> k{ "alignas",
+    static const std::set<std::string> K{ "alignas",
       "alignof",
       "asm",
       "auto",
@@ -131,22 +131,22 @@ private:
       "xor_eq",
       "not_eq" };
 
-    return k;
+    return K;
   }
 
   [[nodiscard]] static const std::set<std::string>& preprocessorsKeywords()
   {
-    static const std::set<std::string> p{
+    static const std::set<std::string> P{
       "include", "if", "ifdef", "ifndef", "elif", "else", "endif", "error", "define", "line", "undef", "using", "pragma"
     };
 
-    return p;
+    return P;
   }
 
   [[nodiscard]] static const std::map<char, std::set<std::string>>& operators()
   {
     // Стандарт кодирования 5.12
-    static const std::map<char, std::set<std::string>> op{ { '+', { "+", "+=", "++" } },
+    static const std::map<char, std::set<std::string>> Op{ { '+', { "+", "+=", "++" } },
       { '-', { "-", "-=", "--" } },
       { '*', { "*", "*=" } },
       { '/', { "/", "/=" } },
@@ -161,13 +161,13 @@ private:
       { '?', { "?" } },
       { '~', { "~" } } };
 
-    return op;
+    return Op;
   }
 
   [[nodiscard]] static const std::map<char, std::set<std::string>>& punctuation()
   {
     // Стандарт кодирования 5.12
-    static const std::map<char, std::set<std::string>> punc{ { '<', { "<:", "<%" } },
+    static const std::map<char, std::set<std::string>> Punc{ { '<', { "<:", "<%" } },
       { '%', { "%>", "%:", "%:%" } },
       { '-', { "->", "->*" } },
       { '{', { "{" } },
@@ -182,14 +182,14 @@ private:
       { '.', { ".", "...", ".*" } },
       { ',', { "," } } };
 
-    return punc;
+    return Punc;
   }
 
   // TODO: Сделать независимфм от SymbolTable, посмотреть паттерны. Так как можно сделать для других языков программирования. Python,
   // к примеру.
   // TODO: Перенести в Symbol Table. http://cpp-reference.ru/patterns/creational-patterns/singleton/
   const std::set<std::string>& m_keywords = keywords();///< Ключевые слова С++17
-  const std::set<std::string>& m_preprocessorKeywords = preprocessorsKeywords();///< Ключевые слова для препроцессора
+  const std::set<std::string>& m_preprocessor_keywords = preprocessorsKeywords();///< Ключевые слова для препроцессора
   const std::map<char, std::set<std::string>>& m_operators = operators();///< Все операторы
   const std::map<char, std::set<std::string>>& m_punctuation = punctuation();///< Вся пунктуация
 };
