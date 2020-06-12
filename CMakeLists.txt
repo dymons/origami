@@ -6,4 +6,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(origami)
 
 add_subdirectory(origami_lexical)
+add_subdirectory(origami_syntax)
 add_subdirectory(origami_test)

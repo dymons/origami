@@ -113,6 +113,8 @@ class LexicalConventions {
       return punc;
     }
 
+    // TODO: Сделать независимфм от SymbolTable, посмотреть паттерны. Так как можно сделать для других языков программирования. Python,
+    // к примеру.
     // TODO: Перенести в Symbol Table. http://cpp-reference.ru/patterns/creational-patterns/singleton/
     const std::set<std::string>& m_keywords = keywords(); ///< Ключевые слова С++17
     const std::set<std::string>& m_preprocessorKeywords = preprocessorsKeywords(); ///< Ключевые слова для препроцессора

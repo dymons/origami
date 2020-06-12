@@ -7,7 +7,6 @@
 #ifdef NDEBUG
 #include <cassert>
 #include <iostream>
-
 #endif
 
 namespace origami::lex {
@@ -163,7 +162,6 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
         }
       }
     }
-
   }
 
   return tokens;
