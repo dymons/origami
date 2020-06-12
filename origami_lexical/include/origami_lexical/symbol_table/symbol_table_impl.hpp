@@ -18,7 +18,17 @@ namespace origami::lex {
 class SymbolTableImpl
 {
 public:
-  virtual ~SymbolTableImpl();
+  SymbolTableImpl() = default;
+
+  virtual ~SymbolTableImpl() = default;
+
+  SymbolTableImpl(const SymbolTableImpl&) = default;
+
+  SymbolTableImpl& operator=(const SymbolTableImpl&) = default;
+
+  SymbolTableImpl(SymbolTableImpl&&) = default;
+
+  SymbolTableImpl& operator=(SymbolTableImpl&&) = default;
 
   /**
    * \brief          Ключевые слова для языка программирования
