@@ -70,7 +70,7 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
           } else {
             break;
           }
-        };
+        }
 
         if (punctuation->second.find(punctuator_build) != punctuation->second.end()) {
           tokens.emplace_back(origami::lex::Token::Punctuator, std::move(punctuator_build));
@@ -91,7 +91,7 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
           } else {
             break;
           }
-        };
+        }
 
         if (operators->second.find(operator_build) != operators->second.end()) {
           tokens.emplace_back(origami::lex::Token::Operator, std::move(operator_build));
