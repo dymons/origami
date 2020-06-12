@@ -134,15 +134,6 @@ private:
     return K;
   }
 
-  [[nodiscard]] static const std::set<std::string>& preprocessorsKeywords()
-  {
-    static const std::set<std::string> P{
-      "include", "if", "ifdef", "ifndef", "elif", "else", "endif", "error", "define", "line", "undef", "using", "pragma"
-    };
-
-    return P;
-  }
-
   [[nodiscard]] static const std::map<char, std::set<std::string>>& operators()
   {
     // Стандарт кодирования 5.12
@@ -189,7 +180,6 @@ private:
   // к примеру.
   // TODO: Перенести в Symbol Table. http://cpp-reference.ru/patterns/creational-patterns/singleton/
   const std::set<std::string>& m_keywords = keywords();///< Ключевые слова С++17
-  const std::set<std::string>& m_preprocessor_keywords = preprocessorsKeywords();///< Ключевые слова для препроцессора
   const std::map<char, std::set<std::string>>& m_operators = operators();///< Все операторы
   const std::map<char, std::set<std::string>>& m_punctuation = punctuation();///< Вся пунктуация
 };

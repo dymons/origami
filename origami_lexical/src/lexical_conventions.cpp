@@ -102,42 +102,8 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
 
       switch (t_code[current_symbol]) {
       case '#': {
-        if (const auto start_preprocessor = t_code.find_first_not_of(' ', current_symbol + 1); start_preprocessor != std::string::npos) {
-          std::string::size_type exist_keyword = std::string::npos;
-          for (const auto& preprocessor_keyword : m_preprocessor_keywords) {
-            if (exist_keyword = t_code.find(preprocessor_keyword, start_preprocessor); exist_keyword == start_preprocessor) {
-              const auto second_symbol = std::next(t_code.begin(), start_preprocessor + preprocessor_keyword.size());
-              if ((second_symbol != t_code.end()) && (std::isspace(*second_symbol) == 0)) { continue; }
-
-              tokens.emplace_back(origami::lex::Token::KeywordPreprocessor, "#" + preprocessor_keyword);
-              current_symbol = start_preprocessor + preprocessor_keyword.size();
-
-              // Для предпроцессора include необходимо определить именование header файла в формате <h-char-sequence>
-              if (preprocessor_keyword == "include") {
-                // Находим первый символ, который не относится к пробелу
-                if (const auto not_whitespace = t_code.find_first_not_of(' ', current_symbol); not_whitespace != std::string::npos) {
-                  // Если это угловая скобка, значит мы на верном пути
-                  if (t_code[not_whitespace] == '<') {
-                    // Находим закрывающий символ '>'
-                    if (const auto right_than_sign = t_code.find_first_of('>', not_whitespace); right_than_sign != std::string::npos) {
-                      using origami::lex::Token;
-                      tokens.emplace_back(Token::Literal, t_code.substr(not_whitespace, right_than_sign - not_whitespace + 1));
-                      current_symbol = right_than_sign + 1;
-                    }
-                  }
-                }
-              }
-
-              break;
-            }
-          }
-
-          if (exist_keyword == start_preprocessor) { break; }
-        }
-
         tokens.emplace_back(origami::lex::Token::Punctuator, std::string{ t_code[current_symbol] });
         ++current_symbol;
-
         break;
       }
       case '"': {
