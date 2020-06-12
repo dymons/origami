@@ -44,7 +44,7 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
       }
 
       // Инициализируем последней позицией символа, на котором заканчивается найденное слово
-      current_symbol = std::distance(t_code.begin(), not_isalnum);
+      current_symbol = static_cast<decltype(current_symbol)>(std::distance(t_code.begin(), not_isalnum));
 
       // Если символ относится к категории 'цифровой символ', определяем полный его идентификатор
     } else if (std::isdigit(t_code[current_symbol], std::locale{ "C" })) {
@@ -55,7 +55,7 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
       if (not_isdigit != t_code.end()) {
         auto digital = t_code.substr(current_symbol, std::distance(t_code.begin(), not_isdigit) - current_symbol);
         tokens.emplace_back(origami::lex::Token::Literal, std::move(digital));
-        current_symbol = std::distance(t_code.begin(), not_isdigit);
+        current_symbol = static_cast<decltype(current_symbol)>(std::distance(t_code.begin(), not_isdigit));
       }
     } else {
       if (const auto punctuation = m_punctuation.find(t_code[current_symbol]); punctuation != m_punctuation.end()) {

@@ -32,7 +32,7 @@ protected:
    *
    * \return         Количество token'ов указанного типа
    */
-  template<typename... Tokens> std::size_t countOfTokens(const std::string& t_code, Tokens... t_count_token)
+  template<typename... Tokens> auto countOfTokens(const std::string& t_code, Tokens... t_count_token) -> std::string::difference_type
   {
     static_assert(sizeof...(t_count_token) > 0);
     const auto tokens = m_tokenizer.getTokens(t_code);
