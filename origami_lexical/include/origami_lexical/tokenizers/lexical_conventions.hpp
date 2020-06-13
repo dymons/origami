@@ -156,7 +156,7 @@ public:
   }
 
 private:
-  SymbolTableImplPtr m_table; ///< Символьная таблица, содержащая информацию о синтаксисе языка программирования
+  SymbolTableImplPtr m_table;///< Символьная таблица, содержащая информацию о синтаксисе языка программирования
 };
 
 template class LexicalConventions<SymbolTableCpp>;
