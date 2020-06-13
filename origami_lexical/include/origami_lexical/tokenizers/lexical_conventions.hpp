@@ -1,7 +1,7 @@
 /*******************************************************************************************************************************************
  * \author      Emelyanov Dmitry <dmitriy.emelyanov.de@gmail.com>
  *
- * \brief       Содержит лексический анализатор для С++17
+ * \brief       Лексический анализатор, разбитвает исходный код программы на последовательность лексем
  ******************************************************************************************************************************************/
 
 #ifndef ORIGAMI_LEXICAL_CONVENTIONS_HPP
@@ -90,23 +90,23 @@ public:
         }
       } else {
         if (const auto punctuation = m_table->punctuation().find(t_code[current_symbol]); punctuation != m_table->punctuation().end()) {
-          std::string::size_type punctuator_boundary = current_symbol;
-          std::string punctuator_build = t_code.substr(punctuator_boundary, 1);
+          // Находим максимульную длину возможной комбинации для текущего символа
+          const auto max_size = std::max_element(punctuation->second.begin(), punctuation->second.end());
 
-          ++punctuator_boundary;
-          while (punctuator_boundary != t_code.size()) {
-            if (punctuation->second.find(punctuator_build + t_code[punctuator_boundary]) != punctuation->second.end()) {
-              punctuator_build += t_code[punctuator_boundary];
-              ++punctuator_boundary;
-            } else {
+          // Приводим максимальную длину к актуальному значению, для того чтобы не выйти за границы массива
+          auto valid_max_size = std::clamp<decltype(current_symbol)>(max_size->size(), 0, t_code.size() - current_symbol);
+
+          // Производим поиск комбинации с самой длинной возможной конструктуции, до тех пор пока не найдем, либо не выйдем из цикла
+          while (valid_max_size != 0)
+          {
+            // Если нашли нужную комбинацию
+            if (auto punct = punctuation->second.find(t_code.substr(current_symbol, valid_max_size)); punct != punctuation->second.end()) {
+              tokens.emplace_back(origami::lex::Token::Punctuator, *punct);
+              current_symbol += valid_max_size;
               break;
             }
-          }
 
-          if (punctuation->second.find(punctuator_build) != punctuation->second.end()) {
-            tokens.emplace_back(origami::lex::Token::Punctuator, std::move(punctuator_build));
-            current_symbol = punctuator_boundary;
-            continue;
+            --valid_max_size;
           }
         }
 
@@ -142,11 +142,6 @@ public:
           }
 
           break;
-        }
-        default: {
-#ifdef ORIGAMI_DEBUG
-          assert(false);
-#endif
         }
         }
       }

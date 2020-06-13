@@ -1,5 +1,6 @@
 #include "origami_lexical/tokenizers/lexical_conventions.hpp"
 #include "origami_lexical/symbol_table/symbol_table_cpp.hpp"
+#include "origami_lexical/symbol_table/symbol_table_python.hpp"
 
 #include <catch2/catch.hpp>
 
@@ -516,5 +517,23 @@ TEST_CASE("Проверка аналитического разбора прог
     REQUIRE(equalTokens(tokenizer.getTokens(">>"), { { Token::Operator, ">>" } }));
     REQUIRE_FALSE(equalTokens(tokenizer.getTokens("< <"), { { Token::Operator, "<<" } }));
     REQUIRE_FALSE(equalTokens(tokenizer.getTokens("> >"), { { Token::Operator, ">>" } }));
+  }
+}
+
+TEST_CASE("Проверка аналитического разбора программы Python на распознование лексем", "[tokenizer-python]")
+{
+  origami::lex::LexicalConventions<origami::lex::SymbolTablePython> tokenizer;
+
+  using origami::lex::Token;
+  SECTION("Проверка определения символов <, <=, <<, <<=")
+  {
+    REQUIRE(equalTokens(tokenizer.getTokens("<"), { { Token::Operator, "<" } }));
+    REQUIRE(equalTokens(tokenizer.getTokens("<="), { { Token::Operator, "<=" } }));
+    REQUIRE(equalTokens(tokenizer.getTokens("<<"), { { Token::Operator, "<<" } }));
+    REQUIRE(equalTokens(tokenizer.getTokens("<<="), { { Token::Punctuator, "<<=" } }));
+
+    REQUIRE_FALSE(equalTokens(tokenizer.getTokens("< ="), { { Token::Operator, "<=" } }));
+    REQUIRE_FALSE(equalTokens(tokenizer.getTokens("< <"), { { Token::Operator, "<<" } }));
+    REQUIRE_FALSE(equalTokens(tokenizer.getTokens("< <="), { { Token::Punctuator, "<<=" } }));
   }
 }
