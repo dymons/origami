@@ -91,44 +91,38 @@ public:
       } else {
         if (const auto punctuation = m_table->punctuation().find(t_code[current_symbol]); punctuation != m_table->punctuation().end()) {
           // Находим максимульную длину возможной комбинации для текущего символа
-          const auto max_size = std::max_element(punctuation->second.begin(), punctuation->second.end());
+          const auto max_combination = std::max_element(punctuation->second.begin(), punctuation->second.end());
 
           // Приводим максимальную длину к актуальному значению, для того чтобы не выйти за границы массива
-          auto valid_max_size = std::clamp<decltype(current_symbol)>(max_size->size(), 0, t_code.size() - current_symbol);
+          auto max_size = std::clamp<decltype(current_symbol)>(max_combination->size(), 0, t_code.size() - current_symbol);
 
           // Производим поиск комбинации с самой длинной возможной конструктуции, до тех пор пока не найдем, либо не выйдем из цикла
-          while (valid_max_size != 0)
-          {
+          do {
             // Если нашли нужную комбинацию
-            if (auto punct = punctuation->second.find(t_code.substr(current_symbol, valid_max_size)); punct != punctuation->second.end()) {
+            if (auto punct = punctuation->second.find(t_code.substr(current_symbol, max_size)); punct != punctuation->second.end()) {
               tokens.emplace_back(origami::lex::Token::Punctuator, *punct);
-              current_symbol += valid_max_size;
+              current_symbol += max_size;
               break;
             }
-
-            --valid_max_size;
-          }
+          } while (--max_size != 0);
         }
 
         if (const auto operators = m_table->operators().find(t_code[current_symbol]); operators != m_table->operators().end()) {
-          std::string::size_type operator_boundary = current_symbol;
-          std::string operator_build = t_code.substr(operator_boundary, 1);
+          // Находим максимульную длину возможной комбинации для текущего символа
+          const auto max_combination = std::max_element(operators->second.begin(), operators->second.end());
 
-          ++operator_boundary;
-          while (operator_boundary != t_code.size()) {
-            if (operators->second.find(operator_build + t_code[operator_boundary]) != operators->second.end()) {
-              operator_build += t_code[operator_boundary];
-              ++operator_boundary;
-            } else {
+          // Приводим максимальную длину к актуальному значению, для того чтобы не выйти за границы массива
+          auto max_size = std::clamp<decltype(current_symbol)>(max_combination->size(), 0, t_code.size() - current_symbol);
+
+          // Производим поиск комбинации с самой длинной возможной конструктуции, до тех пор пока не найдем, либо не выйдем из цикла
+          do {
+            // Если нашли нужную комбинацию
+            if (auto punct = operators->second.find(t_code.substr(current_symbol, max_size)); punct != operators->second.end()) {
+              tokens.emplace_back(origami::lex::Token::Operator, *punct);
+              current_symbol += max_size;
               break;
             }
-          }
-
-          if (operators->second.find(operator_build) != operators->second.end()) {
-            tokens.emplace_back(origami::lex::Token::Operator, std::move(operator_build));
-            current_symbol = operator_boundary;
-            continue;
-          }
+          } while (--max_size != 0);
         }
 
         switch (t_code[current_symbol]) {
