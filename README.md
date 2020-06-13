@@ -11,7 +11,3 @@ https://github.com/dymons/origami
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE="Release" .. && cmake --build .
 ```
-
-## TODO
-1. Прочитать статью 7 до конца и далее, понять как будет идти процесс развития далее.
-2. Добавить поддержку для Python. Для отладки, что все работает.
