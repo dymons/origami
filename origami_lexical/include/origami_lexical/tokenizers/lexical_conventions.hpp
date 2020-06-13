@@ -160,6 +160,7 @@ private:
 };
 
 template class LexicalConventions<SymbolTableCpp>;
+template class LexicalConventions<SymbolTablePython>;
 
 }// namespace origami::lex
 
