@@ -101,11 +101,6 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
       }
 
       switch (t_code[current_symbol]) {
-      case '#': {
-        tokens.emplace_back(origami::lex::Token::Punctuator, std::string{ t_code[current_symbol] });
-        ++current_symbol;
-        break;
-      }
       case '"': {
         if (const auto last_mark = t_code.find_first_of('"', current_symbol + 1); last_mark != std::string::npos) {
           tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
