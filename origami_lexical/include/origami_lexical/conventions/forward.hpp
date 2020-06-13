@@ -7,6 +7,10 @@
 #ifndef ORIGAMI_FORWARD_HPP
 #define ORIGAMI_FORWARD_HPP
 
+#ifdef _DEBUG
+#define ORIGAMI_DEBUG
+#endif
+
 #include <memory>
 #include <string>
 

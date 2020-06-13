@@ -9,6 +9,7 @@
 #ifndef ORIGAMI_LEXICAL_CONVENTIONS_HPP
 #define ORIGAMI_LEXICAL_CONVENTIONS_HPP
 
+#include "origami_lexical/conventions/forward.hpp"
 #include "origami_lexical/conventions/tokens.hpp"
 
 #include <deque>

@@ -4,7 +4,7 @@
 #include <cctype>
 #include <locale>
 
-#ifdef NDEBUG
+#ifdef ORIGAMI_DEBUG
 #include <cassert>
 #include <iostream>
 #endif
@@ -113,7 +113,7 @@ std::deque<std::pair<origami::lex::Token, std::string>> LexicalConventions::getT
         break;
       }
       default: {
-#ifdef NDEBUG
+#ifdef ORIGAMI_DEBUG
         assert(false);
 #endif
       }
