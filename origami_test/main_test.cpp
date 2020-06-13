@@ -1,12 +1,3 @@
-#include <gtest/gtest.h>
+#define CATCH_CONFIG_MAIN
 
-int main(int t_argc, char** t_argv)
-{
-  ::testing::InitGoogleTest(&t_argc, t_argv);
-
-#ifdef _DEBUG
-  assert(false);
-#endif
-
-  return RUN_ALL_TESTS();
-}
+#include <catch2/catch.hpp>

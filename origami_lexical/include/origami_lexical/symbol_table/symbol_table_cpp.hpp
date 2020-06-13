@@ -14,13 +14,13 @@ class SymbolTableCpp final : public SymbolTableImpl
 {
 public:
   ///< \brief Определяем для С++17 ключевые слова. 5 глава, пункт 5.11
-  [[nodiscard]] const std::set<std::string>& keywords() override;
+  const std::set<std::string>& keywords() override;
 
   ///< \brief Определяем для С++17 операции. 5 глава, пункт 5.12
-  [[nodiscard]] const std::map<char, std::set<std::string>>& operators() override;
+  const std::map<char, std::set<std::string>>& operators() override;
 
   ///< \brief Определяем для С++17 знаки пунктуации. 5 глава, пункт 5.12
-  [[nodiscard]] const std::map<char, std::set<std::string>>& punctuation() override;
+  const std::map<char, std::set<std::string>>& punctuation() override;
 };
 }// namespace origami::lex
 
