@@ -117,8 +117,8 @@ public:
           // Производим поиск комбинации с самой длинной возможной конструктуции, до тех пор пока не найдем, либо не выйдем из цикла
           do {
             // Если нашли нужную комбинацию
-            if (auto punct = operators->second.find(t_code.substr(current_symbol, max_size)); punct != operators->second.end()) {
-              tokens.emplace_back(origami::lex::Token::Operator, *punct);
+            if (auto oper = operators->second.find(t_code.substr(current_symbol, max_size)); oper != operators->second.end()) {
+              tokens.emplace_back(origami::lex::Token::Operator, *oper);
               current_symbol += max_size;
               break;
             }
@@ -126,17 +126,17 @@ public:
         }
 
         switch (t_code[current_symbol]) {
-        case '"': {
-          if (const auto last_mark = t_code.find_first_of('"', current_symbol + 1); last_mark != std::string::npos) {
-            tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
-            current_symbol = last_mark + 1;
-          } else {
-            tokens.emplace_back(origami::lex::Token::Punctuator, std::string{ t_code[current_symbol] });
-            ++current_symbol;
-          }
+          case '"': {
+            if (const auto last_mark = t_code.find_first_of('"', current_symbol + 1); last_mark != std::string::npos) {
+              tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
+              current_symbol = last_mark + 1;
+            } else {
+              tokens.emplace_back(origami::lex::Token::Punctuator, std::string{ t_code[current_symbol] });
+              ++current_symbol;
+            }
 
-          break;
-        }
+            break;
+          }
         }
       }
     }
