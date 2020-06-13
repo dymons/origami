@@ -2,9 +2,9 @@
 
 namespace origami::lex {
 
-std::set<std::string> SymbolTableCpp::keywords()
+const std::set<std::string>& SymbolTableCpp::keywords()
 {
-  const std::set<std::string> keys{ "alignas",
+  static const std::set<std::string> Keys{ "alignas",
     "alignof",
     "asm",
     "auto",
@@ -92,12 +92,12 @@ std::set<std::string> SymbolTableCpp::keywords()
     "xor_eq",
     "not_eq" };
 
-  return keys;
+  return Keys;
 }
-std::map<char, std::set<std::string>> SymbolTableCpp::operators()
+const std::map<char, std::set<std::string>>& SymbolTableCpp::operators()
 {
   // Стандарт кодирования 5.12
-  const std::map<char, std::set<std::string>> op{ { '+', { "+", "+=", "++" } },
+  static const std::map<char, std::set<std::string>> Op{ { '+', { "+", "+=", "++" } },
     { '-', { "-", "-=", "--" } },
     { '*', { "*", "*=" } },
     { '/', { "/", "/=" } },
@@ -112,12 +112,12 @@ std::map<char, std::set<std::string>> SymbolTableCpp::operators()
     { '?', { "?" } },
     { '~', { "~" } } };
 
-  return op;
+  return Op;
 }
-std::map<char, std::set<std::string>> SymbolTableCpp::punctuation()
+const std::map<char, std::set<std::string>>& SymbolTableCpp::punctuation()
 {
   // Стандарт кодирования 5.12
-  const std::map<char, std::set<std::string>> punc{ { '<', { "<:", "<%" } },
+  static const std::map<char, std::set<std::string>> Punctuation{ { '<', { "<:", "<%" } },
     { '%', { "%>", "%:", "%:%" } },
     { '-', { "->", "->*" } },
     { '{', { "{" } },
@@ -132,6 +132,6 @@ std::map<char, std::set<std::string>> SymbolTableCpp::punctuation()
     { '.', { ".", "...", ".*" } },
     { ',', { "," } } };
 
-  return punc;
+  return Punctuation;
 }
 }// namespace origami::lex

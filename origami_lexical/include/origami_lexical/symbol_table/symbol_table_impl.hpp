@@ -38,7 +38,7 @@ public:
    *
    * \return         Возвращает все ключевые слова, которые относятся к языку программирования
    */
-  virtual std::set<std::string> keywords() = 0;
+  virtual const std::set<std::string>& keywords() = 0;
 
   /**
    * \brief          Операторы для языка программирования
@@ -51,7 +51,7 @@ public:
    *
    * \return         Возвращает все операторы, которые относятся к языку программирования
    */
-  virtual std::map<char, std::set<std::string>> operators() = 0;
+  virtual const std::map<char, std::set<std::string>>& operators() = 0;
 
   /**
    * \brief          Пунктуация для языка программирования
@@ -64,7 +64,7 @@ public:
    *
    * \return         Возвращает все пунктуационные знаки, которые относятся к языку программирования
    */
-  virtual std::map<char, std::set<std::string>> punctuation() = 0;
+  virtual const std::map<char, std::set<std::string>>& punctuation() = 0;
 };
 }// namespace origami::lex
 
