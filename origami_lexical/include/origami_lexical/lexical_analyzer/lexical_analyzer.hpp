@@ -4,13 +4,13 @@
  * \brief       Лексический анализатор, разбитвает исходный код программы на последовательность лексем
  ******************************************************************************************************************************************/
 
-#ifndef ORIGAMI_LEXICAL_CONVENTIONS_HPP
-#define ORIGAMI_LEXICAL_CONVENTIONS_HPP
+#ifndef ORIGAMI_LEXICAL_ANALYZER_HPP
+#define ORIGAMI_LEXICAL_ANALYZER_HPP
 
 #include "origami_lexical/conventions/forward.hpp"
 #include "origami_lexical/conventions/tokens.hpp"
-#include "origami_lexical/symbol_table/symbol_table_cpp.hpp"
-#include "origami_lexical/symbol_table/symbol_table_python.hpp"
+#include "origami_lexical/lexical_conventions/lexical_convention_cpp.hpp"
+#include "origami_lexical/lexical_conventions/lexical_convention_python.hpp"
 
 #ifdef ORIGAMI_DEBUG
 #include <cassert>
@@ -29,10 +29,10 @@ namespace origami::lex {
  *                  на выходе идентифицированных последовательностей, называемых «токенами». Аналитический разбор основан на анализе
  *                  стандарта С++17.
  */
-template<typename T> class LexicalConventions
+template<typename T> class LexicalAnalyzer
 {
 public:
-  LexicalConventions() : m_table(std::make_shared<T>()) {}
+  LexicalAnalyzer() : m_convention(std::make_shared<T>()) {}
 
   /**
    * \brief          Формирует последовательность token'ов на основе исходного кода программы
@@ -65,10 +65,10 @@ public:
         auto word = t_code.substr(current_symbol, std::distance(t_code.begin(), not_isalnum) - current_symbol);
 
         // Находим ключевое слово, которое описано в стандарте С++ 5.11 таблица 5
-        const auto keyword = m_table->keywords().find(word);
+        const auto keyword = m_convention->keywords().find(word);
 
         // Если нашли ключевое слово, идентифицируем его как ключевое слово
-        if (keyword != m_table->keywords().end()) {
+        if (keyword != m_convention->keywords().end()) {
           tokens.emplace_back(origami::lex::Token::Keyword, *keyword);
         } else {// Иначе, это именование
           tokens.emplace_back(origami::lex::Token::Identifier, std::move(word));
@@ -89,7 +89,7 @@ public:
           current_symbol = static_cast<decltype(current_symbol)>(std::distance(t_code.begin(), not_isdigit));
         }
       } else {
-        if (const auto punctuation = m_table->punctuation().find(t_code[current_symbol]); punctuation != m_table->punctuation().end()) {
+        if (const auto punctuation = m_convention->punctuation().find(t_code[current_symbol]); punctuation != m_convention->punctuation().end()) {
           // Находим максимульную длину возможной комбинации для текущего символа
           const auto max_combination = std::max_element(punctuation->second.begin(), punctuation->second.end());
 
@@ -107,7 +107,7 @@ public:
           } while (--max_size != 0);
         }
 
-        if (const auto operators = m_table->operators().find(t_code[current_symbol]); operators != m_table->operators().end()) {
+        if (const auto operators = m_convention->operators().find(t_code[current_symbol]); operators != m_convention->operators().end()) {
           // Находим максимульную длину возможной комбинации для текущего символа
           const auto max_combination = std::max_element(operators->second.begin(), operators->second.end());
 
@@ -145,12 +145,12 @@ public:
   }
 
 private:
-  SymbolTableImplPtr m_table;///< Символьная таблица, содержащая информацию о синтаксисе языка программирования
+  LexicalConventionImplPtr m_convention;///< Символьная таблица, содержащая информацию о синтаксисе языка программирования
 };
 
-template class LexicalConventions<SymbolTableCpp>;
-template class LexicalConventions<SymbolTablePython>;
+template class LexicalAnalyzer<LexicalConventionCpp>;
+template class LexicalAnalyzer<LexicalConventionPython>;
 
 }// namespace origami::lex
 
-#endif// ORIGAMI_LEXICAL_CONVENTIONS_HPP
+#endif// ORIGAMI_LEXICAL_ANALYZER_HPP

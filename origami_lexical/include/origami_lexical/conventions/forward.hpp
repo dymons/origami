@@ -15,9 +15,9 @@
 #include <string>
 
 namespace origami::lex {
-class SymbolTableImpl;
-using SymbolTableImplPtr = std::shared_ptr<SymbolTableImpl>;
-using SymbolTableImplConstPtr = std::shared_ptr<const SymbolTableImpl>;
+class LexicalConventionImpl;
+using LexicalConventionImplPtr = std::shared_ptr<LexicalConventionImpl>;
+using LexicalConventionImplConstPtr = std::shared_ptr<const LexicalConventionImpl>;
 
 using Lexeme = std::string;
 }// namespace origami::lex

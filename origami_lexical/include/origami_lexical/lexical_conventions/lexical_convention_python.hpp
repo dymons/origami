@@ -4,13 +4,13 @@
  * \brief
  ******************************************************************************************************************************************/
 
-#ifndef ORIGAMI_SYMBOL_TABLE_PYTHON_HPP
-#define ORIGAMI_SYMBOL_TABLE_PYTHON_HPP
+#ifndef ORIGAMI_LEXICAL_CONVENTION_PYTHON_HPP
+#define ORIGAMI_LEXICAL_CONVENTION_PYTHON_HPP
 
-#include "origami_lexical/symbol_table/symbol_table_impl.hpp"
+#include "origami_lexical/lexical_conventions/lexical_convention_impl.hpp"
 
 namespace origami::lex {
-class SymbolTablePython final : public SymbolTableImpl
+class LexicalConventionPython final : public LexicalConventionImpl
 {
 public:
   ///< \brief Определяем для Python3 ключевые слова. Пункт 2.3.1.
@@ -24,4 +24,4 @@ public:
 };
 }// namespace origami::lex
 
-#endif// ORIGAMI_SYMBOL_TABLE_PYTHON_HPP
+#endif// ORIGAMI_LEXICAL_CONVENTION_PYTHON_HPP

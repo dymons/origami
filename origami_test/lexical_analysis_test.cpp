@@ -1,6 +1,6 @@
-#include "origami_lexical/tokenizers/lexical_conventions.hpp"
-#include "origami_lexical/symbol_table/symbol_table_cpp.hpp"
-#include "origami_lexical/symbol_table/symbol_table_python.hpp"
+#include "origami_lexical/lexical_analyzer/lexical_analyzer.hpp"
+#include "origami_lexical/lexical_conventions/lexical_convention_cpp.hpp"
+#include "origami_lexical/lexical_conventions/lexical_convention_python.hpp"
 
 #include <catch2/catch.hpp>
 
@@ -36,7 +36,7 @@ template<typename T, typename... Tokens> auto countOfTokens(const T& t_tokens, T
 
 TEST_CASE("Проверка аналитического разбора программы С++ на распознование лексем", "[tokenizer-cpp]")
 {
-  origami::lex::LexicalConventions<origami::lex::SymbolTableCpp> tokenizer;
+  origami::lex::LexicalAnalyzer<origami::lex::LexicalConventionCpp> tokenizer;
 
   using origami::lex::Token;
   SECTION("Проверка определения символов <, <:, <%, <=, <=>, <<, <<=")
@@ -522,7 +522,7 @@ TEST_CASE("Проверка аналитического разбора прог
 
 TEST_CASE("Проверка аналитического разбора программы Python на распознование лексем", "[tokenizer-python]")
 {
-  origami::lex::LexicalConventions<origami::lex::SymbolTablePython> tokenizer;
+  origami::lex::LexicalAnalyzer<origami::lex::LexicalConventionPython> tokenizer;
 
   using origami::lex::Token;
   SECTION("Проверка определения символов <, <=, <<, <<=")

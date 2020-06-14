@@ -1,8 +1,8 @@
-#include "origami_lexical/symbol_table/symbol_table_python.hpp"
+#include "origami_lexical/lexical_conventions/lexical_convention_python.hpp"
 
 namespace origami::lex {
 
-const std::set<std::string>& SymbolTablePython::keywords()
+const std::set<std::string>& LexicalConventionPython::keywords()
 {
   static const std::set<std::string> Keys{ "False",
     "None",
@@ -40,7 +40,7 @@ const std::set<std::string>& SymbolTablePython::keywords()
     "yield" };
   return Keys;
 }
-const std::map<char, std::set<std::string>>& SymbolTablePython::operators()
+const std::map<char, std::set<std::string>>& LexicalConventionPython::operators()
 {
   static const std::map<char, std::set<std::string>> Op{ { '+', { "+" } },
     { '-', { "-" } },
@@ -62,7 +62,7 @@ const std::map<char, std::set<std::string>>& SymbolTablePython::operators()
   return Op;
 }
 
-const std::map<char, std::set<std::string>>& SymbolTablePython::punctuation()
+const std::map<char, std::set<std::string>>& LexicalConventionPython::punctuation()
 {
   static const std::map<char, std::set<std::string>> Punctuation{
     { '(', { "(" } },

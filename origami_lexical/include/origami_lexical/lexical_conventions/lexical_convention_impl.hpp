@@ -4,8 +4,8 @@
  * \brief       Описывает базовую структуру языка программирования. Из каких ключевых слов, операторов и знаков пунктуации он состоит.
  ******************************************************************************************************************************************/
 
-#ifndef ORIGAMI_SYMBOL_TABLE_IMPL_HPP
-#define ORIGAMI_SYMBOL_TABLE_IMPL_HPP
+#ifndef ORIGAMI_LEXICAL_CONVENTION_IMPL_HPP
+#define ORIGAMI_LEXICAL_CONVENTION_IMPL_HPP
 
 #include "origami_lexical/conventions/forward.hpp"
 #include "origami_lexical/conventions/tokens.hpp"
@@ -15,20 +15,20 @@
 #include <string>
 
 namespace origami::lex {
-class SymbolTableImpl
+class LexicalConventionImpl
 {
 public:
-  SymbolTableImpl() = default;
+  LexicalConventionImpl() = default;
 
-  virtual ~SymbolTableImpl() = default;
+  virtual ~LexicalConventionImpl() = default;
 
-  SymbolTableImpl(const SymbolTableImpl&) = default;
+  LexicalConventionImpl(const LexicalConventionImpl&) = default;
 
-  SymbolTableImpl& operator=(const SymbolTableImpl&) = default;
+  LexicalConventionImpl& operator=(const LexicalConventionImpl&) = default;
 
-  SymbolTableImpl(SymbolTableImpl&&) = default;
+  LexicalConventionImpl(LexicalConventionImpl&&) = default;
 
-  SymbolTableImpl& operator=(SymbolTableImpl&&) = default;
+  LexicalConventionImpl& operator=(LexicalConventionImpl&&) = default;
 
   /**
    * \brief          Ключевые слова для языка программирования
@@ -68,4 +68,4 @@ public:
 };
 }// namespace origami::lex
 
-#endif// ORIGAMI_SYMBOL_TABLE_IMPL_HPP
+#endif// ORIGAMI_LEXICAL_CONVENTION_IMPL_HPP
