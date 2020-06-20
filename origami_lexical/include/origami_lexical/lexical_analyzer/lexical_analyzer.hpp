@@ -33,7 +33,9 @@ namespace origami::lex {
 template<typename T> class LexicalAnalyzer
 {
 public:
-  explicit LexicalAnalyzer(std::string t_code) : m_convention(std::make_shared<T>()), m_code(std::move(t_code)), m_current_symbol(0) {}
+  LexicalAnalyzer() : m_convention(std::make_shared<T>()) {}
+
+  explicit LexicalAnalyzer(std::string t_code) : m_convention(std::make_shared<T>()), m_code(std::move(t_code)) {}
 
   /**
    * \brief
@@ -105,7 +107,6 @@ public:
 
           // Приводим максимальную длину к актуальному значению, для того чтобы не выйти за границы массива
           auto max_size = std::clamp<decltype(m_current_symbol)>(max_combination->size(), 0, m_code.size() - m_current_symbol);
-
           // Производим поиск комбинации с самой длинной возможной конструктуции, до тех пор пока не найдем, либо не выйдем из цикла
           do {
             // Если нашли нужную комбинацию
@@ -132,9 +133,36 @@ public:
     return { Token::Eof, {} };
   }
 
+  /**
+   * \brief
+   *
+   * \return
+   */
+  bool empty() { return m_code.size() == m_current_symbol; }
+
+  /**
+   * \brief
+   */
+  void clear()
+  {
+    m_code.clear();
+    m_current_symbol = 0;
+  }
+
+  /**
+   * \brief
+   *
+   * \param[in]
+   */
+  void update(const std::string& t_code)
+  {
+    m_code = t_code;
+    m_current_symbol = 0;
+  }
+
 private:
   std::string m_code;///< Исходный код программы
-  std::string::size_type m_current_symbol;///<Текущий позиция лексического анализатора
+  std::string::size_type m_current_symbol{ 0 };///<Текущий позиция лексического анализатора
   LexicalConventionImplPtr m_convention;///< Символьная таблица, содержащая информацию о синтаксисе языка программирования
 };
 
