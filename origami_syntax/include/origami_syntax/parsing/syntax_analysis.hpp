@@ -79,7 +79,7 @@ template<> struct AstVisitables<Types<>>
   AstVisitables& operator=(AstVisitables&&) noexcept = default;
 };
 
-using SupportTypesCpp = Types<int, bool, std::string>;
+using SupportTypesCpp = Types<int, bool>;
 
 class AstNode : public AstVisitables<SupportTypesCpp>
 {
@@ -101,7 +101,9 @@ class ValueNode;
 class AstNodeVisitor
 {
 public:
-  std::optional<int> visitSumNode(SumNode& node);
+  template<typename T>
+  std::optional<T> visitSumNode(SumNode& /*t_node*/);
+
   std::optional<bool> visitCompareNode(CompareNode& node);
   std::optional<int> visitValueNode(ValueNode& node);
 };
@@ -109,7 +111,7 @@ public:
 class SumNode : public AstNode
 {
 public:
-  std::optional<int> accept(Data<int>, AstNodeVisitor& v) override { return v.visitSumNode(*this); }
+  std::optional<int> accept(Data<int>, AstNodeVisitor& v) override { return v.visitSumNode<int>(*this); }
 
   int eval(int lhs, int rhs) const { return lhs + rhs; }
 };
@@ -135,18 +137,14 @@ public:
   int eval() const { return m_value; }
 };
 
-
-//
-// implementation
-// -- {
-
-inline std::optional<int> AstNodeVisitor::visitSumNode(SumNode& node)
+template <typename T>
+std::optional<T> AstNodeVisitor::visitSumNode(SumNode& t_node)
 {
-  std::optional<int> lhs = node.left()->accept(Data<int>(), *this);
-  std::optional<int> rhs = node.right()->accept(Data<int>(), *this);
+  const auto lhs = t_node.left()->accept(Data<T>(), *this);
+  const auto rhs = t_node.right()->accept(Data<T>(), *this);
   if (!lhs || !rhs) { return {}; }
 
-  return node.eval(*lhs, *rhs);
+  return t_node.eval(*lhs, *rhs);
 }
 
 inline std::optional<bool> AstNodeVisitor::visitCompareNode(CompareNode& node)
