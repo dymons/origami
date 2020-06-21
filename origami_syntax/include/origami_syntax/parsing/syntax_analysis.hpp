@@ -25,14 +25,6 @@ public:
   using Type = T;
 };
 
-template<typename... Ts> class Types
-{
-public:
-  using Type = Types;
-};
-
-using SupportTypesCpp = Types<int, bool, double>;
-
 template<typename T> class AstVisitable
 {
 public:
@@ -57,34 +49,12 @@ public:
   AstVisitable& operator=(AstVisitable&&) noexcept = default;
 };
 
-template<typename T> struct AstVisitables;
-
-template<typename T, typename... Ts>
-struct AstVisitables<Types<T, Ts...>>
-  : virtual AstVisitable<T>
-  , AstVisitables<Types<Ts...>>
-{
-  using AstVisitable<T>::accept;
-};
-
-template<> struct AstVisitables<Types<>>
-{
-  AstVisitables() = default;
-
-  virtual ~AstVisitables() = default;
-
-  AstVisitables(const AstVisitables&) = default;
-
-  AstVisitables& operator=(const AstVisitables&) = default;
-
-  AstVisitables(AstVisitables&&) noexcept = default;
-
-  AstVisitables& operator=(AstVisitables&&) noexcept = default;
-};
-
-class AstNode : public AstVisitables<SupportTypesCpp>
+class AstNode : virtual AstVisitable<int>, AstVisitable<double>
 {
 public:
+  using AstVisitable<int>::accept;
+  using AstVisitable<double>::accept;
+
   void addLeft(const std::shared_ptr<AstNode>& t_child);
   void addRight(const std::shared_ptr<AstNode>& t_child);
 
@@ -97,43 +67,17 @@ private:
 };
 
 template<typename T> class ValueNode;
-class SumNode;
-class CompareNode;
+template<typename T, typename U> class SumNode;
 
 class AstNodeVisitor
 {
 public:
-  template<typename T>[[nodiscard]] std::optional<T> visitSumNode(SumNode& /*t_node*/);
-
-  [[nodiscard]] std::optional<bool> visitCompareNode(CompareNode& /*t_node*/);
+  template<typename T, typename U>[[nodiscard]] std::optional<std::common_type_t<T, U>> visitSumNode(SumNode<T, U>& /*t_node*/);
 
   template<typename T>[[nodiscard]] std::optional<T> visitValueNode(ValueNode<T>& /*t_node*/);
 };
 
-class SumNode : public AstNode
-{
-public:
-  friend class AstNodeVisitor;
-
-  std::optional<int> accept(Data<int> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitSumNode<int>(*this); }
-
-private:
-  template<typename T, typename U>
-  auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs + t_rhs; }
-};
-
-class CompareNode : public AstNode
-{
-public:
-  friend class AstNodeVisitor;
-
-  std::optional<bool> accept(Data<bool> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitCompareNode(*this); }
-
-private:
-  template<typename T, typename U>
-  bool doing(T t_lhs, U t_rhs) const { return t_lhs < t_rhs; }
-};
-
+///< Хранение чисел
 template<typename T> class ValueNode : public AstNode
 {
 public:
@@ -149,22 +93,31 @@ private:
   T m_value;
 };
 
-template class ValueNode<int>;
-template class ValueNode<double>;
+//template class ValueNode<int>;
+//template class ValueNode<double>;
 
-template<typename T> std::optional<T> AstNodeVisitor::visitSumNode(SumNode& t_node)
+///< Суммирование чисел
+template<typename T, typename U> class SumNode : public AstNode
 {
-  const auto lhs = t_node.left()->accept(Data<T>(), *this);
-  const auto rhs = t_node.right()->accept(Data<T>(), *this);
-  if (!lhs || !rhs) { return {}; }
+public:
+  friend class AstNodeVisitor;
 
-  return t_node.doing(*lhs, *rhs);
-}
+  std::optional<std::common_type_t<T, U>> accept(Data<std::common_type_t<T, U>> /*unused*/, AstNodeVisitor& t_visitor) override
+  {
+    return t_visitor.visitSumNode<T, U>(*this);
+  }
 
-inline std::optional<bool> AstNodeVisitor::visitCompareNode(CompareNode& t_node)
+private:
+  auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs + t_rhs; }
+};
+
+//template class SumNode<int, int>;
+//template class SumNode<int, double>;
+
+template<typename T, typename U> std::optional<std::common_type_t<T, U>> AstNodeVisitor::visitSumNode(SumNode<T, U>& t_node)
 {
-  const auto lhs = t_node.left()->accept(Data<int>(), *this);
-  const auto rhs = t_node.right()->accept(Data<int>(), *this);
+  const std::optional<T> lhs = t_node.left()->accept(Data<T>(), *this);
+  const std::optional<U> rhs = t_node.right()->accept(Data<U>(), *this);
   if (!lhs || !rhs) { return {}; }
 
   return t_node.doing(*lhs, *rhs);
