@@ -31,6 +31,8 @@ public:
   using Type = Types;
 };
 
+using SupportTypesCpp = Types<int, bool>;
+
 template<typename T> class AstVisitable
 {
 public:
@@ -80,26 +82,23 @@ template<> struct AstVisitables<Types<>>
   AstVisitables& operator=(AstVisitables&&) noexcept = default;
 };
 
-using SupportTypesCpp = Types<int, bool>;
-
 class AstNode : public AstVisitables<SupportTypesCpp>
 {
 public:
-  void addLeft(AstNode* child) { m_left = child; }
-  void addRight(AstNode* child) { m_right = child; }
-  [[nodiscard]] AstNode* left() { return m_left; }
-  [[nodiscard]] AstNode* right() { return m_right; }
+  void addLeft(const std::shared_ptr<AstNode>& t_child);
+  void addRight(const std::shared_ptr<AstNode>& t_child);
+
+  [[nodiscard]] std::shared_ptr<AstNode> left() const;
+  [[nodiscard]] std::shared_ptr<AstNode> right() const;
 
 private:
-  AstNode* m_left;
-  AstNode* m_right;
+  std::shared_ptr<AstNode> m_left;
+  std::shared_ptr<AstNode> m_right;
 };
 
+template<typename T> class ValueNode;
 class SumNode;
 class CompareNode;
-
-template <typename T>
-class ValueNode;
 
 class AstNodeVisitor
 {
@@ -116,29 +115,30 @@ class SumNode : public AstNode
 public:
   std::optional<int> accept(Data<int> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitSumNode<int>(*this); }
 
-  int doing(int t_lhs, int t_rhs) const { return t_lhs + t_rhs; }
+  template<typename T, typename U>
+  auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs + t_rhs; }
 };
 
 class CompareNode : public AstNode
 {
 public:
-  std::optional<bool> accept(Data<bool>, AstNodeVisitor& v) override { return v.visitCompareNode(*this); }
+  std::optional<bool> accept(Data<bool> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitCompareNode(*this); }
 
-  bool doing(int lhs, int rhs) const { return lhs < rhs; }
+  template<typename T, typename U>
+  bool doing(T t_lhs, U t_rhs) const { return t_lhs < t_rhs; }
 };
 
-template<typename T>
-class ValueNode : public AstNode
+template<typename T> class ValueNode : public AstNode
 {
-private:
-  T m_value;
-
 public:
-  explicit ValueNode(T x) : m_value(x) {}
+  explicit ValueNode(T t_data) : m_value(t_data) {}
 
-  std::optional<T> accept(Data<T>, AstNodeVisitor& v) override { return v.visitValueNode<T>(*this); }
+  std::optional<T> accept(Data<T> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitValueNode<T>(*this); }
 
   T doing() const { return m_value; }
+
+private:
+  T m_value;
 };
 
 template class ValueNode<int>;
@@ -152,13 +152,13 @@ template<typename T> std::optional<T> AstNodeVisitor::visitSumNode(SumNode& t_no
   return t_node.doing(*lhs, *rhs);
 }
 
-inline std::optional<bool> AstNodeVisitor::visitCompareNode(CompareNode& node)
+inline std::optional<bool> AstNodeVisitor::visitCompareNode(CompareNode& t_node)
 {
-  std::optional<int> lhs = node.left()->accept(Data<int>(), *this);
-  std::optional<int> rhs = node.right()->accept(Data<int>(), *this);
+  const auto lhs = t_node.left()->accept(Data<int>(), *this);
+  const auto rhs = t_node.right()->accept(Data<int>(), *this);
   if (!lhs || !rhs) { return {}; }
 
-  return node.doing(*lhs, *rhs);
+  return t_node.doing(*lhs, *rhs);
 }
 
 template<typename T> std::optional<T> AstNodeVisitor::visitValueNode(ValueNode<T>& t_node) { return t_node.doing(); }
