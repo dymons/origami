@@ -16,6 +16,7 @@
 
 namespace origami::parser {
 
+///< Идея абстрактного синтаксическго дерева позаимствована из https://github.com/wangshan/ast-visitor
 class AstNodeVisitor;
 
 template<typename T> class Data
@@ -33,7 +34,7 @@ public:
 template<typename T> class AstVisitable
 {
 public:
-  virtual std::optional<T> accept(Data<T> /*unused*/, AstNodeVisitor& /*unused*/)
+  [[nodiscard]] virtual std::optional<T> accept(Data<T> /*unused*/, AstNodeVisitor& /*unused*/)
   {
 #ifdef ORIGAMI_DEBUG
     assert(false && __func__ && ": переопределите функцию");
@@ -86,8 +87,8 @@ class AstNode : public AstVisitables<SupportTypesCpp>
 public:
   void addLeft(AstNode* child) { m_left = child; }
   void addRight(AstNode* child) { m_right = child; }
-  AstNode* left() { return m_left; }
-  AstNode* right() { return m_right; }
+  [[nodiscard]] AstNode* left() { return m_left; }
+  [[nodiscard]] AstNode* right() { return m_right; }
 
 private:
   AstNode* m_left;
@@ -96,24 +97,26 @@ private:
 
 class SumNode;
 class CompareNode;
+
+template <typename T>
 class ValueNode;
 
 class AstNodeVisitor
 {
 public:
-  template<typename T>
-  std::optional<T> visitSumNode(SumNode& /*t_node*/);
+  template<typename T>[[nodiscard]] std::optional<T> visitSumNode(SumNode& /*t_node*/);
 
-  std::optional<bool> visitCompareNode(CompareNode& node);
-  std::optional<int> visitValueNode(ValueNode& node);
+  [[nodiscard]] std::optional<bool> visitCompareNode(CompareNode& /*t_node*/);
+
+  template<typename T>[[nodiscard]] std::optional<T> visitValueNode(ValueNode<T>& /*t_node*/);
 };
 
 class SumNode : public AstNode
 {
 public:
-  std::optional<int> accept(Data<int>, AstNodeVisitor& v) override { return v.visitSumNode<int>(*this); }
+  std::optional<int> accept(Data<int> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitSumNode<int>(*this); }
 
-  int eval(int lhs, int rhs) const { return lhs + rhs; }
+  int doing(int t_lhs, int t_rhs) const { return t_lhs + t_rhs; }
 };
 
 class CompareNode : public AstNode
@@ -121,30 +124,32 @@ class CompareNode : public AstNode
 public:
   std::optional<bool> accept(Data<bool>, AstNodeVisitor& v) override { return v.visitCompareNode(*this); }
 
-  bool eval(int lhs, int rhs) const { return lhs < rhs; }
+  bool doing(int lhs, int rhs) const { return lhs < rhs; }
 };
 
+template<typename T>
 class ValueNode : public AstNode
 {
 private:
-  int m_value;
+  T m_value;
 
 public:
-  explicit ValueNode(int x) : m_value(x) {}
+  explicit ValueNode(T x) : m_value(x) {}
 
-  std::optional<int> accept(Data<int>, AstNodeVisitor& v) override { return v.visitValueNode(*this); }
+  std::optional<T> accept(Data<T>, AstNodeVisitor& v) override { return v.visitValueNode<T>(*this); }
 
-  int eval() const { return m_value; }
+  T doing() const { return m_value; }
 };
 
-template <typename T>
-std::optional<T> AstNodeVisitor::visitSumNode(SumNode& t_node)
+template class ValueNode<int>;
+
+template<typename T> std::optional<T> AstNodeVisitor::visitSumNode(SumNode& t_node)
 {
   const auto lhs = t_node.left()->accept(Data<T>(), *this);
   const auto rhs = t_node.right()->accept(Data<T>(), *this);
   if (!lhs || !rhs) { return {}; }
 
-  return t_node.eval(*lhs, *rhs);
+  return t_node.doing(*lhs, *rhs);
 }
 
 inline std::optional<bool> AstNodeVisitor::visitCompareNode(CompareNode& node)
@@ -153,10 +158,10 @@ inline std::optional<bool> AstNodeVisitor::visitCompareNode(CompareNode& node)
   std::optional<int> rhs = node.right()->accept(Data<int>(), *this);
   if (!lhs || !rhs) { return {}; }
 
-  return node.eval(*lhs, *rhs);
+  return node.doing(*lhs, *rhs);
 }
 
-inline std::optional<int> AstNodeVisitor::visitValueNode(ValueNode& node) { return node.eval(); }
+template<typename T> std::optional<T> AstNodeVisitor::visitValueNode(ValueNode<T>& t_node) { return t_node.doing(); }
 
 class SyntaxAnalysis
 {
