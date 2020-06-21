@@ -31,7 +31,7 @@ public:
   using Type = Types;
 };
 
-using SupportTypesCpp = Types<int, bool>;
+using SupportTypesCpp = Types<int, bool, double>;
 
 template<typename T> class AstVisitable
 {
@@ -39,7 +39,7 @@ public:
   [[nodiscard]] virtual std::optional<T> accept(Data<T> /*unused*/, AstNodeVisitor& /*unused*/)
   {
 #ifdef ORIGAMI_DEBUG
-    assert(false && __func__ && ": переопределите функцию");
+    assert(false && ": переопределите функцию");
 #endif
     return {};
   };
@@ -113,8 +113,11 @@ public:
 class SumNode : public AstNode
 {
 public:
+  friend class AstNodeVisitor;
+
   std::optional<int> accept(Data<int> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitSumNode<int>(*this); }
 
+private:
   template<typename T, typename U>
   auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs + t_rhs; }
 };
@@ -122,8 +125,11 @@ public:
 class CompareNode : public AstNode
 {
 public:
+  friend class AstNodeVisitor;
+
   std::optional<bool> accept(Data<bool> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitCompareNode(*this); }
 
+private:
   template<typename T, typename U>
   bool doing(T t_lhs, U t_rhs) const { return t_lhs < t_rhs; }
 };
@@ -131,17 +137,20 @@ public:
 template<typename T> class ValueNode : public AstNode
 {
 public:
+  friend class AstNodeVisitor;
+
   explicit ValueNode(T t_data) : m_value(t_data) {}
 
   std::optional<T> accept(Data<T> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitValueNode<T>(*this); }
 
+private:
   T doing() const { return m_value; }
 
-private:
   T m_value;
 };
 
 template class ValueNode<int>;
+template class ValueNode<double>;
 
 template<typename T> std::optional<T> AstNodeVisitor::visitSumNode(SumNode& t_node)
 {
