@@ -19,19 +19,19 @@ namespace origami::parser {
 ///< Идея абстрактного синтаксическго дерева позаимствована из https://github.com/wangshan/ast-visitor
 class AstNodeVisitor;
 
-template<typename T> class Data
+template<typename T> class SingleData
 {
 public:
   using Type = T;
 };
 
-template<typename T> class AstVisitable
+template<typename T> struct AstVisitable
 {
 public:
-  [[nodiscard]] virtual std::optional<T> accept(Data<T> /*unused*/, AstNodeVisitor& /*unused*/)
+  [[nodiscard]] virtual std::optional<T> accept(SingleData<T> /*unused*/, AstNodeVisitor& /*unused*/)
   {
 #ifdef ORIGAMI_DEBUG
-    assert(false && ": переопределите функцию");
+    assert(false && ": функция не определена");
 #endif
     return {};
   };
@@ -49,7 +49,7 @@ public:
   AstVisitable& operator=(AstVisitable&&) noexcept = default;
 };
 
-class AstNode : virtual AstVisitable<int>, AstVisitable<double>
+struct AstNode : virtual AstVisitable<int>, AstVisitable<double>
 {
 public:
   using AstVisitable<int>::accept;
@@ -67,25 +67,25 @@ private:
 };
 
 template<typename T> class ValueNode;
-template<typename T, typename U> class SumNode;
+class SumNode;
 
 class AstNodeVisitor
 {
 public:
-  template<typename T, typename U>[[nodiscard]] std::optional<std::common_type_t<T, U>> visitSumNode(SumNode<T, U>& /*t_node*/);
+  template<typename T, typename U>[[nodiscard]] std::optional<std::common_type_t<T, U>> visitSumNode(SumNode& /*t_node*/);
 
   template<typename T>[[nodiscard]] std::optional<T> visitValueNode(ValueNode<T>& /*t_node*/);
 };
 
 ///< Хранение чисел
-template<typename T> class ValueNode : public AstNode
+template<typename T> struct ValueNode : public AstNode
 {
 public:
   friend class AstNodeVisitor;
 
   explicit ValueNode(T t_data) : m_value(t_data) {}
 
-  std::optional<T> accept(Data<T> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitValueNode<T>(*this); }
+  std::optional<T> accept(SingleData<T> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitValueNode<T>(*this); }
 
 private:
   T doing() const { return m_value; }
@@ -93,31 +93,31 @@ private:
   T m_value;
 };
 
-//template class ValueNode<int>;
-//template class ValueNode<double>;
-
 ///< Суммирование чисел
-template<typename T, typename U> class SumNode : public AstNode
+struct SumNode : public AstNode
 {
 public:
   friend class AstNodeVisitor;
 
-  std::optional<std::common_type_t<T, U>> accept(Data<std::common_type_t<T, U>> /*unused*/, AstNodeVisitor& t_visitor) override
+  std::optional<int> accept(SingleData<int> /*unused*/, AstNodeVisitor& t_visitor) override
   {
-    return t_visitor.visitSumNode<T, U>(*this);
+    return t_visitor.visitSumNode<int, int>(*this);
+  }
+
+  std::optional<double> accept(SingleData<double> /*unused*/, AstNodeVisitor& t_visitor) override
+  {
+    return t_visitor.visitSumNode<int, double>(*this); ///< int, для теста, нужно принимать два типа данных
   }
 
 private:
+  template<typename T, typename U>
   auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs + t_rhs; }
 };
 
-//template class SumNode<int, int>;
-//template class SumNode<int, double>;
-
-template<typename T, typename U> std::optional<std::common_type_t<T, U>> AstNodeVisitor::visitSumNode(SumNode<T, U>& t_node)
+template<typename T, typename U> std::optional<std::common_type_t<T, U>> AstNodeVisitor::visitSumNode(SumNode& t_node)
 {
-  const std::optional<T> lhs = t_node.left()->accept(Data<T>(), *this);
-  const std::optional<U> rhs = t_node.right()->accept(Data<U>(), *this);
+  const std::optional<T> lhs = t_node.left()->accept(SingleData<T>(), *this);
+  const std::optional<U> rhs = t_node.right()->accept(SingleData<U>(), *this);
   if (!lhs || !rhs) { return {}; }
 
   return t_node.doing(*lhs, *rhs);
