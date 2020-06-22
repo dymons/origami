@@ -16,7 +16,6 @@
 
 namespace origami::parser {
 
-///< Идея абстрактного синтаксическго дерева позаимствована из https://github.com/wangshan/ast-visitor
 class AstNodeVisitor;
 
 template<typename T> class SingleData
@@ -106,7 +105,7 @@ public:
 
   std::optional<double> accept(SingleData<double> /*unused*/, AstNodeVisitor& t_visitor) override
   {
-    return t_visitor.visitSumNode<int, double>(*this); ///< int, для теста, нужно принимать два типа данных
+    return t_visitor.visitSumNode<double, double>(*this);
   }
 
 private:
