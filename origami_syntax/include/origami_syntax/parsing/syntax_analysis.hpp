@@ -13,47 +13,29 @@
 #include "origami_lexical/conventions/tokens.hpp"
 
 #include <optional>
+#include <any>
+#include <utility>
 
 namespace origami::parser {
 
 class AstNodeVisitor;
 
-template<typename T, typename U = T> class MultipleData
+struct AstNode
 {
 public:
-  using TypeLhs = T;
-  using TypeRhs = U;
-};
+  [[nodiscard]] virtual std::any accept(AstNodeVisitor& /*unused*/) = 0;
 
-template<typename ... Ts> struct AstVisitable
-{
-public:
-  [[nodiscard]] virtual std::optional<std::common_type_t<Ts...>> accept(MultipleData<Ts...> /*unused*/, AstNodeVisitor& /*unused*/)
-  {
-#ifdef ORIGAMI_DEBUG
-    assert(false && ": функция не определена");
-#endif
-    return {};
-  };
+  AstNode() = default;
 
-  AstVisitable() = default;
+  virtual ~AstNode() = default;
 
-  virtual ~AstVisitable() = default;
+  AstNode(const AstNode&) = default;
 
-  AstVisitable(const AstVisitable&) = default;
+  AstNode& operator=(const AstNode&) = default;
 
-  AstVisitable& operator=(const AstVisitable&) = default;
+  AstNode(AstNode&&) noexcept = default;
 
-  AstVisitable(AstVisitable&&) noexcept = default;
-
-  AstVisitable& operator=(AstVisitable&&) noexcept = default;
-};
-
-struct AstNode : virtual AstVisitable<int>, AstVisitable<double>, AstVisitable<int, double>
-{
-public:
-  using AstVisitable<int>::accept;
-  using AstVisitable<double>::accept;
+  AstNode& operator=(AstNode&&) noexcept = default;
 
   void addLeft(const std::shared_ptr<AstNode>& t_child);
   void addRight(const std::shared_ptr<AstNode>& t_child);
@@ -66,31 +48,31 @@ private:
   std::shared_ptr<AstNode> m_right;
 };
 
-template<typename T> class ValueNode;
+class ValueNode;
 class SumNode;
 
 class AstNodeVisitor
 {
 public:
-  template<typename T, typename U>[[nodiscard]] std::optional<std::common_type_t<T, U>> visitSumNode(SumNode& /*t_node*/);
+  [[nodiscard]] std::any visitSumNode(SumNode& /*t_node*/);
 
-  template<typename T>[[nodiscard]] std::optional<T> visitValueNode(ValueNode<T>& /*t_node*/);
+  [[nodiscard]] std::any visitValueNode(ValueNode& /*t_node*/);
 };
 
 ///< Хранение чисел
-template<typename T> struct ValueNode : public AstNode
+struct ValueNode : public AstNode
 {
 public:
   friend class AstNodeVisitor;
 
-  explicit ValueNode(T t_data) : m_value(t_data) {}
+  explicit ValueNode(std::any t_data) : m_value(std::move(t_data)) {}
 
-  std::optional<T> accept(MultipleData<T> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitValueNode<T>(*this); }
+  std::any accept(AstNodeVisitor& t_visitor) override { return t_visitor.visitValueNode(*this); }
 
 private:
-  T doing() const { return m_value; }
+  std::any doing() const { return m_value; }
 
-  T m_value;
+  std::any m_value;
 };
 
 ///< Суммирование чисел
@@ -99,32 +81,11 @@ struct SumNode : public AstNode
 public:
   friend class AstNodeVisitor;
 
-  std::optional<int> accept(MultipleData<int> /*unused*/, AstNodeVisitor& t_visitor) override
-  {
-    return t_visitor.visitSumNode<int, int>(*this);
-  }
-
-  std::optional<double> accept(MultipleData<int, double> t_type, AstNodeVisitor& t_visitor) override
-  {
-    using TypeData = decltype(t_type);
-    return t_visitor.visitSumNode<TypeData::TypeLhs, TypeData::TypeRhs>(*this);
-  }
+  std::any accept(AstNodeVisitor& t_visitor) override { return t_visitor.visitSumNode(*this); }
 
 private:
-  template<typename T, typename U>
-  auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs + t_rhs; }
+  template<typename T, typename U> auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs + t_rhs; }
 };
-
-template<typename T, typename U> std::optional<std::common_type_t<T, U>> AstNodeVisitor::visitSumNode(SumNode& t_node)
-{
-  const std::optional<T> lhs = t_node.left()->accept(MultipleData<T>(), *this);
-  const std::optional<U> rhs = t_node.right()->accept(MultipleData<U>(), *this);
-  if (!lhs || !rhs) { return {}; }
-
-  return t_node.doing(*lhs, *rhs);
-}
-
-template<typename T> std::optional<T> AstNodeVisitor::visitValueNode(ValueNode<T>& t_node) { return t_node.doing(); }
 
 class SyntaxAnalysis
 {
