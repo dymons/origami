@@ -26,8 +26,8 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   SECTION("Суммирование двух целочисленных чисел: 10 + 20.5")
   {
     const auto sum = std::make_shared<origami::parser::AstNodeAdder>();
-    sum->addLeft(std::make_shared<origami::parser::AstNodeNumber>(10));
-    sum->addRight(std::make_shared<origami::parser::AstNodeNumber>(20));
+    sum->setLeftChild(std::make_shared<origami::parser::AstNodeNumber>(10));
+    sum->setRightChild(std::make_shared<origami::parser::AstNodeNumber>(20));
     const std::any result = sum->accept(visitor);
     REQUIRE(result.has_value());
     REQUIRE(result.type() == typeid(int));
@@ -37,8 +37,8 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   SECTION("Суммирование числа целого и дробного числа: 10 + 20.5")
   {
     const auto sum = std::make_shared<origami::parser::AstNodeAdder>();
-    sum->addLeft(std::make_shared<origami::parser::AstNodeNumber>(10));
-    sum->addRight(std::make_shared<origami::parser::AstNodeNumber>(20.5));
+    sum->setLeftChild(std::make_shared<origami::parser::AstNodeNumber>(10));
+    sum->setRightChild(std::make_shared<origami::parser::AstNodeNumber>(20.5));
     const std::any result = sum->accept(visitor);
     REQUIRE(result.has_value());
     REQUIRE(result.type() == typeid(double));
@@ -48,16 +48,16 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   SECTION("Несколько суммирований чисел: 10 + 20 + 30 + 15.5")
   {
     const auto first_part = std::make_shared<origami::parser::AstNodeAdder>();
-    first_part->addLeft(std::make_shared<origami::parser::AstNodeNumber>(10));
-    first_part->addRight(std::make_shared<origami::parser::AstNodeNumber>(20));
+    first_part->setLeftChild(std::make_shared<origami::parser::AstNodeNumber>(10));
+    first_part->setRightChild(std::make_shared<origami::parser::AstNodeNumber>(20));
 
     const auto second_part = std::make_shared<origami::parser::AstNodeAdder>();
-    second_part->addLeft(first_part);
-    second_part->addRight(std::make_shared<origami::parser::AstNodeNumber>(30));
+    second_part->setLeftChild(first_part);
+    second_part->setRightChild(std::make_shared<origami::parser::AstNodeNumber>(30));
 
     const auto third_part = std::make_shared<origami::parser::AstNodeAdder>();
-    third_part->addLeft(second_part);
-    third_part->addRight(std::make_shared<origami::parser::AstNodeNumber>(15.5));
+    third_part->setLeftChild(second_part);
+    third_part->setRightChild(std::make_shared<origami::parser::AstNodeNumber>(15.5));
     const std::any result = third_part->accept(visitor);
     REQUIRE(result.has_value());
     REQUIRE(result.type() == typeid(double));
@@ -67,15 +67,15 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   SECTION("Несколько суммирований чисел: 10 + 20 + 30 + 15.5")
   {
     const auto first_part = std::make_shared<origami::parser::AstNodeAdder>();
-    first_part->addLeft(std::make_shared<origami::parser::AstNodeNumber>(10));
-    first_part->addRight(std::make_shared<origami::parser::AstNodeNumber>(20));
+    first_part->setLeftChild(std::make_shared<origami::parser::AstNodeNumber>(10));
+    first_part->setRightChild(std::make_shared<origami::parser::AstNodeNumber>(20));
 
     const auto second_part = std::make_shared<origami::parser::AstNodeAdder>();
-    second_part->addLeft(std::make_shared<origami::parser::AstNodeNumber>(30));
-    second_part->addRight(std::make_shared<origami::parser::AstNodeNumber>(15.5));
+    second_part->setLeftChild(std::make_shared<origami::parser::AstNodeNumber>(30));
+    second_part->setRightChild(std::make_shared<origami::parser::AstNodeNumber>(15.5));
     const auto third_part = std::make_shared<origami::parser::AstNodeAdder>();
-    third_part->addLeft(first_part);
-    third_part->addRight(second_part);
+    third_part->setLeftChild(first_part);
+    third_part->setRightChild(second_part);
     const std::any result = third_part->accept(visitor);
     REQUIRE(result.has_value());
     REQUIRE(result.type() == typeid(double));

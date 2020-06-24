@@ -149,7 +149,7 @@ public:
    * \retval    true - нет данных для получения токенов
    * \retval    false - есть данные для получения токенов
    */
-  bool empty() { return m_code.size() == m_current_symbol; }
+  bool empty() const noexcept { return m_code.size() == m_current_symbol; }
 
   /**
    * \brief     Привести лексический анализатор в положении по умолчанию
