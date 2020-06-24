@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <cctype>
 #include <locale>
+#include <utility>
 
 namespace origami::lex {
 
@@ -34,117 +35,134 @@ template<typename T> class LexicalAnalyzer
 public:
   LexicalAnalyzer() : m_convention(std::make_shared<T>()) {}
 
+  explicit LexicalAnalyzer(std::string t_code) : m_convention(std::make_shared<T>()), m_code(std::move(t_code)) {}
+
   /**
-   * \brief          Формирует последовательность token'ов на основе исходного кода программы
+   * \brief
    *
-   * \param[in]      t_code - исходный код программы
-   *
-   * \return         Последовательность token'ов
+   * \return
    */
-  [[nodiscard]] std::deque<std::pair<origami::lex::Token, Lexeme>> getTokens(const std::string& t_code)
+  [[nodiscard]] std::pair<origami::lex::Token, Lexeme> getToken()
   {
-    // Буфер, куда будем сохранять значения лексического анализатора
-    std::deque<std::pair<origami::lex::Token, Lexeme>> tokens;
-
-    // Инициализируем стартовую позицию чтения исходного кода
-    std::string::size_type current_symbol = 0;
-
     // Пока символы не закончатся, считываем их последовательно
-    while (current_symbol != t_code.size()) {
+    while (m_current_symbol != m_code.size()) {
       // Если символ относится к категории 'пробельный символ', игнорируем его
-      if (std::isspace(t_code[current_symbol]) != 0) {
-        ++current_symbol;
+      if (std::isspace(m_code[m_current_symbol]) != 0) {
+        ++m_current_symbol;
         // Если символ относится к категории 'буквенный символ', определяем полный его идентификатор
         // '_' означает, что именование функций / переменных / классов и т.д. может начинаться с нижнего подчеркивания
-      } else if ((std::isalpha(t_code[current_symbol]) != 0) || (t_code[current_symbol] == '_')) {
-        auto not_isalnum = std::find_if_not(t_code.begin() + current_symbol, t_code.end(), [](auto t_ch) {
+      } else if ((std::isalpha(m_code[m_current_symbol]) != 0) || (m_code[m_current_symbol] == '_')) {
+        auto not_isalnum = std::find_if_not(m_code.begin() + m_current_symbol, m_code.end(), [](auto t_ch) {
           return std::isalnum(t_ch, std::locale{ "C" }) || (t_ch == '_');// Для примера, static_cast имеет '_', поэтому нужно учитывать
         });
 
         // Формируем слово
-        auto word = t_code.substr(current_symbol, std::distance(t_code.begin(), not_isalnum) - current_symbol);
+        auto word = m_code.substr(m_current_symbol, std::distance(m_code.begin(), not_isalnum) - m_current_symbol);
 
         // Находим ключевое слово, которое описано в стандарте С++ 5.11 таблица 5
         const auto keyword = m_convention->keywords().find(word);
 
-        // Если нашли ключевое слово, идентифицируем его как ключевое слово
-        if (keyword != m_convention->keywords().end()) {
-          tokens.emplace_back(origami::lex::Token::Keyword, *keyword);
-        } else {// Иначе, это именование
-          tokens.emplace_back(origami::lex::Token::Identifier, std::move(word));
-        }
-
         // Инициализируем последней позицией символа, на котором заканчивается найденное слово
-        current_symbol = static_cast<decltype(current_symbol)>(std::distance(t_code.begin(), not_isalnum));
+        m_current_symbol = static_cast<decltype(m_current_symbol)>(std::distance(m_code.begin(), not_isalnum));
+
+        // Если нашли ключевое слово, идентифицируем его как ключевое слово
+        if (keyword != m_convention->keywords().end()) { return { origami::lex::Token::Keyword, *keyword }; }
+
+        // Иначе, это именование
+        return { origami::lex::Token::Identifier, std::move(word) };
 
         // Если символ относится к категории 'цифровой символ', определяем полный его идентификатор
-      } else if (std::isdigit(t_code[current_symbol], std::locale{ "C" })) {
-        auto not_isdigit = std::find_if_not(t_code.begin() + current_symbol, t_code.end(), [](auto t_ch) {
+      } else if (std::isdigit(m_code[m_current_symbol], std::locale{ "C" })) {
+        auto not_isdigit = std::find_if_not(m_code.begin() + m_current_symbol, m_code.end(), [](auto t_ch) {
           return (std::isdigit(t_ch, std::locale{ "C" }) || (t_ch == '.') || (t_ch == '+') || (t_ch == '-'));
         });
 
-        if (not_isdigit != t_code.end()) {
-          auto digital = t_code.substr(current_symbol, std::distance(t_code.begin(), not_isdigit) - current_symbol);
-          tokens.emplace_back(origami::lex::Token::Literal, std::move(digital));
-          current_symbol = static_cast<decltype(current_symbol)>(std::distance(t_code.begin(), not_isdigit));
+        if (not_isdigit != m_code.end()) {
+          auto digital = m_code.substr(m_current_symbol, std::distance(m_code.begin(), not_isdigit) - m_current_symbol);
+          m_current_symbol = static_cast<decltype(m_current_symbol)>(std::distance(m_code.begin(), not_isdigit));
+          return { origami::lex::Token::Literal, std::move(digital) };
         }
       } else {
-        if (const auto punctuation = m_convention->punctuation().find(t_code[current_symbol]); punctuation != m_convention->punctuation().end()) {
+        if (const auto punctuation = m_convention->punctuation().find(m_code[m_current_symbol]);
+            punctuation != m_convention->punctuation().end()) {
           // Находим максимульную длину возможной комбинации для текущего символа
           const auto max_combination = std::max_element(punctuation->second.begin(), punctuation->second.end());
 
           // Приводим максимальную длину к актуальному значению, для того чтобы не выйти за границы массива
-          auto max_size = std::clamp<decltype(current_symbol)>(max_combination->size(), 0, t_code.size() - current_symbol);
+          auto max_size = std::clamp<decltype(m_current_symbol)>(max_combination->size(), 0, m_code.size() - m_current_symbol);
 
           // Производим поиск комбинации с самой длинной возможной конструктуции, до тех пор пока не найдем, либо не выйдем из цикла
           do {
             // Если нашли нужную комбинацию
-            if (auto punct = punctuation->second.find(t_code.substr(current_symbol, max_size)); punct != punctuation->second.end()) {
-              tokens.emplace_back(origami::lex::Token::Punctuator, *punct);
-              current_symbol += max_size;
-              break;
+            if (auto punct = punctuation->second.find(m_code.substr(m_current_symbol, max_size)); punct != punctuation->second.end()) {
+              m_current_symbol += max_size;
+              return { origami::lex::Token::Punctuator, *punct };
             }
           } while (--max_size != 0);
         }
 
-        if (const auto operators = m_convention->operators().find(t_code[current_symbol]); operators != m_convention->operators().end()) {
+        if (const auto operators = m_convention->operators().find(m_code[m_current_symbol]); operators != m_convention->operators().end()) {
           // Находим максимульную длину возможной комбинации для текущего символа
           const auto max_combination = std::max_element(operators->second.begin(), operators->second.end());
 
           // Приводим максимальную длину к актуальному значению, для того чтобы не выйти за границы массива
-          auto max_size = std::clamp<decltype(current_symbol)>(max_combination->size(), 0, t_code.size() - current_symbol);
-
+          auto max_size = std::clamp<decltype(m_current_symbol)>(max_combination->size(), 0, m_code.size() - m_current_symbol);
           // Производим поиск комбинации с самой длинной возможной конструктуции, до тех пор пока не найдем, либо не выйдем из цикла
           do {
             // Если нашли нужную комбинацию
-            if (auto oper = operators->second.find(t_code.substr(current_symbol, max_size)); oper != operators->second.end()) {
-              tokens.emplace_back(origami::lex::Token::Operator, *oper);
-              current_symbol += max_size;
-              break;
+            if (auto oper = operators->second.find(m_code.substr(m_current_symbol, max_size)); oper != operators->second.end()) {
+              m_current_symbol += max_size;
+              return { origami::lex::Token::Operator, *oper };
             }
           } while (--max_size != 0);
         }
 
-        switch (t_code[current_symbol]) {
+        switch (m_code[m_current_symbol]) {
           case '"': {
-            if (const auto last_mark = t_code.find_first_of('"', current_symbol + 1); last_mark != std::string::npos) {
-              tokens.emplace_back(origami::lex::Token::Literal, t_code.substr(current_symbol, last_mark - current_symbol + 1));
-              current_symbol = last_mark + 1;
-            } else {
-              tokens.emplace_back(origami::lex::Token::Punctuator, std::string{ t_code[current_symbol] });
-              ++current_symbol;
+            if (const auto last_mark = m_code.find_first_of('"', m_current_symbol + 1); last_mark != std::string::npos) {
+              m_current_symbol = last_mark + 1;
+              return { origami::lex::Token::Literal, m_code.substr(m_current_symbol, last_mark - m_current_symbol) };
             }
 
-            break;
+            return { origami::lex::Token::Punctuator, std::string{ m_code[m_current_symbol++] } };
           }
         }
       }
     }
 
-    return tokens;
+    return { Token::Eof, {} };
+  }
+
+  /**
+   * \brief
+   *
+   * \return
+   */
+  bool empty() { return m_code.size() == m_current_symbol; }
+
+  /**
+   * \brief
+   */
+  void clear()
+  {
+    m_code.clear();
+    m_current_symbol = 0;
+  }
+
+  /**
+   * \brief
+   *
+   * \param[in]
+   */
+  void update(const std::string& t_code)
+  {
+    m_code = t_code;
+    m_current_symbol = 0;
   }
 
 private:
+  std::string m_code;///< Исходный код программы
+  std::string::size_type m_current_symbol{ 0 };///<Текущий позиция лексического анализатора
   LexicalConventionImplPtr m_convention;///< Символьная таблица, содержащая информацию о синтаксисе языка программирования
 };
 

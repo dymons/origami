@@ -10,7 +10,7 @@
 #include <cstdint>
 
 namespace origami::lex {
-enum class Token : std::uint8_t { Identifier, Keyword, Literal, Operator, Punctuator };
+enum class Token : std::uint8_t { Identifier, Keyword, Literal, Operator, Punctuator, Eof };
 }// namespace origami::lex
 
 #endif// ORIGAMI_TOKENS_HPP
