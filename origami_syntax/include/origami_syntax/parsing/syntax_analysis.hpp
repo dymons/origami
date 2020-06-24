@@ -45,16 +45,16 @@ public:
   [[nodiscard]] virtual std::any accept(AstVisitor& t_visitor) = 0;
 
   ///< \brief     Задание левого узла дерева
-  void addLeft(const std::shared_ptr<AstNode>& t_child);
+  void setLeftChild(const std::shared_ptr<AstNode>& t_child);
 
   ///< \brief     Задание правого узла дерева
-  void addRight(const std::shared_ptr<AstNode>& t_child);
+  void setRightChild(const std::shared_ptr<AstNode>& t_child);
 
   ///< \brief     Получить доступ к левому дочернему узлу текущего узла
-  [[nodiscard]] std::shared_ptr<AstNode> left() const;
+  [[nodiscard]] std::shared_ptr<AstNode> getLeftChild() const;
 
   ///< \brief     Получить доступ к правому дочернему узлу текущего узла
-  [[nodiscard]] std::shared_ptr<AstNode> right() const;
+  [[nodiscard]] std::shared_ptr<AstNode> getRightChild() const;
 
 private:
   std::shared_ptr<AstNode> m_left; ///< Левый дочерний узел
@@ -80,9 +80,9 @@ public:
 
   AstVisitor& operator=(AstVisitor&&) noexcept = default;
 
-  [[nodiscard]] virtual std::any visitSumNode(AstNodeAdder& /*t_node*/);
+  [[nodiscard]] virtual std::any visit(AstNodeAdder& /*t_node*/);
 
-  [[nodiscard]] virtual std::any visitValueNode(AstNodeNumber& /*t_node*/);
+  [[nodiscard]] virtual std::any visit(AstNodeNumber& /*t_node*/);
 };
 
 ///< Узел дерева для хранения данных
@@ -93,7 +93,7 @@ public:
 
   explicit AstNodeNumber(std::any t_data) : m_value(std::move(t_data)) {}
 
-  std::any accept(AstVisitor& t_visitor) override { return t_visitor.visitValueNode(*this); }
+  std::any accept(AstVisitor& t_visitor) override { return t_visitor.visit(*this); }
 
 private:
   std::any doing() const { return m_value; }
@@ -107,7 +107,7 @@ struct AstNodeAdder : public AstNode
 public:
   friend class AstVisitor;
 
-  std::any accept(AstVisitor& t_visitor) override { return t_visitor.visitSumNode(*this); }
+  std::any accept(AstVisitor& t_visitor) override { return t_visitor.visit(*this); }
 
 private:
   template<typename T, typename U> auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs + t_rhs; }
