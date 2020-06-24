@@ -9,10 +9,11 @@ void AstNode::addRight(const std::shared_ptr<AstNode>& t_child) { m_right = t_ch
 std::shared_ptr<AstNode> AstNode::left() const { return m_left; }
 std::shared_ptr<AstNode> AstNode::right() const { return m_right; }
 
-std::any AstNodeVisitor::visitValueNode(ValueNode& t_node) { return t_node.doing(); }
-
-std::any AstNodeVisitor::visitSumNode(SumNode& t_node)
+std::any AstVisitor::visitValueNode(AstNodeNumber& t_node) { return t_node.doing(); }
+std::any AstVisitor::visitSumNode(AstNodeAdder& t_node)
 {
+  if (!t_node.left() || !t_node.right()) { return {}; }
+
   const std::any lhs = t_node.left()->accept(*this);
   const std::any rhs = t_node.right()->accept(*this);
 
