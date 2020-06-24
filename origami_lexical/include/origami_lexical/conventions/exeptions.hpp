@@ -1,7 +1,7 @@
 /*******************************************************************************************************************************************
  * \author      Emelyanov Dmitry <dmitriy.emelyanov.de@gmail.com>
  *
- * \brief
+ * \brief       Реализация исключений для описания поведения программы на всех стадиях предобаботки исходного кода программы
  ******************************************************************************************************************************************/
 
 #ifndef ORIGAMI_EXEPTIONS_HPP
@@ -10,14 +10,16 @@
 #include <stdexcept>
 
 namespace origami {
-class OrigamiError : public std::runtime_error
+/// \brief Общий класс исключения для семантического анализа, этап пострения абстактного синтаксического дерева
+class SemanticParsing : public std::runtime_error
 {
   using std::runtime_error::runtime_error;
 };
 
-class InvalidInputError : public OrigamiError
+/// \brief Неподдерживаемая операция в абстрактном синтаксическом дереве
+class UnsupportedOperationError : public SemanticParsing
 {
-  using OrigamiError::OrigamiError;
+  using SemanticParsing::SemanticParsing;
 };
 }// namespace origami
 

@@ -12,16 +12,9 @@
 #include "origami_lexical/lexical_conventions/lexical_convention_cpp.hpp"
 #include "origami_lexical/lexical_conventions/lexical_convention_python.hpp"
 
-#ifdef ORIGAMI_DEBUG
-#include <cassert>
-#include <iostream>
-#endif
-
-#include <deque>
 #include <algorithm>
 #include <cctype>
 #include <locale>
-#include <utility>
 
 namespace origami::lex {
 
@@ -33,14 +26,25 @@ namespace origami::lex {
 template<typename T> class LexicalAnalyzer
 {
 public:
+  /**
+   * \brief     Констуктор по умолчанию. Инициализация лексического соглашения.
+   */
   LexicalAnalyzer() : m_convention(std::make_shared<T>()) {}
 
+  /**
+   * \brief     Пользовательский конструктор. Инициализация лексического соглашения и обрабатываемого исходного кода программы
+   *
+   * \param[in] t_code - исходный код программы
+   */
   explicit LexicalAnalyzer(std::string t_code) : m_convention(std::make_shared<T>()), m_code(std::move(t_code)) {}
 
   /**
-   * \brief
+   * \brief     Последовательное получение токенов по запросам от внешней сущности
    *
-   * \return
+   * \details   В зависимости от лексического соглашения, разбивает программу на 5 категорий токена. В случае, окончания работы лексического
+   *            анализа, возвращается значение Eof, которое говорит о достижении конца файла.
+   *
+   * \return    Возвращает токен из заданного исходного кода программы
    */
   [[nodiscard]] std::pair<origami::lex::Token, Lexeme> getToken()
   {
@@ -130,18 +134,25 @@ public:
       }
     }
 
+    // Освобождаем память после лексического анализа
+    if (!m_code.empty()) {
+      m_code.clear();
+      m_current_symbol = 0;
+    }
+
     return { Token::Eof, {} };
   }
 
   /**
-   * \brief
+   * \brief     Есть ли данные для получения токенов
    *
-   * \return
+   * \retval    true - нет данных для получения токенов
+   * \retval    false - есть данные для получения токенов
    */
   bool empty() { return m_code.size() == m_current_symbol; }
 
   /**
-   * \brief
+   * \brief     Привести лексический анализатор в положении по умолчанию
    */
   void clear()
   {
@@ -150,9 +161,9 @@ public:
   }
 
   /**
-   * \brief
+   * \brief     Обновить обрабатываемый исходный код программы
    *
-   * \param[in]
+   * \param[in] t_code - исходный код программы
    */
   void update(const std::string& t_code)
   {

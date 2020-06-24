@@ -1,7 +1,7 @@
 /*******************************************************************************************************************************************
  * \author      Emelyanov Dmitry <dmitriy.emelyanov.de@gmail.com>
  *
- * \brief
+ * \brief       Описание поддерживаемых сущностей в библиотеке
  ******************************************************************************************************************************************/
 
 #ifndef ORIGAMI_FORWARD_HPP
@@ -9,6 +9,11 @@
 
 #ifdef _DEBUG
 #define ORIGAMI_DEBUG
+#endif
+
+#ifdef ORIGAMI_DEBUG
+#include <cassert>
+#include <iostream>
 #endif
 
 #include <memory>
