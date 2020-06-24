@@ -565,7 +565,7 @@ TEST_CASE("Проверка аналитического разбора прог
     REQUIRE(tokenizer.getToken() == std::pair{ Token::Operator, "<" });
     REQUIRE(tokenizer.getToken() == std::pair{ Token::Operator, "<=" });
     REQUIRE(tokenizer.getToken() == std::pair{ Token::Operator, "<<" });
-    REQUIRE(tokenizer.getToken() == std::pair{ Token::Operator, "<<=" });
+    REQUIRE(tokenizer.getToken() == std::pair{ Token::Punctuator, "<<=" });
     REQUIRE(tokenizer.getToken() == std::pair{ Token::Eof, "" });
     REQUIRE(tokenizer.empty());
   }
