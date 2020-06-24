@@ -45,44 +45,41 @@ TEST_CASE("Проверка на суммирвоание выражения А�
     REQUIRE_NOTHROW(std::any_cast<double>(result));
     REQUIRE(std::any_cast<double>(result) == 30.5);
   }
-//  SECTION("Несколько суммирований чисел: 10 + 20 + 30 + 15.5")
-//  {
-//    const auto first_part = std::make_shared<origami::parser::SumNode>();
-//    first_part->addLeft(std::make_shared<origami::parser::ValueNode<int>>(10));
-//    first_part->addRight(std::make_shared<origami::parser::ValueNode<int>>(20));
-//    REQUIRE(first_part->accept(origami::parser::MultipleData<int>(), visitor));
-//    REQUIRE(first_part->accept(origami::parser::MultipleData<int>(), visitor).value() == 30);
-//
-//    const auto second_part = std::make_shared<origami::parser::SumNode>();
-//    second_part->addLeft(first_part);
-//    second_part->addRight(std::make_shared<origami::parser::ValueNode<int>>(30));
-//    REQUIRE(second_part->accept(origami::parser::MultipleData<int>(), visitor));
-//    REQUIRE(second_part->accept(origami::parser::MultipleData<int>(), visitor).value() == 60);
-//
-//    const auto third_part = std::make_shared<origami::parser::SumNode>();
-//    third_part->addLeft(second_part);
-//    third_part->addRight(std::make_shared<origami::parser::ValueNode<double>>(15.5));
-//    REQUIRE(third_part->accept(origami::parser::MultipleData<int, double>(), visitor));
-//    REQUIRE(third_part->accept(origami::parser::MultipleData<int, double>(), visitor).value() == 75.5);
-//  }
-//  SECTION("Несколько суммирований чисел: 10 + 20 + 30 + 15.5")
-//  {
-//    const auto first_part = std::make_shared<origami::parser::SumNode>();
-//    first_part->addLeft(std::make_shared<origami::parser::ValueNode>(10));
-//    first_part->addRight(std::make_shared<origami::parser::ValueNode>(20));
-//    REQUIRE(first_part->accept(origami::parser::MultipleData<std::any>(), visitor));
-////    REQUIRE(first_part->accept(origami::parser::MultipleData<int>(), visitor).value() == 30);
-//
-////    const auto second_part = std::make_shared<origami::parser::SumNode>();
-////    second_part->addLeft(std::make_shared<origami::parser::ValueNode>(30));
-////    second_part->addRight(std::make_shared<origami::parser::ValueNode>(15.5));
-//////    REQUIRE(second_part->accept(origami::parser::MultipleData<int, double>(), visitor));
-//////    REQUIRE(second_part->accept(origami::parser::MultipleData<int, double>(), visitor).value() == 45.5);
-////
-////    const auto third_part = std::make_shared<origami::parser::SumNode>();
-////    third_part->addLeft(first_part);
-////    third_part->addRight(second_part);
-////    REQUIRE(third_part->accept(origami::parser::MultipleData<int, double>{}, visitor));
-////    REQUIRE(third_part->accept(origami::parser::MultipleData<int, double>{}, visitor).value() == 75.5);
-//  }
+  SECTION("Несколько суммирований чисел: 10 + 20 + 30 + 15.5")
+  {
+    const auto first_part = std::make_shared<origami::parser::SumNode>();
+    first_part->addLeft(std::make_shared<origami::parser::ValueNode>(10));
+    first_part->addRight(std::make_shared<origami::parser::ValueNode>(20));
+
+    const auto second_part = std::make_shared<origami::parser::SumNode>();
+    second_part->addLeft(first_part);
+    second_part->addRight(std::make_shared<origami::parser::ValueNode>(30));
+
+    const auto third_part = std::make_shared<origami::parser::SumNode>();
+    third_part->addLeft(second_part);
+    third_part->addRight(std::make_shared<origami::parser::ValueNode>(15.5));
+    const std::any result = third_part->accept(visitor);
+    REQUIRE(result.has_value());
+    REQUIRE(result.type() == typeid(double));
+    REQUIRE_NOTHROW(std::any_cast<double>(result));
+    REQUIRE(std::any_cast<double>(result) == 75.5);
+  }
+  SECTION("Несколько суммирований чисел: 10 + 20 + 30 + 15.5")
+  {
+    const auto first_part = std::make_shared<origami::parser::SumNode>();
+    first_part->addLeft(std::make_shared<origami::parser::ValueNode>(10));
+    first_part->addRight(std::make_shared<origami::parser::ValueNode>(20));
+
+    const auto second_part = std::make_shared<origami::parser::SumNode>();
+    second_part->addLeft(std::make_shared<origami::parser::ValueNode>(30));
+    second_part->addRight(std::make_shared<origami::parser::ValueNode>(15.5));
+    const auto third_part = std::make_shared<origami::parser::SumNode>();
+    third_part->addLeft(first_part);
+    third_part->addRight(second_part);
+    const std::any result = third_part->accept(visitor);
+    REQUIRE(result.has_value());
+    REQUIRE(result.type() == typeid(double));
+    REQUIRE_NOTHROW(std::any_cast<double>(result));
+    REQUIRE(std::any_cast<double>(result) == 75.5);
+  }
 }
