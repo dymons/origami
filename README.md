@@ -21,3 +21,4 @@ cmake -DCMAKE_BUILD_TYPE="Release" .. && cmake --build .
 6. Создание интерпретатора для С++ и компилятора для Python.
 7. Лексическую конвенцию через xml?
 8. Реализация AST через dynamic_cast и ID класса?
+9. Изучить инструменты Lex, Bison, LLVM

@@ -28,6 +28,6 @@ std::any AstNodeVisitor::visitSumNode(SumNode& t_node)
     return t_node.doing(std::any_cast<double>(lhs), std::any_cast<int>(rhs));
   }
 
-  throw InvalidInputError{ fmt::format("Для типов {0} и {1} не заданы правила обработки.", lhs.type().name(), rhs.type().name()) };
+  throw UnsupportedOperationError{ fmt::format("Для типов {0} и {1} не заданы правила обработки.", lhs.type().name(), rhs.type().name()) };
 }
 }// namespace origami::parser
