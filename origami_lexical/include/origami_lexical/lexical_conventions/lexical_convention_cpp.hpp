@@ -4,13 +4,13 @@
  * \brief       Символьная таблица для С++ 17 стандарта
  ******************************************************************************************************************************************/
 
-#ifndef ORIGAMI_SYMBOL_TABLE_CPP_HPP
-#define ORIGAMI_SYMBOL_TABLE_CPP_HPP
+#ifndef ORIGAMI_LEXICAL_CONVENTION_CPP_HPP
+#define ORIGAMI_LEXICAL_CONVENTION_CPP_HPP
 
-#include "origami_lexical/symbol_table/symbol_table_impl.hpp"
+#include "origami_lexical/lexical_conventions/lexical_convention_impl.hpp"
 
 namespace origami::lex {
-class SymbolTableCpp final : public SymbolTableImpl
+class LexicalConventionCpp final : public LexicalConventionImpl
 {
 public:
   ///< \brief Определяем для С++17 ключевые слова. 5 глава, пункт 5.11
@@ -24,4 +24,4 @@ public:
 };
 }// namespace origami::lex
 
-#endif// ORIGAMI_SYMBOL_TABLE_CPP_HPP
+#endif// ORIGAMI_LEXICAL_CONVENTION_CPP_HPP

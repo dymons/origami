@@ -1,8 +1,8 @@
-#include "origami_lexical/symbol_table/symbol_table_cpp.hpp"
+#include "origami_lexical/lexical_conventions/lexical_convention_cpp.hpp"
 
 namespace origami::lex {
 
-const std::set<std::string>& SymbolTableCpp::keywords()
+const std::set<std::string>& LexicalConventionCpp::keywords()
 {
   static const std::set<std::string> Keys{ "alignas",
     "alignof",
@@ -94,7 +94,7 @@ const std::set<std::string>& SymbolTableCpp::keywords()
 
   return Keys;
 }
-const std::map<char, std::set<std::string>>& SymbolTableCpp::operators()
+const std::map<char, std::set<std::string>>& LexicalConventionCpp::operators()
 {
   // Стандарт кодирования 5.12
   static const std::map<char, std::set<std::string>> Op{ { '+', { "+", "+=", "++" } },
@@ -114,7 +114,7 @@ const std::map<char, std::set<std::string>>& SymbolTableCpp::operators()
 
   return Op;
 }
-const std::map<char, std::set<std::string>>& SymbolTableCpp::punctuation()
+const std::map<char, std::set<std::string>>& LexicalConventionCpp::punctuation()
 {
   // Стандарт кодирования 5.12
   static const std::map<char, std::set<std::string>> Punctuation{ { '<', { "<:", "<%" } },
