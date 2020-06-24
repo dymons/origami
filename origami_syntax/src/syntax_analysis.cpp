@@ -1,4 +1,7 @@
 #include "origami_syntax/parsing/syntax_analysis.hpp"
+#include "origami_lexical/conventions/exeptions.hpp"
+
+#include <fmt/core.h>
 
 namespace origami::parser {
 void AstNode::addLeft(const std::shared_ptr<AstNode>& t_child) { m_left = t_child; }
@@ -15,19 +18,16 @@ std::any AstNodeVisitor::visitSumNode(SumNode& t_node)
 
   if (!lhs.has_value() || !rhs.has_value()) { return {}; }
 
-  // TODO: реализовать через switch с hash
-  if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(int))) {
-    return t_node.doing(std::any_cast<int>(lhs), std::any_cast<int>(rhs));
-  } else if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(double))) {
+  if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(int))) { return t_node.doing(std::any_cast<int>(lhs), std::any_cast<int>(rhs)); }
+
+  if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(double))) {
     return t_node.doing(std::any_cast<int>(lhs), std::any_cast<double>(rhs));
-  } else if ((lhs.type() == typeid(double)) && (rhs.type() == typeid(int))) {
+  }
+
+  if ((lhs.type() == typeid(double)) && (rhs.type() == typeid(int))) {
     return t_node.doing(std::any_cast<double>(lhs), std::any_cast<int>(rhs));
   }
 
-#ifdef ORIGAMI_DEBUG
-  assert(false && ": неопределены типы для вычисления суммы");
-#endif
-
-  return {};
+  throw InvalidInputError{ fmt::format("Для типов {0} и {1} не заданы правила обработки.", lhs.type().name(), rhs.type().name()) };
 }
 }// namespace origami::parser

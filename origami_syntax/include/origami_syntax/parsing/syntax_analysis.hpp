@@ -23,8 +23,6 @@ class AstNodeVisitor;
 struct AstNode
 {
 public:
-  [[nodiscard]] virtual std::any accept(AstNodeVisitor& /*unused*/) = 0;
-
   AstNode() = default;
 
   virtual ~AstNode() = default;
@@ -36,6 +34,8 @@ public:
   AstNode(AstNode&&) noexcept = default;
 
   AstNode& operator=(AstNode&&) noexcept = default;
+
+  [[nodiscard]] virtual std::any accept(AstNodeVisitor& /*unused*/) = 0;
 
   void addLeft(const std::shared_ptr<AstNode>& t_child);
   void addRight(const std::shared_ptr<AstNode>& t_child);
