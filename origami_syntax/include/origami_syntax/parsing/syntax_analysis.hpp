@@ -18,16 +18,17 @@ namespace origami::parser {
 
 class AstNodeVisitor;
 
-template<typename T> class SingleData
+template<typename T, typename U = T> class MultipleData
 {
 public:
-  using Type = T;
+  using TypeLhs = T;
+  using TypeRhs = U;
 };
 
-template<typename T> struct AstVisitable
+template<typename ... Ts> struct AstVisitable
 {
 public:
-  [[nodiscard]] virtual std::optional<T> accept(SingleData<T> /*unused*/, AstNodeVisitor& /*unused*/)
+  [[nodiscard]] virtual std::optional<std::common_type_t<Ts...>> accept(MultipleData<Ts...> /*unused*/, AstNodeVisitor& /*unused*/)
   {
 #ifdef ORIGAMI_DEBUG
     assert(false && ": функция не определена");
@@ -48,7 +49,7 @@ public:
   AstVisitable& operator=(AstVisitable&&) noexcept = default;
 };
 
-struct AstNode : virtual AstVisitable<int>, AstVisitable<double>
+struct AstNode : virtual AstVisitable<int>, AstVisitable<double>, AstVisitable<int, double>
 {
 public:
   using AstVisitable<int>::accept;
@@ -84,7 +85,7 @@ public:
 
   explicit ValueNode(T t_data) : m_value(t_data) {}
 
-  std::optional<T> accept(SingleData<T> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitValueNode<T>(*this); }
+  std::optional<T> accept(MultipleData<T> /*unused*/, AstNodeVisitor& t_visitor) override { return t_visitor.visitValueNode<T>(*this); }
 
 private:
   T doing() const { return m_value; }
@@ -98,14 +99,15 @@ struct SumNode : public AstNode
 public:
   friend class AstNodeVisitor;
 
-  std::optional<int> accept(SingleData<int> /*unused*/, AstNodeVisitor& t_visitor) override
+  std::optional<int> accept(MultipleData<int> /*unused*/, AstNodeVisitor& t_visitor) override
   {
     return t_visitor.visitSumNode<int, int>(*this);
   }
 
-  std::optional<double> accept(SingleData<double> /*unused*/, AstNodeVisitor& t_visitor) override
+  std::optional<double> accept(MultipleData<int, double> t_type, AstNodeVisitor& t_visitor) override
   {
-    return t_visitor.visitSumNode<double, double>(*this);
+    using TypeData = decltype(t_type);
+    return t_visitor.visitSumNode<TypeData::TypeLhs, TypeData::TypeRhs>(*this);
   }
 
 private:
@@ -115,8 +117,8 @@ private:
 
 template<typename T, typename U> std::optional<std::common_type_t<T, U>> AstNodeVisitor::visitSumNode(SumNode& t_node)
 {
-  const std::optional<T> lhs = t_node.left()->accept(SingleData<T>(), *this);
-  const std::optional<U> rhs = t_node.right()->accept(SingleData<U>(), *this);
+  const std::optional<T> lhs = t_node.left()->accept(MultipleData<T>(), *this);
+  const std::optional<U> rhs = t_node.right()->accept(MultipleData<U>(), *this);
   if (!lhs || !rhs) { return {}; }
 
   return t_node.doing(*lhs, *rhs);
