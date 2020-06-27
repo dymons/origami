@@ -5,6 +5,11 @@
 #include <fmt/core.h>
 
 namespace origami::parser {
+AstNode::AstNode(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right)
+{
+  m_left = t_left;
+  m_right = t_right;
+}
 void AstNode::setLeftChild(const std::shared_ptr<AstNode>& t_child) { m_left = t_child; }
 void AstNode::setRightChild(const std::shared_ptr<AstNode>& t_child) { m_right = t_child; };
 std::shared_ptr<AstNode> AstNode::getLeftChild() const { return m_left; }
@@ -76,11 +81,8 @@ std::shared_ptr<AstNode> SyntaxAnalyzerCpp::expr()
 
   while (m_current_token.first == lex::Token::Operator) {
     if (m_current_token.second == "+") {
-      auto node = std::make_shared<origami::parser::AstNodeAdder>();
-      node->setLeftChild(tree);
       m_current_token = m_tokenizer.getToken();
-      node->setRightChild(std::make_shared<origami::parser::AstNodeNumber>(factor()));
-      tree = node;
+      tree = std::make_shared<origami::parser::AstNodeAdder>(tree, std::make_shared<origami::parser::AstNodeNumber>(factor()));
     } else {
       throwInvalidSyntax();
     }

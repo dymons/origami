@@ -30,6 +30,8 @@ class AstVisitor;
 struct AstNode
 {
 public:
+  explicit AstNode(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right);
+
   AstNode() = default;
 
   virtual ~AstNode() = default;
@@ -107,6 +109,10 @@ struct AstNodeAdder : public AstNode
 {
 public:
   friend class AstVisitor;
+
+  AstNodeAdder() = default;
+
+  explicit AstNodeAdder(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right) : AstNode(t_left, t_right) {}
 
   std::any accept(AstVisitor& t_visitor) override { return t_visitor.visit(*this); }
 
