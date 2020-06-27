@@ -1,5 +1,6 @@
 #include "origami_syntax/parsing/syntax_analysis.hpp"
 #include "origami_lexical/conventions/exeptions.hpp"
+#include "origami_syntax/parsing/detail/utility.hpp"
 
 #include <fmt/core.h>
 
@@ -43,10 +44,22 @@ std::any SyntaxAnalyzerCpp::factor()
 
   switch (auto [token, lexeme] = m_current_token; token) {
     case lex::Token::Literal: {
-      // https://stackoverflow.com/questions/29169153/how-do-i-verify-a-string-is-valid-double-even-if-it-has-a-point-in-it
-      // TODO: Сделать проверку на число, и в зависимости от типа, создавать any.
-      node = std::make_any<int>(std::stoi(lexeme));
+      switch (utility::isNumber(lexeme)) {
+        case utility::Number::Integer: {
+          node = std::make_any<int>(std::stoi(lexeme));
+          break;
+        }
+        case utility::Number::Double: {
+          node = std::make_any<double>(std::stod(lexeme));
+          break;
+        }
+        case utility::Number::Unknown: {
+          throwInvalidSyntax();
+        }
+      }
+
       m_current_token = m_tokenizer.getToken();
+
       break;
     }
     default: {

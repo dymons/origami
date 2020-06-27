@@ -84,7 +84,7 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Создание простого абстрактного синтаксического дерева парсером")
   {
-    origami::parser::SyntaxAnalyzerCpp analyzer {"2 + 3"};
+    origami::parser::SyntaxAnalyzerCpp analyzer {"2 + 3 + 10 + 15"};
     std::shared_ptr<origami::parser::AstNode> tree = analyzer.expr();
     REQUIRE(tree);
 
@@ -92,6 +92,6 @@ TEST_CASE("Проверка на суммирвоание выражения А�
     REQUIRE(result.has_value());
     REQUIRE(result.type() == typeid(int));
     REQUIRE_NOTHROW(std::any_cast<int>(result));
-    REQUIRE(std::any_cast<int>(result) == 5);
+    REQUIRE(std::any_cast<int>(result) == 30);
   }
 }

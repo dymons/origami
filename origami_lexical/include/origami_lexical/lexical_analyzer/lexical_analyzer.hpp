@@ -51,7 +51,6 @@ public:
   {
     // Пока символы не закончатся, считываем их последовательно
     while (m_current_symbol != m_code.size()) {
-      //      std::cout << m_code[m_current_symbol] << std::endl;
       // Если символ относится к категории 'пробельный символ', игнорируем его
       if (std::isspace(m_code[m_current_symbol]) != 0) {
         ++m_current_symbol;
