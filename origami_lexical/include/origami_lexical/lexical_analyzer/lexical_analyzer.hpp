@@ -16,6 +16,7 @@
 #include <cctype>
 #include <locale>
 
+// TODO: Переписать операторы на enum
 namespace origami::lex {
 
 /**
@@ -50,6 +51,7 @@ public:
   {
     // Пока символы не закончатся, считываем их последовательно
     while (m_current_symbol != m_code.size()) {
+      //      std::cout << m_code[m_current_symbol] << std::endl;
       // Если символ относится к категории 'пробельный символ', игнорируем его
       if (std::isspace(m_code[m_current_symbol]) != 0) {
         ++m_current_symbol;
@@ -81,11 +83,15 @@ public:
           return (std::isdigit(t_ch, std::locale{ "C" }) || (t_ch == '.') || (t_ch == '+') || (t_ch == '-'));
         });
 
+
         if (not_isdigit != m_code.end()) {
           auto digital = m_code.substr(m_current_symbol, std::distance(m_code.begin(), not_isdigit) - m_current_symbol);
           m_current_symbol = static_cast<decltype(m_current_symbol)>(std::distance(m_code.begin(), not_isdigit));
           return { origami::lex::Token::Literal, std::move(digital) };
         }
+
+        auto digital = m_code.substr(m_current_symbol, m_code.size() - m_current_symbol);
+        return { origami::lex::Token::Literal, std::move(digital) };
       } else {
         if (const auto punctuation = m_convention->punctuation().find(m_code[m_current_symbol]);
             punctuation != m_convention->punctuation().end()) {

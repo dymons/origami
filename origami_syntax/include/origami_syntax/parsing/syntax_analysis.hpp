@@ -18,6 +18,7 @@
 
 namespace origami::parser {
 
+// TODO: Перенести в отдельный файл
 /**
  * \brief     Абстрактное синтаксическое дерево основано на паттерне Visitor
  *
@@ -113,10 +114,22 @@ private:
   template<typename T, typename U> auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs + t_rhs; }
 };
 
+// http://cpp-reference.ru/patterns/behavioral-patterns/interpreter/
+// https://ruslanspivak.com/lsbasi-part7/
+// Спроектировать
 class SyntaxAnalyzerCpp
 {
+public:
+  explicit SyntaxAnalyzerCpp(const std::string& t_code);
+
+  std::any factor();
+
+  std::shared_ptr<AstNode> expr();
+
 private:
   lex::LexicalAnalyzer<lex::LexicalConventionCpp> m_tokenizer;
+
+  std::pair<lex::Token, lex::Lexeme> m_current_token;
 };
 }// namespace origami::parser
 

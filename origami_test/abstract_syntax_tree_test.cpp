@@ -82,4 +82,16 @@ TEST_CASE("Проверка на суммирвоание выражения А�
     REQUIRE_NOTHROW(std::any_cast<double>(result));
     REQUIRE(std::any_cast<double>(result) == 75.5);
   }
+  SECTION("Создание простого абстрактного синтаксического дерева парсером")
+  {
+    origami::parser::SyntaxAnalyzerCpp analyzer {"2 + 3"};
+    std::shared_ptr<origami::parser::AstNode> tree = analyzer.expr();
+    REQUIRE(tree);
+
+    const std::any result = tree->accept(visitor);
+    REQUIRE(result.has_value());
+    REQUIRE(result.type() == typeid(int));
+    REQUIRE_NOTHROW(std::any_cast<int>(result));
+    REQUIRE(std::any_cast<int>(result) == 5);
+  }
 }
