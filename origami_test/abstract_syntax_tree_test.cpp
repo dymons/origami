@@ -82,16 +82,26 @@ TEST_CASE("Проверка на суммирвоание выражения А�
     REQUIRE_NOTHROW(std::any_cast<double>(result));
     REQUIRE(std::any_cast<double>(result) == 75.5);
   }
-  SECTION("Создание простого абстрактного синтаксического дерева парсером")
+  SECTION("Создание абстрактного синтаксического дерева парсером для вычисление суммы целых чисел")
   {
-    origami::parser::SyntaxAnalyzerCpp analyzer {"2 + 3 + 10 + 15"};
-    std::shared_ptr<origami::parser::AstNode> tree = analyzer.expr();
-    REQUIRE(tree);
+    const auto ast = origami::parser::SyntaxAnalyzerCpp {"2 + 3 + 10 + 15"}.parse();
+    REQUIRE(ast);
 
-    const std::any result = tree->accept(visitor);
+    const std::any result = ast->accept(visitor);
     REQUIRE(result.has_value());
     REQUIRE(result.type() == typeid(int));
     REQUIRE_NOTHROW(std::any_cast<int>(result));
     REQUIRE(std::any_cast<int>(result) == 30);
+  }
+  SECTION("Создание абстрактного синтаксического дерева парсером вычисление суммы целых и дробных чисел")
+  {
+    const auto ast = origami::parser::SyntaxAnalyzerCpp {"2 + 3.3 + 10 + 15.5"}.parse();
+    REQUIRE(ast);
+
+    const std::any result = ast->accept(visitor);
+    REQUIRE(result.has_value());
+    REQUIRE(result.type() == typeid(double));
+    REQUIRE_NOTHROW(std::any_cast<double>(result));
+    REQUIRE(std::any_cast<double>(result) == 30.8);
   }
 }

@@ -32,8 +32,10 @@ std::any AstVisitor::visit(AstNodeAdder& t_node)
     return t_node.doing(std::any_cast<int>(lhs), std::any_cast<double>(rhs));
   } else if ((lhs.type() == typeid(double)) && (rhs.type() == typeid(int))) {
     return t_node.doing(std::any_cast<double>(lhs), std::any_cast<int>(rhs));
+  } else if ((lhs.type() == typeid(double)) && (rhs.type() == typeid(double))) {
+    return t_node.doing(std::any_cast<double>(lhs), std::any_cast<double>(rhs));
   } else {
-    throwUnsupportedOperator();
+    throw UnsupportedOperationError{ fmt::format("Для типов {0} и {1} не заданы правила обработки.", lhs.type().name(), rhs.type().name()) };
   }
 }
 
@@ -90,4 +92,10 @@ std::shared_ptr<AstNode> SyntaxAnalyzerCpp::expr()
 
   return tree;
 }
+
+std::shared_ptr<AstNode> SyntaxAnalyzerCpp::parse()
+{
+  return expr();
+}
+
 }// namespace origami::parser
