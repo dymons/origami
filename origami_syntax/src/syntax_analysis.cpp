@@ -70,7 +70,7 @@ std::any SyntaxAnalyzerCpp::factor()
       break;
     }
     default: {
-      throw InvalidSyntaxError{"The data type isn't literal"};
+      throw InvalidSyntaxError{"The data type isn't literal: " + lexeme};
     }
   }
 

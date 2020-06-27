@@ -3,9 +3,9 @@ project(origami_syntax)
 
 find_package(fmt REQUIRED)
 
-file(GLOB ORIGAMI_LEXICAL_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB ORIGAMI_SYNTAX_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
-add_library(${PROJECT_NAME} ${ORIGAMI_LEXICAL_SRC})
+add_library(${PROJECT_NAME} ${ORIGAMI_SYNTAX_SRC})
 add_library(origami::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
