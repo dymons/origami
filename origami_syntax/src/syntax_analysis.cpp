@@ -61,7 +61,7 @@ std::any SyntaxAnalyzerCpp::factor()
           break;
         }
         case utility::Number::Unknown: {
-          throwInvalidSyntax();
+          throw InvalidSyntaxError{"Data type casting error: " + lexeme};
         }
       }
 
@@ -70,7 +70,7 @@ std::any SyntaxAnalyzerCpp::factor()
       break;
     }
     default: {
-      throwInvalidSyntax();
+      throw InvalidSyntaxError{"The data type isn't literal"};
     }
   }
 
@@ -86,7 +86,7 @@ std::shared_ptr<AstNode> SyntaxAnalyzerCpp::expr()
       m_current_token = m_tokenizer.getToken();
       tree = std::make_shared<origami::parser::AstNodeAdder>(tree, std::make_shared<origami::parser::AstNodeNumber>(factor()));
     } else {
-      throwInvalidSyntax();
+      throw UnsupportedOperationError{"The parser doesn't support an operator " + m_current_token.second};
     }
   }
 

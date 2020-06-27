@@ -20,20 +20,13 @@ class SemanticParsing : public std::runtime_error
 class UnsupportedOperationError : public SemanticParsing
 {
   using SemanticParsing::SemanticParsing;
-
-public:
-  [[nodiscard]] virtual const char* what() const noexcept override { return "Unsupported operator"; }
 };
 
+/// \brief Синтаксическа ошибка в программе
 class InvalidSyntaxError : public SemanticParsing
 {
   using SemanticParsing::SemanticParsing;
-
-public:
-  [[nodiscard]] virtual const char* what() const noexcept override { return "Invalid syntax"; }
 };
-
-[[noreturn]] inline void throwInvalidSyntax() { throw(InvalidSyntaxError{ "" }); }
 }// namespace origami
 
 #endif// ORIGAMI_EXEPTIONS_HPP
