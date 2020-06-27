@@ -16,7 +16,6 @@
 #include <cctype>
 #include <locale>
 
-// TODO: Переписать операторы на enum
 namespace origami::lex {
 
 /**

@@ -59,6 +59,9 @@ private:
 /// Поддерживаемые операции Абстрактного синтаксического дерева
 class AstNodeNumber;///< Хранение данных
 class AstNodeAdder;///< Операция суммирования данных
+class AstNodeSubtractor;
+class AstNodeMultiplier;
+class AstNodeDivider;
 
 class AstVisitor
 {
@@ -78,6 +81,12 @@ public:
   [[nodiscard]] virtual std::any visit(AstNodeAdder& /*t_node*/);
 
   [[nodiscard]] virtual std::any visit(AstNodeNumber& /*t_node*/);
+
+  [[nodiscard]] virtual std::any visit(AstNodeSubtractor& /*t_node*/);
+
+  [[nodiscard]] virtual std::any visit(AstNodeMultiplier& /*t_node*/);
+
+  [[nodiscard]] virtual std::any visit(AstNodeDivider& /*t_node*/);
 };
 
 ///< Узел дерева для хранения данных
@@ -110,6 +119,51 @@ public:
 
 private:
   template<typename T, typename U> auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs + t_rhs; }
+};
+
+struct AstNodeSubtractor : public AstNode
+{
+public:
+  friend class AstVisitor;
+
+  AstNodeSubtractor() = default;
+
+  explicit AstNodeSubtractor(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right) : AstNode(t_left, t_right) {}
+
+  std::any accept(AstVisitor& t_visitor) override { return t_visitor.visit(*this); }
+
+private:
+  template<typename T, typename U> auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs - t_rhs; }
+};
+
+struct AstNodeMultiplier : public AstNode
+{
+public:
+  friend class AstVisitor;
+
+  AstNodeMultiplier() = default;
+
+  explicit AstNodeMultiplier(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right) : AstNode(t_left, t_right) {}
+
+  std::any accept(AstVisitor& t_visitor) override { return t_visitor.visit(*this); }
+
+private:
+  template<typename T, typename U> auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs * t_rhs; }
+};
+
+struct AstNodeDivider : public AstNode
+{
+public:
+  friend class AstVisitor;
+
+  AstNodeDivider() = default;
+
+  explicit AstNodeDivider(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right) : AstNode(t_left, t_right) {}
+
+  std::any accept(AstVisitor& t_visitor) override { return t_visitor.visit(*this); }
+
+private:
+  template<typename T, typename U> auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U> { return t_lhs / t_rhs; }
 };
 }// namespace origami::ast
 

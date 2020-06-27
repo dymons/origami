@@ -56,6 +56,9 @@ std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::expr()
     if (m_current_token.second == "+") {
       m_current_token = m_tokenizer.getToken();
       tree = std::make_shared<ast::AstNodeAdder>(tree, std::make_shared<ast::AstNodeNumber>(factor()));
+    } else if (m_current_token.second == "-") {
+      m_current_token = m_tokenizer.getToken();
+      tree = std::make_shared<ast::AstNodeSubtractor>(tree, std::make_shared<ast::AstNodeNumber>(factor()));
     } else {
       throw UnsupportedOperationError{"The parser doesn't support an operator " + m_current_token.second};
     }
