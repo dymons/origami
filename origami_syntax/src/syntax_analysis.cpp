@@ -61,19 +61,38 @@ std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::factor()
   return node;
 }
 
-std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::expr()
+std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::term()
 {
   std::shared_ptr<ast::AstNode> tree = factor();
 
   while (m_current_token.first == lex::Token::Operator) {
+    if (m_current_token.second == "*") {
+      m_current_token = m_tokenizer.getToken();
+      tree = std::make_shared<ast::AstNodeMultiplier>(tree, factor());
+    } else if (m_current_token.second == "/") {
+      m_current_token = m_tokenizer.getToken();
+      tree = std::make_shared<ast::AstNodeDivider>(tree, factor());
+    } else {
+      break;
+    }
+  }
+
+  return tree;
+}
+
+std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::expr()
+{
+  std::shared_ptr<ast::AstNode> tree = term();
+
+  while (m_current_token.first == lex::Token::Operator) {
     if (m_current_token.second == "+") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::AstNodeAdder>(tree, factor());
+      tree = std::make_shared<ast::AstNodeAdder>(tree, term());
     } else if (m_current_token.second == "-") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::AstNodeSubtractor>(tree, factor());
+      tree = std::make_shared<ast::AstNodeSubtractor>(tree, term());
     } else {
-      throw UnsupportedOperationError{ "The parser doesn't support an operator " + m_current_token.second };
+      break;
     }
   }
 

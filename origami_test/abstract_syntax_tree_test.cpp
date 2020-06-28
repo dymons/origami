@@ -126,4 +126,15 @@ TEST_CASE("Проверка на суммирвоание выражения А�
     REQUIRE_NOTHROW(std::any_cast<int>(result));
     REQUIRE(std::any_cast<int>(result) == 4);
   }
+  SECTION("Вычисление выражения 7 + 3 * (10 / (12 / (3 + 1) - 1)) / (2 + 3) - 5 - 3 + (8)")
+  {
+    const auto ast = origami::parser::SyntaxAnalyzerCpp {"7 + 3 * (10 / (12 / (3 + 1) - 1)) / (2 + 3) - 5 - 3 + (8)"}.parse();
+    REQUIRE(ast);
+
+    const std::any result = ast->accept(visitor);
+    REQUIRE(result.has_value());
+    REQUIRE(result.type() == typeid(int));
+    REQUIRE_NOTHROW(std::any_cast<int>(result));
+    REQUIRE(std::any_cast<int>(result) == 10);
+  }
 }

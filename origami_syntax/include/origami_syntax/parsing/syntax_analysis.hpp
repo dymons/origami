@@ -27,6 +27,8 @@ public:
 private:
   std::shared_ptr<ast::AstNode> factor();
 
+  std::shared_ptr<ast::AstNode> term();
+
   std::shared_ptr<ast::AstNode> expr();
 
   lex::LexicalAnalyzer<lex::LexicalConventionCpp> m_tokenizer;
