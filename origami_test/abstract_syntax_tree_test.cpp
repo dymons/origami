@@ -115,4 +115,15 @@ TEST_CASE("Проверка на суммирвоание выражения А�
     REQUIRE_NOTHROW(std::any_cast<int>(result));
     REQUIRE(std::any_cast<int>(result) == 26);
   }
+  SECTION("Создание абстрактного синтаксического дерева парсером вычисление выражения (7 + 10) - 2 + 16 - 5 со скобками")
+  {
+    const auto ast = origami::parser::SyntaxAnalyzerCpp {"(7 + 10) - (2 + 16 - 5)"}.parse();
+    REQUIRE(ast);
+
+    const std::any result = ast->accept(visitor);
+    REQUIRE(result.has_value());
+    REQUIRE(result.type() == typeid(int));
+    REQUIRE_NOTHROW(std::any_cast<int>(result));
+    REQUIRE(std::any_cast<int>(result) == 4);
+  }
 }

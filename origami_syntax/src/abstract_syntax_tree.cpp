@@ -55,7 +55,6 @@ std::any AstVisitor::visit(AstNodeSubtractor& t_node)
 
   if (!lhs.has_value() || !rhs.has_value()) { return {}; }
 
-  // TODO: Найти решение по работе с данными, посмотреть в сторону паттернов.
   if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(int))) {
     return t_node.doing(std::any_cast<int>(lhs), std::any_cast<int>(rhs));
   } else if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(double))) {
@@ -79,7 +78,6 @@ std::any AstVisitor::visit(AstNodeMultiplier& t_node)
 
   if (!lhs.has_value() || !rhs.has_value()) { return {}; }
 
-  // TODO: Найти решение по работе с данными, посмотреть в сторону паттернов.
   if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(int))) {
     return t_node.doing(std::any_cast<int>(lhs), std::any_cast<int>(rhs));
   } else if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(double))) {
@@ -103,7 +101,6 @@ std::any AstVisitor::visit(AstNodeDivider& t_node)
 
   if (!lhs.has_value() || !rhs.has_value()) { return {}; }
 
-  // TODO: Найти решение по работе с данными, посмотреть в сторону паттернов.
   if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(int))) {
     return t_node.doing(std::any_cast<int>(lhs), std::any_cast<int>(rhs));
   } else if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(double))) {

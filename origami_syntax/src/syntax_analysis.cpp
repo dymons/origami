@@ -16,23 +16,36 @@ SyntaxAnalyzerCpp::SyntaxAnalyzerCpp(const std::string& t_code)
   m_current_token = m_tokenizer.getToken();
 }
 
-std::any SyntaxAnalyzerCpp::factor()
+std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::factor()
 {
-  std::any node;
+  std::shared_ptr<ast::AstNode> node;
 
   switch (auto [token, lexeme] = m_current_token; token) {
     case lex::Token::Literal: {
       switch (utility::isNumber(lexeme)) {
         case utility::Number::Integer: {
-          node = std::make_any<int>(std::stoi(lexeme));
+          node = std::make_shared<ast::AstNodeNumber>(std::make_any<int>(std::stoi(lexeme)));
           break;
         }
         case utility::Number::Double: {
-          node = std::make_any<double>(std::stod(lexeme));
+          node = std::make_shared<ast::AstNodeNumber>(std::make_any<double>(std::stod(lexeme)));
           break;
         }
         case utility::Number::Unknown: {
-          throw InvalidSyntaxError{"Data type casting error: " + lexeme};
+          throw InvalidSyntaxError{ "Data type casting error: " + lexeme };
+        }
+      }
+
+      m_current_token = m_tokenizer.getToken();
+
+      break;
+    }
+    case lex::Token::Punctuator: {
+      if (lexeme == "(") {
+        m_current_token = m_tokenizer.getToken();
+        node = expr();
+        if (m_current_token.second != ")") {
+          throw InvalidSyntaxError{ "There is no closing bracket: " + m_current_token.second};
         }
       }
 
@@ -41,7 +54,7 @@ std::any SyntaxAnalyzerCpp::factor()
       break;
     }
     default: {
-      throw InvalidSyntaxError{"The data type isn't literal: " + lexeme};
+      throw InvalidSyntaxError{ "The data type isn't literal: " + lexeme };
     }
   }
 
@@ -50,26 +63,23 @@ std::any SyntaxAnalyzerCpp::factor()
 
 std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::expr()
 {
-  std::shared_ptr<ast::AstNode> tree = std::make_shared<ast::AstNodeNumber>(factor());
+  std::shared_ptr<ast::AstNode> tree = factor();
 
   while (m_current_token.first == lex::Token::Operator) {
     if (m_current_token.second == "+") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::AstNodeAdder>(tree, std::make_shared<ast::AstNodeNumber>(factor()));
+      tree = std::make_shared<ast::AstNodeAdder>(tree, factor());
     } else if (m_current_token.second == "-") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::AstNodeSubtractor>(tree, std::make_shared<ast::AstNodeNumber>(factor()));
+      tree = std::make_shared<ast::AstNodeSubtractor>(tree, factor());
     } else {
-      throw UnsupportedOperationError{"The parser doesn't support an operator " + m_current_token.second};
+      throw UnsupportedOperationError{ "The parser doesn't support an operator " + m_current_token.second };
     }
   }
 
   return tree;
 }
 
-std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::parse()
-{
-  return expr();
-}
+std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::parse() { return expr(); }
 
 }// namespace origami::parser

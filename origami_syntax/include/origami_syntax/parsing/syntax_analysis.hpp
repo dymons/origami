@@ -25,7 +25,7 @@ public:
   std::shared_ptr<ast::AstNode> parse();
 
 private:
-  std::any factor();
+  std::shared_ptr<ast::AstNode> factor();
 
   std::shared_ptr<ast::AstNode> expr();
 

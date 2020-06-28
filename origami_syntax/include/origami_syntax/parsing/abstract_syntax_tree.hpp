@@ -59,9 +59,9 @@ private:
 /// Поддерживаемые операции Абстрактного синтаксического дерева
 class AstNodeNumber;///< Хранение данных
 class AstNodeAdder;///< Операция суммирования данных
-class AstNodeSubtractor;
-class AstNodeMultiplier;
-class AstNodeDivider;
+class AstNodeSubtractor;///< Операция вычитания данных
+class AstNodeMultiplier;///< Операция умножения данных
+class AstNodeDivider;///< Операция деления данных
 
 class AstVisitor
 {
