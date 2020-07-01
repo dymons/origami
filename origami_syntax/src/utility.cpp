@@ -6,6 +6,7 @@
 
 #include "origami_syntax/parsing/detail/utility.hpp"
 
+#include <string>
 #include <algorithm>
 
 namespace origami::utility {

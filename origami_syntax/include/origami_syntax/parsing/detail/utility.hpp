@@ -7,7 +7,8 @@
 #ifndef ORIGAMI_UTILITY_HPP
 #define ORIGAMI_UTILITY_HPP
 
-#include <string>
+#include <cstdint>
+#include <string_view>
 
 namespace origami::utility {
 enum class Number : std::uint8_t { Integer, Double, Unknown };
