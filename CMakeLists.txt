@@ -1,13 +1,18 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.12...3.14)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-    add_definitions(-D_DEBUG=ON)
+if(${CMAKE_VERSION} VERSION_LESS 3.14)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
-project(origami VERSION 1.0.0 DESCRIPTION "C++20 Module Example" LANGUAGES CXX)
+project(origami VERSION 1.0.0 DESCRIPTION "C++20 Static code analysis" LANGUAGES CXX)
+
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_DEBUG=ON")
+endif()
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++20")
 
 add_subdirectory(origami_lexical)
 add_subdirectory(origami_syntax)

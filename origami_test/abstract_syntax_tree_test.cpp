@@ -148,4 +148,6 @@ TEST_CASE("Проверка на суммирвоание выражения А�
     REQUIRE_NOTHROW(std::any_cast<int>(result));
     REQUIRE(std::any_cast<int>(result) == 12);
   }
+
+
 }
