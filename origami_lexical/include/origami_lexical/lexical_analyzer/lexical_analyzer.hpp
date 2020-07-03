@@ -81,7 +81,6 @@ public:
           return (std::isdigit(t_ch, std::locale{ "C" }) || (t_ch == '.') || (t_ch == '+') || (t_ch == '-'));
         });
 
-
         if (not_isdigit != m_code.end()) {
           auto digital = m_code.substr(m_current_symbol, std::distance(m_code.begin(), not_isdigit) - m_current_symbol);
           m_current_symbol = static_cast<decltype(m_current_symbol)>(std::distance(m_code.begin(), not_isdigit));
