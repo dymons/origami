@@ -24,7 +24,7 @@ struct AstNode
 public:
   explicit AstNode(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right);
 
-  AstNode() = default;
+  AstNode() : m_left{ nullptr }, m_right{ nullptr } {}
 
   virtual ~AstNode() = default;
 
@@ -37,7 +37,7 @@ public:
   AstNode& operator=(AstNode&&) noexcept = default;
 
   ///< \brief     Главная функция узла, которая выполняет указанную операцию над данными и возвращает результат этой операции
-  [[nodiscard]] virtual std::any accept(AstVisitor& t_visitor) = 0;
+  virtual std::any accept(AstVisitor& t_visitor) = 0;
 
   ///< \brief     Задание левого узла дерева
   void setLeftChild(const std::shared_ptr<AstNode>& t_child);
@@ -90,17 +90,19 @@ public:
 };
 
 ///< Узел дерева для хранения данных
-struct AstNodeNumber : public AstNode
+class AstNodeNumber : public AstNode
 {
 public:
   friend class AstVisitor;
 
-  explicit AstNodeNumber(std::any t_data) : m_value(std::move(t_data)) {}
+  explicit AstNodeNumber(std::any t_data);
 
-  std::any accept(AstVisitor& t_visitor) override { return t_visitor.visit(*this); }
+  explicit AstNodeNumber(std::any t_data, const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right);
+
+  [[nodiscard]] std::any accept(AstVisitor& t_visitor) override;
 
 private:
-  std::any doing() const { return m_value; }
+  std::any doing() const noexcept;
 
   std::any m_value;
 };
