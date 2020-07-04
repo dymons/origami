@@ -7,12 +7,12 @@
 #ifndef ORIGAMI_ABSTRACT_SYNTAX_TREE_HPP
 #define ORIGAMI_ABSTRACT_SYNTAX_TREE_HPP
 
-// TODO : перенести в спп
 #include "origami_lexical/conventions/exeptions.hpp"
-#include <fmt/core.h>
 
 #include <any>
 #include <memory>
+
+#include <fmt/core.h>
 
 namespace origami::ast {
 /**
@@ -79,7 +79,6 @@ public:
 
   AstVisitor& operator=(AstVisitor&&) noexcept = default;
 
-
   [[nodiscard]] virtual std::any visit(AstNodeNumber& /*t_node*/);
 
   [[nodiscard]] virtual std::any visit(AstNodeMathOperator& /*t_node*/);
@@ -107,38 +106,22 @@ class AstNodeMathOperator : public AstNode
 public:
   friend class AstVisitor;
 
-  explicit AstNodeMathOperator(std::string t_operator) : AstNode(), m_operator(std::move(t_operator)) {}
+  explicit AstNodeMathOperator(std::string t_operator);
 
-  explicit AstNodeMathOperator(std::string t_operator, const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right)
-      : AstNode(t_left, t_right), m_operator(std::move(t_operator)) {}
+  explicit AstNodeMathOperator(std::string t_operator, const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right);
 
-  std::any accept(AstVisitor& t_visitor) override { return t_visitor.visit(*this); }
+  std::any accept(AstVisitor& t_visitor) override;
 
 private:
-  template<typename T, typename U> auto doing(const T t_lhs, const U t_rhs) -> typename std::common_type_t<T, U>
-    {
-      if (m_operator == "+")
-      {
-        return t_lhs + t_rhs;
-      }
+  template<typename... Ts> auto doing(Ts&&... t_data) -> typename std::common_type_t<Ts...>
+  {
+    if (m_operator == "+") { return (t_data + ... + 0); }
+    if (m_operator == "-") { return (t_data - ... - 0); }
+    if (m_operator == "/") { return (t_data / ... / 1); }
+    if (m_operator == "*") { return (t_data * ... * 1); }
 
-      if (m_operator == "-")
-      {
-        return t_lhs - t_rhs;
-      }
-
-      if (m_operator == "/")
-      {
-        return t_lhs / t_rhs;
-      }
-
-      if (m_operator == "*")
-      {
-        return t_lhs * t_rhs;
-      }
-
-      throw UnsupportedOperationError{ fmt::format("Неподдерживаемая операция {0} ", m_operator) };
-    }
+    throw UnsupportedOperationError{ fmt::format("Неподдерживаемая операция {0} ", m_operator) };
+  }
 
   std::string m_operator;
 };

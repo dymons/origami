@@ -6,8 +6,6 @@
 
 #include "origami_syntax/parsing/abstract_syntax_tree.hpp"
 
-#include <fmt/core.h>
-
 namespace origami::ast {
 AstNode::AstNode(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right)
 {
@@ -28,6 +26,17 @@ std::any AstNodeNumber::accept(AstVisitor& t_visitor) { return t_visitor.visit(*
 std::any AstNodeNumber::doing() const noexcept { return m_value; }
 
 std::any AstVisitor::visit(AstNodeNumber& t_node) { return t_node.doing(); }
+
+
+AstNodeMathOperator::AstNodeMathOperator(std::string t_operator) : AstNode(), m_operator(std::move(t_operator)) {}
+
+AstNodeMathOperator::AstNodeMathOperator(std::string t_operator,
+  const std::shared_ptr<AstNode>& t_left,
+  const std::shared_ptr<AstNode>& t_right)
+  : AstNode(t_left, t_right), m_operator(std::move(t_operator))
+{}
+
+std::any AstNodeMathOperator::accept(AstVisitor& t_visitor) { return t_visitor.visit(*this); }
 
 std::any AstVisitor::visit(AstNodeMathOperator& t_node)
 {

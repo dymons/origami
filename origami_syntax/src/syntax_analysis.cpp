@@ -44,9 +44,7 @@ std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::factor()
       if (lexeme == "(") {
         m_current_token = m_tokenizer.getToken();
         node = expr();
-        if (m_current_token.second != ")") {
-          throw InvalidSyntaxError{ "There is no closing bracket: " + m_current_token.second};
-        }
+        if (m_current_token.second != ")") { throw InvalidSyntaxError{ "There is no closing bracket: " + m_current_token.second }; }
       }
 
       m_current_token = m_tokenizer.getToken();
