@@ -25,7 +25,7 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Суммирование двух целочисленных чисел: 10 + 20.5")
   {
-    const auto sum = std::make_shared<origami::ast::AstNodeAdder>();
+    const auto sum = std::make_shared<origami::ast::AstNodeMathOperator>("+");
     sum->setLeftChild(std::make_shared<origami::ast::AstNodeNumber>(10));
     sum->setRightChild(std::make_shared<origami::ast::AstNodeNumber>(20));
     const std::any result = sum->accept(visitor);
@@ -36,7 +36,7 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Суммирование числа целого и дробного числа: 10 + 20.5")
   {
-    const auto sum = std::make_shared<origami::ast::AstNodeAdder>();
+    const auto sum = std::make_shared<origami::ast::AstNodeMathOperator>("+");
     sum->setLeftChild(std::make_shared<origami::ast::AstNodeNumber>(10));
     sum->setRightChild(std::make_shared<origami::ast::AstNodeNumber>(20.5));
     const std::any result = sum->accept(visitor);
@@ -47,15 +47,15 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Несколько суммирований чисел: 10 + 20 + 30 + 15.5")
   {
-    const auto first_part = std::make_shared<origami::ast::AstNodeAdder>();
+    const auto first_part = std::make_shared<origami::ast::AstNodeMathOperator>("+");
     first_part->setLeftChild(std::make_shared<origami::ast::AstNodeNumber>(10));
     first_part->setRightChild(std::make_shared<origami::ast::AstNodeNumber>(20));
 
-    const auto second_part = std::make_shared<origami::ast::AstNodeAdder>();
+    const auto second_part = std::make_shared<origami::ast::AstNodeMathOperator>("+");
     second_part->setLeftChild(first_part);
     second_part->setRightChild(std::make_shared<origami::ast::AstNodeNumber>(30));
 
-    const auto third_part = std::make_shared<origami::ast::AstNodeAdder>();
+    const auto third_part = std::make_shared<origami::ast::AstNodeMathOperator>("+");
     third_part->setLeftChild(second_part);
     third_part->setRightChild(std::make_shared<origami::ast::AstNodeNumber>(15.5));
     const std::any result = third_part->accept(visitor);
@@ -66,14 +66,14 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Несколько суммирований чисел: 10 + 20 + 30 + 15.5")
   {
-    const auto first_part = std::make_shared<origami::ast::AstNodeAdder>();
+    const auto first_part = std::make_shared<origami::ast::AstNodeMathOperator>("+");
     first_part->setLeftChild(std::make_shared<origami::ast::AstNodeNumber>(10));
     first_part->setRightChild(std::make_shared<origami::ast::AstNodeNumber>(20));
 
-    const auto second_part = std::make_shared<origami::ast::AstNodeAdder>();
+    const auto second_part = std::make_shared<origami::ast::AstNodeMathOperator>("+");
     second_part->setLeftChild(std::make_shared<origami::ast::AstNodeNumber>(30));
     second_part->setRightChild(std::make_shared<origami::ast::AstNodeNumber>(15.5));
-    const auto third_part = std::make_shared<origami::ast::AstNodeAdder>();
+    const auto third_part = std::make_shared<origami::ast::AstNodeMathOperator>("+");
     third_part->setLeftChild(first_part);
     third_part->setRightChild(second_part);
     const std::any result = third_part->accept(visitor);

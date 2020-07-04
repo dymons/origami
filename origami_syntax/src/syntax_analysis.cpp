@@ -68,10 +68,10 @@ std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::term()
   while (m_current_token.first == lex::Token::Operator) {
     if (m_current_token.second == "*") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::AstNodeMultiplier>(tree, factor());
+      tree = std::make_shared<ast::AstNodeMathOperator>("*", tree, factor());
     } else if (m_current_token.second == "/") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::AstNodeDivider>(tree, factor());
+      tree = std::make_shared<ast::AstNodeMathOperator>("/", tree, factor());
     } else {
       break;
     }
@@ -87,10 +87,10 @@ std::shared_ptr<ast::AstNode> SyntaxAnalyzerCpp::expr()
   while (m_current_token.first == lex::Token::Operator) {
     if (m_current_token.second == "+") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::AstNodeAdder>(tree, term());
+      tree = std::make_shared<ast::AstNodeMathOperator>("+", tree, term());
     } else if (m_current_token.second == "-") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::AstNodeSubtractor>(tree, term());
+      tree = std::make_shared<ast::AstNodeMathOperator>("-", tree, term());
     } else {
       break;
     }
