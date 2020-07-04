@@ -21,6 +21,13 @@ void AstNode::setRightChild(const std::shared_ptr<AstNode>& t_child) { m_right =
 std::shared_ptr<AstNode> AstNode::getLeftChild() const { return m_left; }
 std::shared_ptr<AstNode> AstNode::getRightChild() const { return m_right; }
 
+AstNodeNumber::AstNodeNumber(std::any t_data) : m_value(std::move(t_data)) {}
+AstNodeNumber::AstNodeNumber(std::any t_data, const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right)
+: m_value(std::move(t_data)), AstNode(t_left, t_right)
+{}
+std::any AstNodeNumber::accept(AstVisitor& t_visitor) { return t_visitor.visit(*this); }
+std::any AstNodeNumber::doing() const noexcept { return m_value; }
+
 std::any AstVisitor::visit(AstNodeNumber& t_node) { return t_node.doing(); }
 std::any AstVisitor::visit(AstNodeAdder& t_node)
 {

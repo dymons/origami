@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cctype>
 #include <locale>
+#include <type_traits>
 
 namespace origami::lex {
 
@@ -23,7 +24,7 @@ namespace origami::lex {
  *                  на выходе идентифицированных последовательностей, называемых «токенами». Аналитический разбор основан на анализе
  *                  стандарта С++17.
  */
-template<typename T> class LexicalAnalyzer
+template<typename T> requires std::is_base_of<LexicalConventionImpl, T>::value class LexicalAnalyzer
 {
 public:
   /**
@@ -80,7 +81,6 @@ public:
         auto not_isdigit = std::find_if_not(m_code.begin() + m_current_symbol, m_code.end(), [](auto t_ch) {
           return (std::isdigit(t_ch, std::locale{ "C" }) || (t_ch == '.') || (t_ch == '+') || (t_ch == '-'));
         });
-
 
         if (not_isdigit != m_code.end()) {
           auto digital = m_code.substr(m_current_symbol, std::distance(m_code.begin(), not_isdigit) - m_current_symbol);
