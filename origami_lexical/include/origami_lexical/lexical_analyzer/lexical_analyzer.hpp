@@ -19,25 +19,28 @@
 
 namespace origami::lex {
 
+template <typename T>
+concept LexicalConvention = std::is_base_of<LexicalConventionImpl, T>::value;
+
 /**
  * \brief           Аналитического разбор входной последовательности символов на распознанные группы — лексемы — с целью получения
  *                  на выходе идентифицированных последовательностей, называемых «токенами». Аналитический разбор основан на анализе
  *                  стандарта С++17.
  */
-template<typename T> requires std::is_base_of<LexicalConventionImpl, T>::value class LexicalAnalyzer
+template<LexicalConvention T> class LexicalAnalyzer
 {
 public:
   /**
    * \brief     Констуктор по умолчанию. Инициализация лексического соглашения.
    */
-  LexicalAnalyzer() : m_convention(std::make_shared<T>()) {}
+  LexicalAnalyzer() : m_convention(std::make_shared<T>()), m_current_symbol{ 0 } {}
 
   /**
    * \brief     Пользовательский конструктор. Инициализация лексического соглашения и обрабатываемого исходного кода программы
    *
    * \param[in] t_code - исходный код программы
    */
-  explicit LexicalAnalyzer(std::string t_code) : m_convention(std::make_shared<T>()), m_code(std::move(t_code)) {}
+  explicit LexicalAnalyzer(std::string t_code) : m_convention(std::make_shared<T>()), m_code(std::move(t_code)), m_current_symbol{ 0 } {}
 
   /**
    * \brief     Последовательное получение токенов по запросам от внешней сущности
@@ -177,7 +180,7 @@ public:
 
 private:
   std::string m_code;///< Исходный код программы
-  std::string::size_type m_current_symbol{ 0 };///<Текущий позиция лексического анализатора
+  std::string::size_type m_current_symbol;///<Текущий позиция лексического анализатора
   LexicalConventionImplPtr m_convention;///< Символьная таблица, содержащая информацию о синтаксисе языка программирования
 };
 

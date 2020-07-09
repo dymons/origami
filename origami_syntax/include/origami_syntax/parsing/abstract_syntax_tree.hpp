@@ -26,18 +26,25 @@ class AstVisitor;
 struct AstNode
 {
 public:
-  explicit AstNode(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right);
+  ///< \brief     Пользовательский конструктор. Инициализация левого и правого узла.
+  AstNode(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right);
 
+  ///< \brief     Конструктор по умолчанию
   AstNode() : m_left{ nullptr }, m_right{ nullptr } {}
 
+  ///< \brief     Виртуальный деструктор
   virtual ~AstNode() = default;
 
+  ///< \brief     Конструктор копирования
   AstNode(const AstNode&) = default;
 
+  ///< \brief     Оператор копирования
   AstNode& operator=(const AstNode&) = default;
 
+  ///< \brief     Конструктор перемещения
   AstNode(AstNode&&) noexcept = default;
 
+  ///< \brief     Оператор перемещения
   AstNode& operator=(AstNode&&) noexcept = default;
 
   ///< \brief     Главная функция узла, которая выполняет указанную операцию над данными и возвращает результат этой операции
@@ -61,8 +68,8 @@ private:
 };
 
 /// Поддерживаемые операции Абстрактного синтаксического дерева
-class AstNodeNumber;///< Хранение данных
-class AstNodeMathOperator;///< Математические операции
+class AstNodeNumber;///< Узел дерева для хранение данных различного типа
+class AstNodeMathOperator;///< Узел дерева для работы с математическими операциями
 
 class AstVisitor
 {
@@ -110,7 +117,7 @@ public:
 
   explicit AstNodeMathOperator(std::string t_operator, const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right);
 
-  std::any accept(AstVisitor& t_visitor) override;
+  [[nodiscard]] std::any accept(AstVisitor& t_visitor) override;
 
 private:
   template<typename... Ts> auto doing(Ts&&... t_data) -> typename std::common_type_t<Ts...>
