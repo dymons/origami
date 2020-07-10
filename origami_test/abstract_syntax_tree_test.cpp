@@ -84,7 +84,7 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Создание абстрактного синтаксического дерева парсером для вычисление суммы целых чисел")
   {
-    const auto ast = origami::parser::SyntaxAnalyzerCpp {"2 + 3 + 10 + 15"}.parse();
+    const auto ast = origami::parser::SyntaxAnalyzerCpp{ "2 + 3 + 10 + 15" }.parse();
     REQUIRE(ast);
 
     const std::any result = ast->accept(visitor);
@@ -95,7 +95,7 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Создание абстрактного синтаксического дерева парсером вычисление суммы целых и дробных чисел")
   {
-    const auto ast = origami::parser::SyntaxAnalyzerCpp {"2 + 3.3 + 10 + 15.5"}.parse();
+    const auto ast = origami::parser::SyntaxAnalyzerCpp{ "2 + 3.3 + 10 + 15.5" }.parse();
     REQUIRE(ast);
 
     const std::any result = ast->accept(visitor);
@@ -106,7 +106,7 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Создание абстрактного синтаксического дерева парсером вычисление выражения 7 + 10 - 2 + 16 - 5")
   {
-    const auto ast = origami::parser::SyntaxAnalyzerCpp {"7 + 10 - 2 + 16 - 5"}.parse();
+    const auto ast = origami::parser::SyntaxAnalyzerCpp{ "7 + 10 - 2 + 16 - 5" }.parse();
     REQUIRE(ast);
 
     const std::any result = ast->accept(visitor);
@@ -117,7 +117,7 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Создание абстрактного синтаксического дерева парсером вычисление выражения (7 + 10) - 2 + 16 - 5 со скобками")
   {
-    const auto ast = origami::parser::SyntaxAnalyzerCpp {"(7 + 10) - (2 + 16 - 5)"}.parse();
+    const auto ast = origami::parser::SyntaxAnalyzerCpp{ "(7 + 10) - (2 + 16 - 5)" }.parse();
     REQUIRE(ast);
 
     const std::any result = ast->accept(visitor);
@@ -128,7 +128,7 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Вычисление выражения 7 + 3 * (10 / (12 / (3 + 1) - 1)) / (2 + 3) - 5 - 3 + (8)")
   {
-    const auto ast = origami::parser::SyntaxAnalyzerCpp {"7 + 3 * (10 / (12 / (3 + 1) - 1)) / (2 + 3) - 5 - 3 + (8)"}.parse();
+    const auto ast = origami::parser::SyntaxAnalyzerCpp{ "7 + 3 * (10 / (12 / (3 + 1) - 1)) / (2 + 3) - 5 - 3 + (8)" }.parse();
     REQUIRE(ast);
 
     const std::any result = ast->accept(visitor);
@@ -139,7 +139,7 @@ TEST_CASE("Проверка на суммирвоание выражения А�
   }
   SECTION("Вычисление выражения 7 + (((3 + 2)))")
   {
-    const auto ast = origami::parser::SyntaxAnalyzerCpp {"7 + (((3 + 2)))"}.parse();
+    const auto ast = origami::parser::SyntaxAnalyzerCpp{ "7 + (((3 + 2)))" }.parse();
     REQUIRE(ast);
 
     const std::any result = ast->accept(visitor);
@@ -148,6 +148,4 @@ TEST_CASE("Проверка на суммирвоание выражения А�
     REQUIRE_NOTHROW(std::any_cast<int>(result));
     REQUIRE(std::any_cast<int>(result) == 12);
   }
-
-
 }

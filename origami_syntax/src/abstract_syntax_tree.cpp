@@ -13,22 +13,45 @@ AstNode::AstNode(const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<A
   m_right = t_right;
 }
 
-void AstNode::setLeftChild(const std::shared_ptr<AstNode>& t_child) { m_left = t_child; }
-void AstNode::setRightChild(const std::shared_ptr<AstNode>& t_child) { m_right = t_child; };
-std::shared_ptr<AstNode> AstNode::getLeftChild() const { return m_left; }
-std::shared_ptr<AstNode> AstNode::getRightChild() const { return m_right; }
+void AstNode::setLeftChild(const std::shared_ptr<AstNode>& t_child)
+{
+  m_left = t_child;
+}
+void AstNode::setRightChild(const std::shared_ptr<AstNode>& t_child)
+{
+  m_right = t_child;
+};
+std::shared_ptr<AstNode> AstNode::getLeftChild() const
+{
+  return m_left;
+}
+std::shared_ptr<AstNode> AstNode::getRightChild() const
+{
+  return m_right;
+}
 
-AstNodeNumber::AstNodeNumber(std::any t_data) : m_value(std::move(t_data)) {}
+AstNodeNumber::AstNodeNumber(std::any t_data) : m_value(std::move(t_data))
+{}
 AstNodeNumber::AstNodeNumber(std::any t_data, const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right)
   : m_value(std::move(t_data)), AstNode(t_left, t_right)
 {}
-std::any AstNodeNumber::accept(AstVisitor& t_visitor) { return t_visitor.visit(*this); }
-std::any AstNodeNumber::doing() const noexcept { return m_value; }
+std::any AstNodeNumber::accept(AstVisitor& t_visitor)
+{
+  return t_visitor.visit(*this);
+}
+std::any AstNodeNumber::doing() const noexcept
+{
+  return m_value;
+}
 
-std::any AstVisitor::visit(AstNodeNumber& t_node) { return t_node.doing(); }
+std::any AstVisitor::visit(AstNodeNumber& t_node)
+{
+  return t_node.doing();
+}
 
 
-AstNodeMathOperator::AstNodeMathOperator(std::string t_operator) : AstNode(), m_operator(std::move(t_operator)) {}
+AstNodeMathOperator::AstNodeMathOperator(std::string t_operator) : AstNode(), m_operator(std::move(t_operator))
+{}
 
 AstNodeMathOperator::AstNodeMathOperator(std::string t_operator,
   const std::shared_ptr<AstNode>& t_left,
@@ -36,16 +59,23 @@ AstNodeMathOperator::AstNodeMathOperator(std::string t_operator,
   : AstNode(t_left, t_right), m_operator(std::move(t_operator))
 {}
 
-std::any AstNodeMathOperator::accept(AstVisitor& t_visitor) { return t_visitor.visit(*this); }
+std::any AstNodeMathOperator::accept(AstVisitor& t_visitor)
+{
+  return t_visitor.visit(*this);
+}
 
 std::any AstVisitor::visit(AstNodeMathOperator& t_node)
 {
-  if (!t_node.getLeftChild() || !t_node.getRightChild()) { return {}; }
+  if (!t_node.getLeftChild() || !t_node.getRightChild()) {
+    return {};
+  }
 
   const std::any lhs = t_node.getLeftChild()->accept(*this);
   const std::any rhs = t_node.getRightChild()->accept(*this);
 
-  if (!lhs.has_value() || !rhs.has_value()) { return {}; }
+  if (!lhs.has_value() || !rhs.has_value()) {
+    return {};
+  }
 
   if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(int))) {
     return t_node.doing(std::any_cast<int>(lhs), std::any_cast<int>(rhs));
