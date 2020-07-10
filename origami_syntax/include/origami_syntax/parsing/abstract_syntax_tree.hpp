@@ -158,6 +158,7 @@ public:
   template<Arithmetic... Ts>
   auto execute(Ts&&... t_data) const -> typename std::common_type_t<Ts...>
   {
+    // clang-format off
     switch (const auto hash = fnv1a::hash(m_operator); hash) {
       case fnv1a::hash("+"): {
         return (t_data + ... + 0);
@@ -171,10 +172,11 @@ public:
       case fnv1a::hash("*"): {
         return (t_data * ... * 1);
       }
-      default: {
+      [[unlikely]] default: {
         throw UnsupportedOperationError{ fmt::format("Неподдерживаемая операция {0} ", m_operator) };
       }
     }
+    // clang-format on
   }
 
 private:

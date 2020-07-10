@@ -22,11 +22,11 @@ template<typename T>
   const auto is_digit = std::ranges::all_of(t_sequence, [](const auto t_c) { return (std::isdigit(t_c) != 0) || (t_c == '.'); });
 
   // Если строка пустая или данные в строке не могут быть приведены к числовому типу
-  if (std::ranges::empty(t_sequence) || !is_digit)
-    [[unlikely]]
-    {
-      return Number::Unknown;
-    }
+  // clang-format off
+  if (std::ranges::empty(t_sequence) || !is_digit) [[unlikely]] {
+    return Number::Unknown;
+  }
+  // clang-format on
 
   // Если в строке присутствует точка, то данные принадлежат к классу floating point
   return std::ranges::find(t_sequence, '.') != std::ranges::end(t_sequence) ? Number::Double : Number::Integer;
