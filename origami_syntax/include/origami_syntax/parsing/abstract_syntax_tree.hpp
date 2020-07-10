@@ -16,6 +16,25 @@
 
 namespace origami::ast::crtp {
 
+namespace fnv1a {
+  template<typename Itr> static constexpr std::uint32_t hash(Itr begin, Itr end) noexcept
+  {
+    std::uint32_t h = 0x811c9dc5;
+
+    while (begin != end) {
+      h = (h ^ (*begin)) * 0x01000193;
+      ++begin;
+    }
+    return h;
+  }
+
+  template<size_t N> static constexpr std::uint32_t hash(const char (&str)[N]) noexcept { return hash(std::begin(str), std::end(str) - 1); }
+
+  static constexpr std::uint32_t hash(const std::string_view& sv) noexcept { return hash(sv.begin(), sv.end()); }
+
+  static inline std::uint32_t hash(const std::string& s) noexcept { return hash(s.begin(), s.end()); }
+}// namespace fnv1a
+
 class AstBase;
 class AstNumber;
 class AstNodeMathOperator;
@@ -100,12 +119,23 @@ public:
 
   template<Arithmetic... Ts> auto execute(Ts&&... t_data) const -> typename std::common_type_t<Ts...>
   {
-    if (m_operator == "+") { return (t_data + ... + 0); }
-    if (m_operator == "-") { return (t_data - ... - 0); }
-    if (m_operator == "/") { return (t_data / ... / 1); }
-    if (m_operator == "*") { return (t_data * ... * 1); }
-
-    throw UnsupportedOperationError{ fmt::format("Неподдерживаемая операция {0} ", m_operator) };
+    switch (const auto hash = fnv1a::hash(m_operator); hash) {
+      case fnv1a::hash("+"): {
+        return (t_data + ... + 0);
+      }
+      case fnv1a::hash("-"): {
+        return (t_data - ... - 0);
+      }
+      case fnv1a::hash("/"): {
+        return (t_data / ... / 1);
+      }
+      case fnv1a::hash("*"): {
+        return (t_data * ... * 1);
+      }
+      default: {
+        throw UnsupportedOperationError{ fmt::format("Неподдерживаемая операция {0} ", m_operator) };
+      }
+    }
   }
 
 private:
