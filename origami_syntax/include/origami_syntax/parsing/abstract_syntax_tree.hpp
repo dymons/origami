@@ -87,6 +87,8 @@ private:
   std::any m_value;
 };
 
+template<typename... Ts> concept Arithmetic = std::conjunction_v<std::is_arithmetic<Ts>...>;
+
 class AstNodeMathOperator : public AstNode<AstNodeMathOperator>
 {
 public:
@@ -96,8 +98,7 @@ public:
     : m_operator(std::move(t_operator)), AstNode{ t_left, t_right }
   {}
 
-  template<typename... Ts>
-  auto execute(Ts&&... t_data) const -> typename std::common_type_t<Ts...> requires std::conjunction_v<std::is_arithmetic<Ts>...>
+  template<Arithmetic... Ts> auto execute(Ts&&... t_data) const -> typename std::common_type_t<Ts...>
   {
     if (m_operator == "+") { return (t_data + ... + 0); }
     if (m_operator == "-") { return (t_data - ... - 0); }
@@ -124,16 +125,16 @@ inline std::any AstVisitor::visit(const AstNodeMathOperator& t_node)
 
   if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(int))) {
     return t_node.execute(std::any_cast<int>(lhs), std::any_cast<int>(rhs));
-  }//  } else if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(double))) {
-  //    return t_node.execute(std::any_cast<int>(lhs), std::any_cast<double>(rhs));
-  //  } else if ((lhs.type() == typeid(double)) && (rhs.type() == typeid(int))) {
-  //    return t_node.execute(std::any_cast<double>(lhs), std::any_cast<int>(rhs));
-  //  } else if ((lhs.type() == typeid(double)) && (rhs.type() == typeid(double))) {
-  //    return t_node.execute(std::any_cast<double>(lhs), std::any_cast<double>(rhs));
-  //  } else {
-  //    throw UnsupportedOperationError{ fmt::format(
-  //      "Для типов {0} и {1} не заданы правила обработки.", lhs.type().name(), rhs.type().name()) };
-  //  }
+  } else if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(double))) {
+    return t_node.execute(std::any_cast<int>(lhs), std::any_cast<double>(rhs));
+  } else if ((lhs.type() == typeid(double)) && (rhs.type() == typeid(int))) {
+    return t_node.execute(std::any_cast<double>(lhs), std::any_cast<int>(rhs));
+  } else if ((lhs.type() == typeid(double)) && (rhs.type() == typeid(double))) {
+    return t_node.execute(std::any_cast<double>(lhs), std::any_cast<double>(rhs));
+  } else {
+    throw UnsupportedOperationError{ fmt::format(
+      "Для типов {0} и {1} не заданы правила обработки.", lhs.type().name(), rhs.type().name()) };
+  }
 }
 
 }// namespace origami::ast::crtp
