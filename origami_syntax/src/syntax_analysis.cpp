@@ -1,34 +1,107 @@
+/*******************************************************************************************************************************************
+ * \author      Emelyanov Dmitry <dmitriy.emelyanov.de@gmail.com>
+ *
+ * \brief       Семантический парсер для создания абстрактного синтаксического дерева на основе context-free grammar
+ ******************************************************************************************************************************************/
+
 #include "origami_syntax/parsing/syntax_analysis.hpp"
 #include "origami_lexical/conventions/exeptions.hpp"
-
-#include <fmt/core.h>
+#include "origami_syntax/parsing/detail/utility.hpp"
 
 namespace origami::parser {
-void AstNode::setLeftChild(const std::shared_ptr<AstNode>& t_child) { m_left = t_child; }
-void AstNode::setRightChild(const std::shared_ptr<AstNode>& t_child) { m_right = t_child; };
-std::shared_ptr<AstNode> AstNode::getLeftChild() const { return m_left; }
-std::shared_ptr<AstNode> AstNode::getRightChild() const { return m_right; }
 
-std::any AstVisitor::visit(AstNodeNumber& t_node) { return t_node.doing(); }
-std::any AstVisitor::visit(AstNodeAdder& t_node)
+SyntaxAnalyzerCpp::SyntaxAnalyzerCpp(const std::string& t_code)
 {
-  if (!t_node.getLeftChild() || !t_node.getRightChild()) { return {}; }
-
-  const std::any lhs = t_node.getLeftChild()->accept(*this);
-  const std::any rhs = t_node.getRightChild()->accept(*this);
-
-  if (!lhs.has_value() || !rhs.has_value()) { return {}; }
-
-  if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(int))) { return t_node.doing(std::any_cast<int>(lhs), std::any_cast<int>(rhs)); }
-
-  if ((lhs.type() == typeid(int)) && (rhs.type() == typeid(double))) {
-    return t_node.doing(std::any_cast<int>(lhs), std::any_cast<double>(rhs));
-  }
-
-  if ((lhs.type() == typeid(double)) && (rhs.type() == typeid(int))) {
-    return t_node.doing(std::any_cast<double>(lhs), std::any_cast<int>(rhs));
-  }
-
-  throw UnsupportedOperationError{ fmt::format("Для типов {0} и {1} не заданы правила обработки.", lhs.type().name(), rhs.type().name()) };
+  m_tokenizer.update(t_code);
+  m_current_token = m_tokenizer.getToken();
 }
+
+std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::factor()
+{
+  std::shared_ptr<ast::AstBase> node;
+
+  switch (auto [token, lexeme] = m_current_token; token) {
+    case lex::Token::Literal: {
+      switch (utility::isNumber(lexeme)) {
+        case utility::Number::Integer: {
+          node = std::make_shared<ast::AstNumber>(std::make_any<int>(std::stoi(lexeme)));
+          break;
+        }
+        case utility::Number::Double: {
+          node = std::make_shared<ast::AstNumber>(std::make_any<double>(std::stod(lexeme)));
+          break;
+        }
+        case utility::Number::Unknown: {
+          throw InvalidSyntaxError{ "Data type casting error: " + lexeme };
+        }
+      }
+
+      m_current_token = m_tokenizer.getToken();
+
+      break;
+    }
+    case lex::Token::Punctuator: {
+      if (lexeme == "(") {
+        m_current_token = m_tokenizer.getToken();
+        node = expr();
+        if (m_current_token.second != ")") {
+          throw InvalidSyntaxError{ "There is no closing bracket: " + m_current_token.second };
+        }
+      }
+
+      m_current_token = m_tokenizer.getToken();
+
+      break;
+    }
+    default: {
+      throw InvalidSyntaxError{ "The data type isn't literal: " + lexeme };
+    }
+  }
+
+  return node;
+}
+
+std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::term()
+{
+  std::shared_ptr<ast::AstBase> tree = factor();
+
+  while (m_current_token.first == lex::Token::Operator) {
+    if (m_current_token.second == "*") {
+      m_current_token = m_tokenizer.getToken();
+      tree = std::make_shared<ast::AstMathOperator>("*", tree, factor());
+    } else if (m_current_token.second == "/") {
+      m_current_token = m_tokenizer.getToken();
+      tree = std::make_shared<ast::AstMathOperator>("/", tree, factor());
+    } else {
+      break;
+    }
+  }
+
+  return tree;
+}
+
+std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::expr()
+{
+  std::shared_ptr<ast::AstBase> tree = term();
+
+  while (m_current_token.first == lex::Token::Operator) {
+    if (m_current_token.second == "+") {
+      m_current_token = m_tokenizer.getToken();
+      tree = std::make_shared<ast::AstMathOperator>("+", tree, term());
+    } else if (m_current_token.second == "-") {
+      m_current_token = m_tokenizer.getToken();
+      tree = std::make_shared<ast::AstMathOperator>("-", tree, term());
+    } else {
+      break;
+    }
+  }
+
+  return tree;
+}
+
+std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::parse()
+{
+  return expr();
+}
+
 }// namespace origami::parser

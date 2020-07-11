@@ -15,28 +15,35 @@
 #include <algorithm>
 #include <cctype>
 #include <locale>
+#include <type_traits>
 
 namespace origami::lex {
+
+template<typename T>
+concept LexicalConvention = std::is_base_of<LexicalConventionImpl, T>::value;
 
 /**
  * \brief           Аналитического разбор входной последовательности символов на распознанные группы — лексемы — с целью получения
  *                  на выходе идентифицированных последовательностей, называемых «токенами». Аналитический разбор основан на анализе
  *                  стандарта С++17.
  */
-template<typename T> class LexicalAnalyzer
+template<LexicalConvention T>
+class LexicalAnalyzer
 {
 public:
   /**
    * \brief     Констуктор по умолчанию. Инициализация лексического соглашения.
    */
-  LexicalAnalyzer() : m_convention(std::make_shared<T>()) {}
+  LexicalAnalyzer() : m_convention(std::make_shared<T>()), m_current_symbol{ 0 }
+  {}
 
   /**
    * \brief     Пользовательский конструктор. Инициализация лексического соглашения и обрабатываемого исходного кода программы
    *
    * \param[in] t_code - исходный код программы
    */
-  explicit LexicalAnalyzer(std::string t_code) : m_convention(std::make_shared<T>()), m_code(std::move(t_code)) {}
+  explicit LexicalAnalyzer(std::string t_code) : m_convention(std::make_shared<T>()), m_code(std::move(t_code)), m_current_symbol{ 0 }
+  {}
 
   /**
    * \brief     Последовательное получение токенов по запросам от внешней сущности
@@ -70,7 +77,9 @@ public:
         m_current_symbol = static_cast<decltype(m_current_symbol)>(std::distance(m_code.begin(), not_isalnum));
 
         // Если нашли ключевое слово, идентифицируем его как ключевое слово
-        if (keyword != m_convention->keywords().end()) { return { origami::lex::Token::Keyword, *keyword }; }
+        if (keyword != m_convention->keywords().end()) {
+          return { origami::lex::Token::Keyword, *keyword };
+        }
 
         // Иначе, это именование
         return { origami::lex::Token::Identifier, std::move(word) };
@@ -86,6 +95,9 @@ public:
           m_current_symbol = static_cast<decltype(m_current_symbol)>(std::distance(m_code.begin(), not_isdigit));
           return { origami::lex::Token::Literal, std::move(digital) };
         }
+
+        auto digital = m_code.substr(m_current_symbol, m_code.size() - m_current_symbol);
+        return { origami::lex::Token::Literal, std::move(digital) };
       } else {
         if (const auto punctuation = m_convention->punctuation().find(m_code[m_current_symbol]);
             punctuation != m_convention->punctuation().end()) {
@@ -149,7 +161,10 @@ public:
    * \retval    true - нет данных для получения токенов
    * \retval    false - есть данные для получения токенов
    */
-  bool empty() const noexcept { return m_code.size() == m_current_symbol; }
+  bool empty() const noexcept
+  {
+    return m_code.size() == m_current_symbol;
+  }
 
   /**
    * \brief     Привести лексический анализатор в положении по умолчанию
@@ -173,7 +188,7 @@ public:
 
 private:
   std::string m_code;///< Исходный код программы
-  std::string::size_type m_current_symbol{ 0 };///<Текущий позиция лексического анализатора
+  std::string::size_type m_current_symbol;///<Текущий позиция лексического анализатора
   LexicalConventionImplPtr m_convention;///< Символьная таблица, содержащая информацию о синтаксисе языка программирования
 };
 

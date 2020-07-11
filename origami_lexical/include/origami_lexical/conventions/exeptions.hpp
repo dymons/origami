@@ -21,6 +21,12 @@ class UnsupportedOperationError : public SemanticParsing
 {
   using SemanticParsing::SemanticParsing;
 };
+
+/// \brief Синтаксическа ошибка в программе
+class InvalidSyntaxError : public SemanticParsing
+{
+  using SemanticParsing::SemanticParsing;
+};
 }// namespace origami
 
 #endif// ORIGAMI_EXEPTIONS_HPP
