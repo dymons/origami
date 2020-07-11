@@ -13,8 +13,6 @@
 #include "origami_lexical/conventions/tokens.hpp"
 #include "origami_syntax/parsing/abstract_syntax_tree.hpp"
 
-#include <any>
-
 namespace origami::parser {
 
 class SyntaxAnalyzerCpp
@@ -22,14 +20,14 @@ class SyntaxAnalyzerCpp
 public:
   explicit SyntaxAnalyzerCpp(const std::string& t_code);
 
-  std::shared_ptr<ast::AstNode> parse();
+  std::shared_ptr<ast::AstBase> parse();
 
 private:
-  std::shared_ptr<ast::AstNode> factor();
+  std::shared_ptr<ast::AstBase> factor();
 
-  std::shared_ptr<ast::AstNode> term();
+  std::shared_ptr<ast::AstBase> term();
 
-  std::shared_ptr<ast::AstNode> expr();
+  std::shared_ptr<ast::AstBase> expr();
 
   lex::LexicalAnalyzer<lex::LexicalConventionCpp> m_tokenizer;
 
