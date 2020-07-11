@@ -39,7 +39,7 @@ public:
   AstBase(const std::shared_ptr<AstBase>& t_left_child, const std::shared_ptr<AstBase>& t_right_child);
 
   ///< \brief     Виртуальный деструктор
-  virtual ~AstBase() = default;
+  virtual ~AstBase() noexcept = default;
 
   ///< \brief     Обрабочик класса
   virtual std::any accept(AstVisitor& t_visitor) const = 0;
@@ -69,13 +69,13 @@ public:
   AstNode() = default;
 
   ///< \brief     Деструктор базового класса должен быть помечен как виртуальный
-  ~AstNode() override = default;
+  ~AstNode() noexcept override = default;
 
   ///< \brief     Пользовательский конструктор для инициализации дочерних узлов базового класса
   AstNode(const std::shared_ptr<AstBase>& t_left, const std::shared_ptr<AstBase>& t_right);
 
   ///< Определение обработчика класса. Преобразование текущего класса к типу T для вызова обработчика визитора
-  std::any accept(AstVisitor& t_visitor) const final;
+  [[nodiscard]] std::any accept(AstVisitor& t_visitor) const final;
 };
 
 template<typename T>
@@ -101,7 +101,7 @@ public:
   AstNumber() = default;
 
   ///< \brief     Деструктор шаблонного базового класса должен быть помечен как виртуальный
-  ~AstNumber() override = default;
+  ~AstNumber() noexcept override = default;
 
   ///< \brief     Пользовательский конструктор. Инициализация полей класса
   explicit AstNumber(std::any t_value);
@@ -113,7 +113,7 @@ public:
   void setValue(std::any t_value);
 
   ///< \brief     Получить доступ к данным хранимых в классе
-  std::any getValue() const;
+  [[nodiscard]] std::any getValue() const;
 
 private:
   std::any m_value;///< Данные хранимые классом
@@ -129,7 +129,7 @@ public:
   AstMathOperator() = default;
 
   ///< \brief     Деструктор шаблонного базового класса должен быть помечен как виртуальный
-  ~AstMathOperator() override = default;
+  ~AstMathOperator() noexcept override = default;
 
   ///< \brief     Пользовательский конструктор. Инициализация полей класса
   explicit AstMathOperator(std::string t_operator);
@@ -141,11 +141,11 @@ public:
   void setOperator(std::string t_operator);
 
   ///< \brief     Получить доступ к оператору класса
-  std::string getOperator() const;
+  [[nodiscard]] std::string getOperator() const;
 
   ///< \brief     Арифметическая операция над числами
   template<Arithmetic... Ts>
-  auto execute(Ts&&... t_data) const -> typename std::common_type_t<Ts...>;
+  [[nodiscard]] auto execute(Ts&&... t_data) const -> typename std::common_type_t<Ts...>;
 
 private:
   std::string m_operator;///< Арифметический оператор
