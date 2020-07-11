@@ -21,6 +21,7 @@ namespace origami::ast {
 class AstBase;
 class AstNumber;
 class AstMathOperator;
+class AstUnaryOperator;
 
 ///< \brief      Абстрактное синтаксическое дерево основано на паттерне Visitor идиомы CRTP
 class AstVisitor final
@@ -31,6 +32,8 @@ public:
 
   ///< \brief    Обработка узла AstMathOperator дерева. Выполняет арифметическую операцию и возвращает результат
   std::any visit(const AstMathOperator& t_node);
+
+  std::any visit(const AstUnaryOperator& t_node);
 };
 
 ///< \brief       Базовый класс для всех узлов Абстрактного синтаксического дерева. Используется для восходящего привидения типа
@@ -151,6 +154,31 @@ public:
 
 private:
   std::string m_operator;///< Арифметический оператор
+};
+
+class AstUnaryOperator : public AstNode<AstUnaryOperator>
+{
+public:
+  ///< \brief     Конструктор по умолчанию
+  AstUnaryOperator() = default;
+
+  ///< \brief     Деструктор шаблонного базового класса должен быть помечен как виртуальный
+  ~AstUnaryOperator() noexcept override = default;
+
+  ///< \brief     Пользовательский конструктор. Инициализация полей класса
+  explicit AstUnaryOperator(std::string t_operator);
+
+  ///< \brief     Пользовательский конструктор для инициализации дочерних узлов базового класса
+  explicit AstUnaryOperator(std::string t_operator, const std::shared_ptr<AstBase>& t_child);
+
+  ///< \brief     Инициализировать оператор класса
+  void setOperator(std::string t_operator);
+
+  ///< \brief     Получить доступ к оператору класса
+  [[nodiscard]] std::string getOperator() const noexcept;
+
+private:
+  std::string m_operator;///< Унарный оператор
 };
 }// namespace origami::ast
 

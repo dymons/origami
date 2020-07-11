@@ -145,7 +145,7 @@ public:
 
             return { origami::lex::Token::Punctuator, std::string{ m_code[m_current_symbol++] } };
           }
-          default: [[unlikely]] {
+          default: {
             throw UnsupportedSymbolError{ fmt::format("Неподдерживаемый символ {0} ", m_code[m_current_symbol]) };
           }
         }

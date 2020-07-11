@@ -91,6 +91,23 @@ auto AstMathOperator::execute(Ts&&... t_data) const -> typename std::common_type
   // clang-format on
 }
 
+AstUnaryOperator::AstUnaryOperator(std::string t_operator) : m_operator(std::move(t_operator))
+{}
+
+AstUnaryOperator::AstUnaryOperator(std::string t_operator, const std::shared_ptr<AstBase>& t_child)
+  : m_operator(std::move(t_operator)), AstNode{ t_child, nullptr }
+{}
+
+void AstUnaryOperator::setOperator(std::string t_operator)
+{
+  m_operator = std::move(t_operator);
+}
+
+std::string AstUnaryOperator::getOperator() const noexcept
+{
+  return m_operator;
+}
+
 std::any AstVisitor::visit(const AstNumber& t_node)
 {
   return t_node.getValue();
@@ -120,6 +137,37 @@ std::any AstVisitor::visit(const AstMathOperator& t_node)
   } else {
     throw UnsupportedOperationError{ fmt::format(
       "Для типов {0} и {1} не заданы правила обработки.", lhs.type().name(), rhs.type().name()) };
+  }
+}
+
+std::any AstVisitor::visit(const AstUnaryOperator& t_node)
+{
+  if (!t_node.getLeftChild()) {
+    return {};
+  }
+
+  const std::any data = t_node.getLeftChild()->accept(*this);
+
+  if (!data.has_value()) {
+    return {};
+  }
+
+  switch (const auto hash = utility::fnv1a::hash(t_node.getOperator()); hash) {
+    case utility::fnv1a::hash("+"): {
+      return data;
+    }
+    case utility::fnv1a::hash("-"): {
+      if (data.type() == typeid(int)) {
+        return -std::any_cast<int>(data);
+      } else if (data.type() == typeid(double)) {
+        return -std::any_cast<double>(data);
+      } else {
+        throw UnsupportedOperationError{ fmt::format("Для типа {0} не заданы правила обработки.", data.type().name()) };
+      }
+    }
+    default: {
+      throw UnsupportedOperationError{ fmt::format("Неподдерживаемая операция {0} ", t_node.getOperator()) };
+    }
   }
 }
 }// namespace origami::ast

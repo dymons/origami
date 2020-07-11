@@ -10,9 +10,8 @@
 
 namespace origami::parser {
 
-SyntaxAnalyzerCpp::SyntaxAnalyzerCpp(const std::string& t_code)
+SyntaxAnalyzerCpp::SyntaxAnalyzerCpp(const std::string& t_code) : m_tokenizer{ t_code }
 {
-  m_tokenizer.update(t_code);
   m_current_token = m_tokenizer.getToken();
 }
 
@@ -21,6 +20,27 @@ std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::factor()
   std::shared_ptr<ast::AstBase> node;
 
   switch (auto [token, lexeme] = m_current_token; token) {
+    // (PLUS | MINUS) factor
+    case lex::Token::Operator: {
+      switch (const auto hash = utility::fnv1a::hash(lexeme); hash) {
+        case utility::fnv1a::hash("+"): {
+          m_current_token = m_tokenizer.getToken();
+          node = std::make_shared<ast::AstUnaryOperator>("+", factor());
+          break;
+        }
+        case utility::fnv1a::hash("-"): {
+          m_current_token = m_tokenizer.getToken();
+          node = std::make_shared<ast::AstUnaryOperator>("-", factor());
+          break;
+        }
+        default: {
+          throw InvalidSyntaxError{ "Неподдерживаемая унарная операция: " + lexeme };
+        }
+      }
+
+      break;
+    }
+    // (INTEGER | DOUBLE)
     case lex::Token::Literal: {
       switch (utility::isNumber(lexeme)) {
         case utility::Number::Integer: {
@@ -31,7 +51,7 @@ std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::factor()
           node = std::make_shared<ast::AstNumber>(std::make_any<double>(std::stod(lexeme)));
           break;
         }
-        case utility::Number::Unknown: {
+        default: {
           throw InvalidSyntaxError{ "Data type casting error: " + lexeme };
         }
       }
@@ -40,6 +60,7 @@ std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::factor()
 
       break;
     }
+    // LPARAM expr RPARAM
     case lex::Token::Punctuator: {
       if (lexeme == "(") {
         m_current_token = m_tokenizer.getToken();
@@ -65,6 +86,7 @@ std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::term()
 {
   std::shared_ptr<ast::AstBase> tree = factor();
 
+  // factor ((MUL | DIV) factor)*
   while (m_current_token.first == lex::Token::Operator) {
     if (m_current_token.second == "*") {
       m_current_token = m_tokenizer.getToken();
@@ -84,6 +106,7 @@ std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::expr()
 {
   std::shared_ptr<ast::AstBase> tree = term();
 
+  // term ((PLUS | MINUS) term)*
   while (m_current_token.first == lex::Token::Operator) {
     if (m_current_token.second == "+") {
       m_current_token = m_tokenizer.getToken();
