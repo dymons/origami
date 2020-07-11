@@ -9,6 +9,7 @@
 
 #include "origami_lexical/conventions/exeptions.hpp"
 #include "origami_syntax/parsing/detail/utility.hpp"
+#include "origami_syntax/parsing/detail/concepts.hpp"
 
 #include <any>
 #include <memory>
@@ -21,10 +22,14 @@ class AstBase;
 class AstNumber;
 class AstMathOperator;
 
-class AstVisitor
+///< \brief      Абстрактное синтаксическое дерево основано на паттерне Visitor идиомы CRTP
+class AstVisitor final
 {
 public:
+  ///< \brief    Обработка узла AstNumber дерева. Возвращает занчение, которое хранится в AstNumber
   std::any visit(const AstNumber& t_node);
+
+  ///< \brief    Обработка узла AstMathOperator дерева. Выполняет арифметическую операцию и возвращает результат
   std::any visit(const AstMathOperator& t_node);
 };
 
@@ -119,9 +124,6 @@ private:
   std::any m_value;///< Данные хранимые классом
 };
 
-template<typename... Ts>
-concept Arithmetic = std::conjunction_v<std::is_arithmetic<Ts>...>;
-
 class AstMathOperator : public AstNode<AstMathOperator>
 {
 public:
@@ -144,36 +146,12 @@ public:
   [[nodiscard]] std::string getOperator() const;
 
   ///< \brief     Арифметическая операция над числами
-  template<Arithmetic... Ts>
+  template<concepts::Arithmetic... Ts>
   [[nodiscard]] auto execute(Ts&&... t_data) const -> typename std::common_type_t<Ts...>;
 
 private:
   std::string m_operator;///< Арифметический оператор
 };
-
-template<Arithmetic... Ts>
-auto AstMathOperator::execute(Ts&&... t_data) const -> typename std::common_type_t<Ts...>
-{
-  // clang-format off
-  switch (const auto hash = utility::fnv1a::hash(m_operator); hash) {
-    case utility::fnv1a::hash("+"): {
-      return (t_data + ... + 0);
-    }
-    case utility::fnv1a::hash("-"): {
-      return (t_data - ... - 0);
-    }
-    case utility::fnv1a::hash("/"): {
-      return (t_data / ... / 1);
-    }
-    case utility::fnv1a::hash("*"): {
-      return (t_data * ... * 1);
-    }
-      [[unlikely]] default: {
-      throw UnsupportedOperationError{ fmt::format("Неподдерживаемая операция {0} ", m_operator) };
-    }
-  }
-  // clang-format on
-}
 }// namespace origami::ast
 
 #endif// ORIGAMI_ABSTRACT_SYNTAX_TREE_HPP

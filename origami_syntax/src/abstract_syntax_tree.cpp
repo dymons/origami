@@ -67,6 +67,30 @@ std::string AstMathOperator::getOperator() const
   return m_operator;
 }
 
+template<concepts::Arithmetic... Ts>
+auto AstMathOperator::execute(Ts&&... t_data) const -> typename std::common_type_t<Ts...>
+{
+  // clang-format off
+  switch (const auto hash = utility::fnv1a::hash(m_operator); hash) {
+    case utility::fnv1a::hash("+"): {
+      return (t_data + ... + 0);
+    }
+    case utility::fnv1a::hash("-"): {
+      return (t_data - ... - 0);
+    }
+    case utility::fnv1a::hash("/"): {
+      return (t_data / ... / 1);
+    }
+    case utility::fnv1a::hash("*"): {
+      return (t_data * ... * 1);
+    }
+    [[unlikely]] default: {
+      throw UnsupportedOperationError{ fmt::format("Неподдерживаемая операция {0} ", m_operator) };
+    }
+  }
+  // clang-format on
+}
+
 std::any AstVisitor::visit(const AstNumber& t_node)
 {
   return t_node.getValue();

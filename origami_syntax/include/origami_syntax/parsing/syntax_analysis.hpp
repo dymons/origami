@@ -13,8 +13,6 @@
 #include "origami_lexical/conventions/tokens.hpp"
 #include "origami_syntax/parsing/abstract_syntax_tree.hpp"
 
-#include <any>
-
 namespace origami::parser {
 
 class SyntaxAnalyzerCpp
