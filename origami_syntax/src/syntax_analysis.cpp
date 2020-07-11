@@ -16,19 +16,19 @@ SyntaxAnalyzerCpp::SyntaxAnalyzerCpp(const std::string& t_code)
   m_current_token = m_tokenizer.getToken();
 }
 
-std::shared_ptr<ast::crtp::AstBase> SyntaxAnalyzerCpp::factor()
+std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::factor()
 {
-  std::shared_ptr<ast::crtp::AstBase> node;
+  std::shared_ptr<ast::AstBase> node;
 
   switch (auto [token, lexeme] = m_current_token; token) {
     case lex::Token::Literal: {
       switch (utility::isNumber(lexeme)) {
         case utility::Number::Integer: {
-          node = std::make_shared<ast::crtp::AstNumber>(std::make_any<int>(std::stoi(lexeme)));
+          node = std::make_shared<ast::AstNumber>(std::make_any<int>(std::stoi(lexeme)));
           break;
         }
         case utility::Number::Double: {
-          node = std::make_shared<ast::crtp::AstNumber>(std::make_any<double>(std::stod(lexeme)));
+          node = std::make_shared<ast::AstNumber>(std::make_any<double>(std::stod(lexeme)));
           break;
         }
         case utility::Number::Unknown: {
@@ -61,17 +61,17 @@ std::shared_ptr<ast::crtp::AstBase> SyntaxAnalyzerCpp::factor()
   return node;
 }
 
-std::shared_ptr<ast::crtp::AstBase> SyntaxAnalyzerCpp::term()
+std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::term()
 {
-  std::shared_ptr<ast::crtp::AstBase> tree = factor();
+  std::shared_ptr<ast::AstBase> tree = factor();
 
   while (m_current_token.first == lex::Token::Operator) {
     if (m_current_token.second == "*") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::crtp::AstMathOperator>("*", tree, factor());
+      tree = std::make_shared<ast::AstMathOperator>("*", tree, factor());
     } else if (m_current_token.second == "/") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::crtp::AstMathOperator>("/", tree, factor());
+      tree = std::make_shared<ast::AstMathOperator>("/", tree, factor());
     } else {
       break;
     }
@@ -80,17 +80,17 @@ std::shared_ptr<ast::crtp::AstBase> SyntaxAnalyzerCpp::term()
   return tree;
 }
 
-std::shared_ptr<ast::crtp::AstBase> SyntaxAnalyzerCpp::expr()
+std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::expr()
 {
-  std::shared_ptr<ast::crtp::AstBase> tree = term();
+  std::shared_ptr<ast::AstBase> tree = term();
 
   while (m_current_token.first == lex::Token::Operator) {
     if (m_current_token.second == "+") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::crtp::AstMathOperator>("+", tree, term());
+      tree = std::make_shared<ast::AstMathOperator>("+", tree, term());
     } else if (m_current_token.second == "-") {
       m_current_token = m_tokenizer.getToken();
-      tree = std::make_shared<ast::crtp::AstMathOperator>("-", tree, term());
+      tree = std::make_shared<ast::AstMathOperator>("-", tree, term());
     } else {
       break;
     }
@@ -99,7 +99,7 @@ std::shared_ptr<ast::crtp::AstBase> SyntaxAnalyzerCpp::expr()
   return tree;
 }
 
-std::shared_ptr<ast::crtp::AstBase> SyntaxAnalyzerCpp::parse()
+std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::parse()
 {
   return expr();
 }

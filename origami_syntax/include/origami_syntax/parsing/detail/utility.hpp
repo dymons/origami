@@ -31,6 +31,36 @@ template<typename T>
   // Если в строке присутствует точка, то данные принадлежат к классу floating point
   return std::ranges::find(t_sequence, '.') != std::ranges::end(t_sequence) ? Number::Double : Number::Integer;
 }
+
+namespace fnv1a {
+  template<typename Itr>
+  static constexpr std::uint32_t hash(Itr begin, Itr end) noexcept
+  {
+    std::uint32_t h = 0x811c9dc5;
+
+    while (begin != end) {
+      h = (h ^ (*begin)) * 0x01000193;
+      ++begin;
+    }
+    return h;
+  }
+
+  template<size_t N>
+  static constexpr std::uint32_t hash(const char (&str)[N]) noexcept
+  {
+    return hash(std::begin(str), std::end(str) - 1);
+  }
+
+  static constexpr std::uint32_t hash(const std::string_view& sv) noexcept
+  {
+    return hash(sv.begin(), sv.end());
+  }
+
+  static inline std::uint32_t hash(const std::string& s) noexcept
+  {
+    return hash(s.begin(), s.end());
+  }
+}// namespace fnv1a
 }// namespace origami::utility
 
 #endif// ORIGAMI_UTILITY_HPP
