@@ -22,14 +22,14 @@ class SyntaxAnalyzerCpp
 public:
   explicit SyntaxAnalyzerCpp(const std::string& t_code);
 
-  std::shared_ptr<ast::AstNode> parse();
+  std::shared_ptr<ast::crtp::AstBase> parse();
 
 private:
-  std::shared_ptr<ast::AstNode> factor();
+  std::shared_ptr<ast::crtp::AstBase> factor();
 
-  std::shared_ptr<ast::AstNode> term();
+  std::shared_ptr<ast::crtp::AstBase> term();
 
-  std::shared_ptr<ast::AstNode> expr();
+  std::shared_ptr<ast::crtp::AstBase> expr();
 
   lex::LexicalAnalyzer<lex::LexicalConventionCpp> m_tokenizer;
 

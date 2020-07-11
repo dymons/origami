@@ -48,13 +48,13 @@ namespace fnv1a {
 
 class AstBase;
 class AstNumber;
-class AstNodeMathOperator;
+class AstMathOperator;
 
 class AstVisitor
 {
 public:
   std::any visit(const AstNumber& t_node);
-  std::any visit(const AstNodeMathOperator& t_node);
+  std::any visit(const AstMathOperator& t_node);
 };
 
 class AstBase
@@ -124,7 +124,7 @@ public:
   explicit AstNumber(std::any t_value) : m_value(std::move(t_value))
   {}
 
-  AstNumber(std::any t_value, const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right)
+  AstNumber(std::any t_value, const std::shared_ptr<AstBase>& t_left, const std::shared_ptr<AstBase>& t_right)
     : m_value(std::move(t_value)), AstNode{ t_left, t_right }
   {}
 
@@ -145,13 +145,13 @@ private:
 template<typename... Ts>
 concept Arithmetic = std::conjunction_v<std::is_arithmetic<Ts>...>;
 
-class AstNodeMathOperator : public AstNode<AstNodeMathOperator>
+class AstMathOperator : public AstNode<AstMathOperator>
 {
 public:
-  explicit AstNodeMathOperator(std::string t_operator) : m_operator(std::move(t_operator))
+  explicit AstMathOperator(std::string t_operator) : m_operator(std::move(t_operator))
   {}
 
-  explicit AstNodeMathOperator(std::string t_operator, const std::shared_ptr<AstNode>& t_left, const std::shared_ptr<AstNode>& t_right)
+  explicit AstMathOperator(std::string t_operator, const std::shared_ptr<AstBase>& t_left, const std::shared_ptr<AstBase>& t_right)
     : m_operator(std::move(t_operator)), AstNode{ t_left, t_right }
   {}
 
@@ -188,7 +188,7 @@ inline std::any AstVisitor::visit(const AstNumber& t_node)
   return t_node.getValue();
 }
 
-inline std::any AstVisitor::visit(const AstNodeMathOperator& t_node)
+inline std::any AstVisitor::visit(const AstMathOperator& t_node)
 {
   if (!t_node.getLeftChild() || !t_node.getRightChild()) {
     return {};
