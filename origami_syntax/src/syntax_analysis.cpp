@@ -52,7 +52,7 @@ std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::factor()
           break;
         }
         default: {
-          throw InvalidSyntaxError{ "Data type casting error: " + lexeme };
+          throw InvalidSyntaxError{ "Неподдерживаемый тип данных для " + lexeme };
         }
       }
 
@@ -66,7 +66,7 @@ std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::factor()
         m_current_token = m_tokenizer.getToken();
         node = expr();
         if (m_current_token.second != ")") {
-          throw InvalidSyntaxError{ "There is no closing bracket: " + m_current_token.second };
+          throw InvalidSyntaxError{ "Нет закрывающей скобки ')': " + m_current_token.second };
         }
       }
 
@@ -75,7 +75,7 @@ std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::factor()
       break;
     }
     default: {
-      throw InvalidSyntaxError{ "The data type isn't literal: " + lexeme };
+      throw InvalidSyntaxError{ "Данные не относятся к категории lexeme : " + lexeme };
     }
   }
 
