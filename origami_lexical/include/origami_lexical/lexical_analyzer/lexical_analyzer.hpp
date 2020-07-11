@@ -11,11 +11,14 @@
 #include "origami_lexical/conventions/tokens.hpp"
 #include "origami_lexical/lexical_conventions/lexical_convention_cpp.hpp"
 #include "origami_lexical/lexical_conventions/lexical_convention_python.hpp"
+#include "origami_lexical/conventions/exeptions.hpp"
 
 #include <algorithm>
 #include <cctype>
 #include <locale>
 #include <type_traits>
+
+#include <fmt/core.h>
 
 namespace origami::lex {
 
@@ -63,7 +66,7 @@ public:
         // Если символ относится к категории 'буквенный символ', определяем полный его идентификатор
         // '_' означает, что именование функций / переменных / классов и т.д. может начинаться с нижнего подчеркивания
       } else if ((std::isalpha(m_code[m_current_symbol]) != 0) || (m_code[m_current_symbol] == '_')) {
-        auto not_isalnum = std::find_if_not(m_code.begin() + m_current_symbol, m_code.end(), [](auto t_ch) {
+        const auto not_isalnum = std::find_if_not(m_code.begin() + m_current_symbol, m_code.end(), [](const auto t_ch) {
           return std::isalnum(t_ch, std::locale{ "C" }) || (t_ch == '_');// Для примера, static_cast имеет '_', поэтому нужно учитывать
         });
 
@@ -141,6 +144,9 @@ public:
             }
 
             return { origami::lex::Token::Punctuator, std::string{ m_code[m_current_symbol++] } };
+          }
+          default: [[unlikely]] {
+            throw UnsupportedSymbolError{ fmt::format("Неподдерживаемый символ {0} ", m_code[m_current_symbol]) };
           }
         }
       }

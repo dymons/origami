@@ -24,12 +24,12 @@ void AstBase::setRightChild(const std::shared_ptr<AstBase>& t_child)
   m_right_child = t_child;
 }
 
-std::shared_ptr<AstBase> AstBase::getLeftChild() const
+std::shared_ptr<AstBase> AstBase::getLeftChild() const noexcept
 {
   return m_left_child;
 }
 
-std::shared_ptr<AstBase> AstBase::getRightChild() const
+std::shared_ptr<AstBase> AstBase::getRightChild() const noexcept
 {
   return m_right_child;
 }
@@ -46,7 +46,7 @@ void AstNumber::setValue(std::any t_value)
   m_value = std::move(t_value);
 }
 
-std::any AstNumber::getValue() const
+std::any AstNumber::getValue() const noexcept
 {
   return m_value;
 }
@@ -62,7 +62,7 @@ void AstMathOperator::setOperator(std::string t_operator)
   m_operator = std::move(t_operator);
 }
 
-std::string AstMathOperator::getOperator() const
+std::string AstMathOperator::getOperator() const noexcept
 {
   return m_operator;
 }

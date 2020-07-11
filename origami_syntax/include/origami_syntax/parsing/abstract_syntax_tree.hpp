@@ -56,10 +56,10 @@ public:
   void setRightChild(const std::shared_ptr<AstBase>& t_child);
 
   ///< \brief     Получить доступ к левому дочернему узлу текущего узла
-  [[nodiscard]] std::shared_ptr<AstBase> getLeftChild() const;
+  [[nodiscard]] std::shared_ptr<AstBase> getLeftChild() const noexcept;
 
   ///< \brief     Получить доступ к правому дочернему узлу текущего узла
-  [[nodiscard]] std::shared_ptr<AstBase> getRightChild() const;
+  [[nodiscard]] std::shared_ptr<AstBase> getRightChild() const noexcept;
 
 private:
   std::shared_ptr<AstBase> m_left_child;///< Левый дочерний узел
@@ -118,7 +118,7 @@ public:
   void setValue(std::any t_value);
 
   ///< \brief     Получить доступ к данным хранимых в классе
-  [[nodiscard]] std::any getValue() const;
+  [[nodiscard]] std::any getValue() const noexcept;
 
 private:
   std::any m_value;///< Данные хранимые классом
@@ -143,7 +143,7 @@ public:
   void setOperator(std::string t_operator);
 
   ///< \brief     Получить доступ к оператору класса
-  [[nodiscard]] std::string getOperator() const;
+  [[nodiscard]] std::string getOperator() const noexcept;
 
   ///< \brief     Арифметическая операция над числами
   template<concepts::Arithmetic... Ts>
