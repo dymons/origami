@@ -38,7 +38,7 @@ AstNumber::AstNumber(std::any t_value) : m_value(std::move(t_value))
 {}
 
 AstNumber::AstNumber(std::any t_value, const std::shared_ptr<AstBase>& t_left, const std::shared_ptr<AstBase>& t_right)
-  : m_value(std::move(t_value)), AstNode{ t_left, t_right }
+  : AstNode{ t_left, t_right }, m_value(std::move(t_value))
 {}
 
 void AstNumber::setValue(std::any t_value)
@@ -55,7 +55,7 @@ AstMathOperator::AstMathOperator(std::string t_operator) : m_operator(std::move(
 {}
 
 AstMathOperator::AstMathOperator(std::string t_operator, const std::shared_ptr<AstBase>& t_left, const std::shared_ptr<AstBase>& t_right)
-  : m_operator(std::move(t_operator)), AstNode{ t_left, t_right }
+  : AstNode{ t_left, t_right }, m_operator(std::move(t_operator))
 {}
 void AstMathOperator::setOperator(std::string t_operator)
 {
@@ -95,7 +95,7 @@ AstUnaryOperator::AstUnaryOperator(std::string t_operator) : m_operator(std::mov
 {}
 
 AstUnaryOperator::AstUnaryOperator(std::string t_operator, const std::shared_ptr<AstBase>& t_child)
-  : m_operator(std::move(t_operator)), AstNode{ t_child, nullptr }
+  : AstNode{ t_child, nullptr }, m_operator(std::move(t_operator))
 {}
 
 void AstUnaryOperator::setOperator(std::string t_operator)

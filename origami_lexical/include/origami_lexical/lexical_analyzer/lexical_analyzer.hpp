@@ -37,7 +37,7 @@ public:
   /**
    * \brief     Констуктор по умолчанию. Инициализация лексического соглашения.
    */
-  LexicalAnalyzer() : m_convention(std::make_shared<T>()), m_current_symbol{ 0 }
+  LexicalAnalyzer() : m_convention(std::make_shared<T>()), m_code{}, m_current_symbol{ 0 }
   {}
 
   /**
@@ -193,9 +193,9 @@ public:
   }
 
 private:
+  LexicalConventionImplPtr m_convention;///< Символьная таблица, содержащая информацию о синтаксисе языка программирования
   std::string m_code;///< Исходный код программы
   std::string::size_type m_current_symbol;///<Текущий позиция лексического анализатора
-  LexicalConventionImplPtr m_convention;///< Символьная таблица, содержащая информацию о синтаксисе языка программирования
 };
 
 template class LexicalAnalyzer<LexicalConventionCpp>;
