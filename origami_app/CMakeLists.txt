@@ -91,7 +91,7 @@ if(MSVC)
                           )
 else()
     # Disable RTTI, use C++11 to be compatible with LLVM/Clang libraries.
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -std=c++11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 endif()
 
 # Clang dependencies.
