@@ -8,29 +8,27 @@ endif()
 project(origami_app)
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    message(STATUS "IWYU out-of-tree configuration")
-
     if(DEFINED LLVM_PATH)
-        set(IWYU_LLVM_ROOT_PATH ${LLVM_PATH})
-        message(WARNING "LLVM_PATH is deprecated, use IWYU_LLVM_ROOT_PATH instead.")
+        set(ORIGAMI_LLVM_ROOT_PATH ${LLVM_PATH})
+        message(WARNING "LLVM_PATH is deprecated, use ORIGAMI_LLVM_ROOT_PATH instead.")
     endif()
 
-    if(DEFINED IWYU_LLVM_INCLUDE_PATH AND DEFINED IWYU_LLVM_LIB_PATH)
+    if(DEFINED ORIGAMI_LLVM_INCLUDE_PATH AND DEFINED ORIGAMI_LLVM_LIB_PATH)
         # User provided include/lib paths, fall through
-    elseif(DEFINED IWYU_LLVM_ROOT_PATH)
+    elseif(DEFINED ORIGAMI_LLVM_ROOT_PATH)
         # Synthesize include/lib relative to a root.
-        set(IWYU_LLVM_INCLUDE_PATH ${IWYU_LLVM_ROOT_PATH}/include)
-        set(IWYU_LLVM_LIB_PATH ${IWYU_LLVM_ROOT_PATH}/lib)
+        set(ORIGAMI_LLVM_INCLUDE_PATH ${ORIGAMI_LLVM_ROOT_PATH}/include)
+        set(ORIGAMI_LLVM_LIB_PATH ${ORIGAMI_LLVM_ROOT_PATH}/lib)
     else()
         # If none provided, fail.
         message(FATAL_ERROR
                 "Don't know how to find LLVM headers/libraries. "
-                "Use -DIWYU_LLVM_ROOT_PATH=/xyz or both "
-                "-DIWYU_LLVM_INCLUDE_PATH=/xyz/include and -DIWYU_LLVM_LIB_PATH=/xyz/lib")
+                "Use -DORIGAMI_LLVM_ROOT_PATH=/xyz or both "
+                "-DORIGAMI_LLVM_INCLUDE_PATH=/xyz/include and -DORIGAMI_LLVM_LIB_PATH=/xyz/lib")
     endif()
 
-    include_directories(${IWYU_LLVM_INCLUDE_PATH})
-    link_directories(${IWYU_LLVM_LIB_PATH})
+    include_directories(${ORIGAMI_LLVM_INCLUDE_PATH})
+    link_directories(${ORIGAMI_LLVM_LIB_PATH})
 
     add_definitions(
             -D__STDC_LIMIT_MACROS
@@ -67,21 +65,8 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
     endif()
 else()
-    message(STATUS "IWYU in-tree configuration")
+    message(STATUS "ORIGAMI in-tree configuration")
 endif()
-
-# Pick up Git revision so we can report it in version information.
-include(FindGit)
-if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
-    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    OUTPUT_VARIABLE IWYU_GIT_REV
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-else()
-    message(STATUS "Warning: IWYU Git version info not found, DO NOT release "
-            "from this build tree!")
-endif()
-add_definitions(-DIWYU_GIT_REV="${IWYU_GIT_REV}")
 
 add_executable(origami_check origami_check.cpp)
 
@@ -91,7 +76,7 @@ if(MINGW)
 endif()
 
 if(MSVC)
-    # Disable warnings for IWYU, and disable exceptions in MSVC's STL.
+    # Disable warnings for ORIGAMI, and disable exceptions in MSVC's STL.
     add_definitions(
             -wd4722 # Suppress ''destructor'' : destructor never returns, potential memory leak
             -D_HAS_EXCEPTIONS=0
@@ -168,7 +153,6 @@ elseif(UNIX)
     target_link_libraries(origami_check
                           PRIVATE
                           pthread
-                          z
                           ${Backtrace_LIBRARIES}
                           ${CURSES_LIBRARIES}
                           ${CMAKE_DL_LIBS}
