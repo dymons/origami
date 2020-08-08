@@ -2,10 +2,13 @@
 #include <clang/AST/RecursiveASTVisitor.h>
 
 #include <llvm/Support/Casting.h>
+#include <variant>
+#include <iostream>
 
 class AstVisitor final : public clang::RecursiveASTVisitor<AstVisitor>
 {
   using BaseVisitor = clang::RecursiveASTVisitor<AstVisitor>;
+  using Entities = std::variant<clang::FunctionDecl*>;
 
 public:
   bool TraverseDecl(clang::Decl* t_declaration);
@@ -13,14 +16,15 @@ public:
 
 bool AstVisitor::TraverseDecl(clang::Decl* t_declaration)
 {
-  if (t_declaration == nullptr) {
+  if (!t_declaration) {
     return BaseVisitor::TraverseDecl(t_declaration);
   }
 
   if (const auto* functionDecl = llvm::dyn_cast<clang::FunctionDecl>(t_declaration); functionDecl) {
+    std::cout << "<FunctionDecl> with name '" << functionDecl->getNameAsString() << "'\n";
   }
 
-  return true;
+  return BaseVisitor::TraverseDecl(t_declaration);
 }
 
 int main(int argc, char** argv)
