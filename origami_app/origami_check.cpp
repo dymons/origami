@@ -1,9 +1,8 @@
-#include <clang/Frontend/TextDiagnosticBuffer.h>
-#include <clang/Tooling/CommonOptionsParser.h>
 #include <clang/Tooling/Tooling.h>
-#include <llvm/Support/CommandLine.h>
 
 int main(int argc, char** argv)
 {
+  const auto ast = clang::tooling::buildASTFromCodeWithArgs({ "int main() {return 0;}" }, { "-std=c++1z" });
+
   return 0;
 }
