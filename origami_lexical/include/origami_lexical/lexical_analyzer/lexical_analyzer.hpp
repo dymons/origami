@@ -66,12 +66,14 @@ public:
         // Если символ относится к категории 'буквенный символ', определяем полный его идентификатор
         // '_' означает, что именование функций / переменных / классов и т.д. может начинаться с нижнего подчеркивания
       } else if ((std::isalpha(m_code[m_current_symbol]) != 0) || (m_code[m_current_symbol] == '_')) {
-        const auto not_isalnum = std::find_if_not(m_code.begin() + m_current_symbol, m_code.end(), [](const auto t_ch) {
+        const auto current_pose_symbol = static_cast<std::string::difference_type>(m_current_symbol);
+        const auto not_isalnum = std::find_if_not(std::next(m_code.begin(), current_pose_symbol), m_code.end(), [](const auto t_ch) {
           return std::isalnum(t_ch, std::locale{ "C" }) || (t_ch == '_');// Для примера, static_cast имеет '_', поэтому нужно учитывать
         });
 
         // Формируем слово
-        auto word = m_code.substr(m_current_symbol, std::distance(m_code.begin(), not_isalnum) - m_current_symbol);
+        const auto endOfWord = std::distance(m_code.begin(), not_isalnum);
+        auto word = m_code.substr(m_current_symbol, static_cast<std::string::size_type>(endOfWord) - m_current_symbol);
 
         // Находим ключевое слово, которое описано в стандарте С++ 5.11 таблица 5
         const auto keyword = m_convention->keywords().find(word);
@@ -89,12 +91,14 @@ public:
 
         // Если символ относится к категории 'цифровой символ', определяем полный его идентификатор
       } else if (std::isdigit(m_code[m_current_symbol], std::locale{ "C" })) {
-        auto not_isdigit = std::find_if_not(m_code.begin() + m_current_symbol, m_code.end(), [](auto t_ch) {
+        const auto current_pose_symbol = static_cast<std::string::difference_type>(m_current_symbol);
+        auto not_isdigit = std::find_if_not(std::next(m_code.begin(), current_pose_symbol), m_code.end(), [](auto t_ch) {
           return (std::isdigit(t_ch, std::locale{ "C" }) || (t_ch == '.') || (t_ch == '+') || (t_ch == '-'));
         });
 
         if (not_isdigit != m_code.end()) {
-          auto digital = m_code.substr(m_current_symbol, std::distance(m_code.begin(), not_isdigit) - m_current_symbol);
+          const auto endOfDigital = std::distance(m_code.begin(), not_isdigit);
+          auto digital = m_code.substr(m_current_symbol, static_cast<std::string::size_type>(endOfDigital) - m_current_symbol);
           m_current_symbol = static_cast<decltype(m_current_symbol)>(std::distance(m_code.begin(), not_isdigit));
           return { origami::lex::Token::Literal, std::move(digital) };
         }

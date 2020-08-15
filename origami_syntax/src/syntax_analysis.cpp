@@ -10,10 +10,8 @@
 
 namespace origami::parser {
 
-SyntaxAnalyzerCpp::SyntaxAnalyzerCpp(const std::string& t_code) : m_tokenizer{ t_code }
-{
-  m_current_token = m_tokenizer.getToken();
-}
+SyntaxAnalyzerCpp::SyntaxAnalyzerCpp(const std::string& t_code) : m_tokenizer{ t_code }, m_current_token{ m_tokenizer.getToken() }
+{}
 
 std::shared_ptr<ast::AstBase> SyntaxAnalyzerCpp::factor()
 {

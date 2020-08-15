@@ -41,7 +41,7 @@ namespace fnv1a {
     std::uint32_t hash = 0x811c9dc5;
 
     while (t_begin != t_end) {
-      hash = (hash ^ (*t_begin)) * 0x01000193;
+      hash = (hash ^ static_cast<std::uint32_t>(*t_begin)) * 0x01000193;
       ++t_begin;
     }
 
