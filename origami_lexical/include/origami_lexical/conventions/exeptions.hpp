@@ -10,6 +10,17 @@
 #include <stdexcept>
 
 namespace origami {
+/// \brief Общий класс исключений для лексического анализа
+class LexicalParsing : public std::runtime_error
+{
+  using std::runtime_error::runtime_error;
+};
+
+class UnsupportedSymbolError : public LexicalParsing
+{
+  using LexicalParsing::LexicalParsing;
+};
+
 /// \brief Общий класс исключения для семантического анализа, этап пострения абстактного синтаксического дерева
 class SemanticParsing : public std::runtime_error
 {

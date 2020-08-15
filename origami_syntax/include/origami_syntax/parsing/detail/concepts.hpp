@@ -11,10 +11,9 @@
 
 #include <type_traits>
 
-namespace origami::concepts
-{
+namespace origami::concepts {
 template<typename... Ts>
 concept Arithmetic = std::conjunction_v<std::is_arithmetic<Ts>...>;
-} // namespace origami::concepts
+}// namespace origami::concepts
 
 #endif// ORIGAMI_CONCEPTS_HPP

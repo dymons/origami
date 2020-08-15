@@ -23,14 +23,32 @@ public:
   std::shared_ptr<ast::AstBase> parse();
 
 private:
+  /**
+   * \brief
+   *
+   * \details   (PLUS | MINUS) factor | (INTEGER | DOUBLE) | LPARAM expr RPARAM
+   */
   std::shared_ptr<ast::AstBase> factor();
 
+  /**
+   * \brief
+   *
+   * \details   factor ((MUL | DIV) factor)*
+   */
   std::shared_ptr<ast::AstBase> term();
 
+  /**
+   * \brief
+   *
+   * \details   term ((PLUS | MINUS) term)*
+   */
   std::shared_ptr<ast::AstBase> expr();
 
+private:
+  /// Лексический анализатор
   lex::LexicalAnalyzer<lex::LexicalConventionCpp> m_tokenizer;
 
+  /// Текущий токен
   std::pair<lex::Token, lex::Lexeme> m_current_token;
 };
 }// namespace origami::parser

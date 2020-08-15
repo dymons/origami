@@ -24,12 +24,12 @@ void AstBase::setRightChild(const std::shared_ptr<AstBase>& t_child)
   m_right_child = t_child;
 }
 
-std::shared_ptr<AstBase> AstBase::getLeftChild() const
+std::shared_ptr<AstBase> AstBase::getLeftChild() const noexcept
 {
   return m_left_child;
 }
 
-std::shared_ptr<AstBase> AstBase::getRightChild() const
+std::shared_ptr<AstBase> AstBase::getRightChild() const noexcept
 {
   return m_right_child;
 }
@@ -38,7 +38,7 @@ AstNumber::AstNumber(std::any t_value) : m_value(std::move(t_value))
 {}
 
 AstNumber::AstNumber(std::any t_value, const std::shared_ptr<AstBase>& t_left, const std::shared_ptr<AstBase>& t_right)
-  : m_value(std::move(t_value)), AstNode{ t_left, t_right }
+  : AstNode{ t_left, t_right }, m_value(std::move(t_value))
 {}
 
 void AstNumber::setValue(std::any t_value)
@@ -46,7 +46,7 @@ void AstNumber::setValue(std::any t_value)
   m_value = std::move(t_value);
 }
 
-std::any AstNumber::getValue() const
+std::any AstNumber::getValue() const noexcept
 {
   return m_value;
 }
@@ -55,14 +55,14 @@ AstMathOperator::AstMathOperator(std::string t_operator) : m_operator(std::move(
 {}
 
 AstMathOperator::AstMathOperator(std::string t_operator, const std::shared_ptr<AstBase>& t_left, const std::shared_ptr<AstBase>& t_right)
-  : m_operator(std::move(t_operator)), AstNode{ t_left, t_right }
+  : AstNode{ t_left, t_right }, m_operator(std::move(t_operator))
 {}
 void AstMathOperator::setOperator(std::string t_operator)
 {
   m_operator = std::move(t_operator);
 }
 
-std::string AstMathOperator::getOperator() const
+std::string AstMathOperator::getOperator() const noexcept
 {
   return m_operator;
 }
@@ -89,6 +89,23 @@ auto AstMathOperator::execute(Ts&&... t_data) const -> typename std::common_type
     }
   }
   // clang-format on
+}
+
+AstUnaryOperator::AstUnaryOperator(std::string t_operator) : m_operator(std::move(t_operator))
+{}
+
+AstUnaryOperator::AstUnaryOperator(std::string t_operator, const std::shared_ptr<AstBase>& t_child)
+  : AstNode{ t_child, nullptr }, m_operator(std::move(t_operator))
+{}
+
+void AstUnaryOperator::setOperator(std::string t_operator)
+{
+  m_operator = std::move(t_operator);
+}
+
+std::string AstUnaryOperator::getOperator() const noexcept
+{
+  return m_operator;
 }
 
 std::any AstVisitor::visit(const AstNumber& t_node)
@@ -120,6 +137,37 @@ std::any AstVisitor::visit(const AstMathOperator& t_node)
   } else {
     throw UnsupportedOperationError{ fmt::format(
       "Для типов {0} и {1} не заданы правила обработки.", lhs.type().name(), rhs.type().name()) };
+  }
+}
+
+std::any AstVisitor::visit(const AstUnaryOperator& t_node)
+{
+  if (!t_node.getLeftChild()) {
+    return {};
+  }
+
+  const std::any data = t_node.getLeftChild()->accept(*this);
+
+  if (!data.has_value()) {
+    return {};
+  }
+
+  switch (const auto hash = utility::fnv1a::hash(t_node.getOperator()); hash) {
+    case utility::fnv1a::hash("+"): {
+      return data;
+    }
+    case utility::fnv1a::hash("-"): {
+      if (data.type() == typeid(int)) {
+        return -std::any_cast<int>(data);
+      } else if (data.type() == typeid(double)) {
+        return -std::any_cast<double>(data);
+      } else {
+        throw UnsupportedOperationError{ fmt::format("Для типа {0} не заданы правила обработки.", data.type().name()) };
+      }
+    }
+    default: {
+      throw UnsupportedOperationError{ fmt::format("Неподдерживаемая операция {0} ", t_node.getOperator()) };
+    }
   }
 }
 }// namespace origami::ast
