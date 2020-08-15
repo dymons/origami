@@ -106,8 +106,8 @@ public:
         auto digital = m_code.substr(m_current_symbol, m_code.size() - m_current_symbol);
         return { origami::lex::Token::Literal, std::move(digital) };
       } else {
-        if (const auto punctuation = m_convention->punctuation().find(m_code[m_current_symbol]);
-            punctuation != m_convention->punctuation().end()) {
+        const auto punctuation = m_convention->punctuation().find(m_code[m_current_symbol]);
+        if (punctuation != m_convention->punctuation().end()) {
           // Находим максимульную длину возможной комбинации для текущего символа
           const auto max_combination = std::max_element(punctuation->second.begin(), punctuation->second.end());
 
@@ -124,7 +124,8 @@ public:
           } while (--max_size != 0);
         }
 
-        if (const auto operators = m_convention->operators().find(m_code[m_current_symbol]); operators != m_convention->operators().end()) {
+        const auto operators = m_convention->operators().find(m_code[m_current_symbol]);
+        if (operators != m_convention->operators().end()) {
           // Находим максимульную длину возможной комбинации для текущего символа
           const auto max_combination = std::max_element(operators->second.begin(), operators->second.end());
 
