@@ -2,13 +2,11 @@
 #include <clang/AST/RecursiveASTVisitor.h>
 
 #include <llvm/Support/Casting.h>
-#include <variant>
 #include <iostream>
 
 class AstVisitor final : public clang::RecursiveASTVisitor<AstVisitor>
 {
   using BaseVisitor = clang::RecursiveASTVisitor<AstVisitor>;
-  using Entities = std::variant<clang::FunctionDecl*>;
 
 public:
   bool TraverseDecl(clang::Decl* t_declaration);
@@ -20,8 +18,53 @@ bool AstVisitor::TraverseDecl(clang::Decl* t_declaration)
     return BaseVisitor::TraverseDecl(t_declaration);
   }
 
-  if (const auto* functionDecl = llvm::dyn_cast<clang::FunctionDecl>(t_declaration); functionDecl) {
-    std::cout << "<FunctionDecl> with name '" << functionDecl->getNameAsString() << "'\n";
+  if (const auto* function = llvm::dyn_cast<clang::FunctionDecl>(t_declaration); function) {
+    std::cout << "<FunctionDecl> with name '" << function->getNameInfo().getAsString() << "' | ";
+
+    // Определяем категорию, к которой относится функция.
+    switch (function->getTemplatedKind()) {
+      case clang::FunctionDecl::TK_NonTemplate:
+        std::cout << "clang::FunctionDecl::TK_NonTemplate\n";
+        break;
+      case clang::FunctionDecl::TK_FunctionTemplate:
+        std::cout << "clang::FunctionDecl::TK_FunctionTemplate\n";
+        break;
+      case clang::FunctionDecl::TK_MemberSpecialization:
+        std::cout << "clang::FunctionDecl::TK_MemberSpecialization\n";
+        break;
+      case clang::FunctionDecl::TK_FunctionTemplateSpecialization:
+        std::cout << "clang::FunctionDecl::TK_FunctionTemplateSpecialization\n";
+        break;
+      case clang::FunctionDecl::TK_DependentFunctionTemplateSpecialization:
+        std::cout << "clang::FunctionDecl::TK_DependentFunctionTemplateSpecialization\n";
+        break;
+    }
+
+    // Полечаем аттрибуты функции.
+    if (function->hasAttrs()) {
+      std::cout << "Attributes: ";
+      std::for_each(function->attr_begin(), function->attr_end(), [](const auto& t_attr) { std::cout << t_attr->getSpelling() << " "; });
+      std::cout << '\n';
+    }
+
+    // Возвращаемое значение
+
+    // Параметры функции
+    if (!function->param_empty()) {
+      std::cout << "Parametrs: ";
+      for (const auto& param : function->parameters()) {
+        std::cout << "[Type: " << param->getType().getAsString() << ", Name: " << param->getNameAsString() << "] ";
+      }
+      std::cout << '\n';
+    }
+
+    // noexcept specification
+    const auto* type = function->getType().getTypePtr();
+    if (const auto* functionProto = llvm::dyn_cast<clang::FunctionProtoType>(type); functionProto) {
+      if (clang::isNoexceptExceptionSpec(functionProto->getExceptionSpecType())) {
+        std::cout << "Noexcept specification\n";
+      }
+    }
   }
 
   return BaseVisitor::TraverseDecl(t_declaration);
@@ -30,7 +73,7 @@ bool AstVisitor::TraverseDecl(clang::Decl* t_declaration)
 int main(int argc, char** argv)
 {
   const char* code = R"code(
-    int main() {
+    [[nodiscard]] int main(int argc, char** argv) noexcept(true) {
       return 0;
     }
   )code";
