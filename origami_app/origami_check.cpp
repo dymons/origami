@@ -10,6 +10,8 @@ class AstVisitor final : public clang::RecursiveASTVisitor<AstVisitor>
 
 public:
   bool TraverseDecl(clang::Decl* t_declaration);
+
+  bool TraverseStmt(clang::Stmt* t_statment);
 };
 
 bool AstVisitor::TraverseDecl(clang::Decl* t_declaration)
@@ -48,6 +50,8 @@ bool AstVisitor::TraverseDecl(clang::Decl* t_declaration)
 
     // Возвращаемое значение
     std::cout << " | Return type: " << function->getReturnType().getAsString();
+
+    // Имя функции
     std::cout << " | Name function: " << function->getNameInfo().getAsString();
 
     // Параметры функции
@@ -70,10 +74,22 @@ bool AstVisitor::TraverseDecl(clang::Decl* t_declaration)
   return BaseVisitor::TraverseDecl(t_declaration);
 }
 
+bool AstVisitor::TraverseStmt(clang::Stmt* t_statment)
+{
+  if (!t_statment) {
+    return BaseVisitor::TraverseStmt(t_statment);
+  }
+
+  std::cout << "<clang::Stmt> " << t_statment->getStmtClassName() << '\n';
+
+  return BaseVisitor::TraverseStmt(t_statment);
+}
+
 int main(int argc, char** argv)
 {
   const char* code = R"code(
     [[nodiscard]] int main(int argc, char** argv) noexcept(true) {
+      {}
       return 0;
     }
   )code";
