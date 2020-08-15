@@ -19,7 +19,7 @@ bool AstVisitor::TraverseDecl(clang::Decl* t_declaration)
   }
 
   if (const auto* function = llvm::dyn_cast<clang::FunctionDecl>(t_declaration); function) {
-    std::cout << "<FunctionDecl> with name '" << function->getNameInfo().getAsString() << "' | ";
+    std::cout << "<FunctionDecl> ";
 
     // Определяем категорию, к которой относится функция.
     switch (function->getTemplatedKind()) {
@@ -42,27 +42,27 @@ bool AstVisitor::TraverseDecl(clang::Decl* t_declaration)
 
     // Полечаем аттрибуты функции.
     if (function->hasAttrs()) {
-      std::cout << "Attributes: ";
+      std::cout << " Attributes: ";
       std::for_each(function->attr_begin(), function->attr_end(), [](const auto& t_attr) { std::cout << t_attr->getSpelling() << " "; });
-      std::cout << '\n';
     }
 
     // Возвращаемое значение
+    std::cout << " | Return type: " << function->getReturnType().getAsString();
+    std::cout << " | Name function: " << function->getNameInfo().getAsString();
 
     // Параметры функции
     if (!function->param_empty()) {
-      std::cout << "Parametrs: ";
+      std::cout << " | Parametrs: ";
       for (const auto& param : function->parameters()) {
         std::cout << "[Type: " << param->getType().getAsString() << ", Name: " << param->getNameAsString() << "] ";
       }
-      std::cout << '\n';
     }
 
     // noexcept specification
     const auto* type = function->getType().getTypePtr();
     if (const auto* functionProto = llvm::dyn_cast<clang::FunctionProtoType>(type); functionProto) {
       if (clang::isNoexceptExceptionSpec(functionProto->getExceptionSpecType())) {
-        std::cout << "Noexcept specification\n";
+        std::cout << " | noexcept specification\n";
       }
     }
   }
